@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+        <div class="mb-8">
+            <h3 class="text-2xl font-bold text-slate-800">Recruitment Performance</h3>
+            <p class="text-slate-500">Key metrics and analytics for the current quarter</p>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Avg. Time to Fill</p>
+                <h4 class="text-3xl font-black text-emerald-600" th:text="${avgTimeToFill + ' Days'}">18 Days</h4>
+                <p class="text-[10px] text-emerald-500 font-medium mt-2">↓ 12% from last month</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Offer Acceptance</p>
+                <h4 class="text-3xl font-black text-teal-600" th:text="${offerAcceptanceRate + '%'}">85%</h4>
+                <p class="text-[10px] text-emerald-500 font-medium mt-2">↑ 5% from last month</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Hired</p>
+                <h4 class="text-3xl font-black text-slate-800" th:text="${totalHires}">24</h4>
+                <p class="text-[10px] text-slate-400 font-medium mt-2">FY 2026 Target: 50</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Avg. Hiring Cost</p>
+                <h4 class="text-3xl font-black text-emerald-600" th:text="${'S$' + avgHiringCost}">S$1,250</h4>
+                <p class="text-[10px] text-slate-400 font-medium mt-2">Spent: <span class="font-bold text-slate-600" th:text="${'S$' + totalCostSpent}">S$30,000</span></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Source Analysis -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                <h5 class="text-lg font-bold text-slate-800 mb-6">Source of Applicants</h5>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-600 font-medium">LinkedIn</span>
+                            <span class="text-slate-400">45%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full w-[45%]"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-600 font-medium">JobStreet</span>
+                            <span class="text-slate-400">30%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-teal-500 h-full w-[30%]"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-600 font-medium">Direct/Walk-in</span>
+                            <span class="text-slate-400">25%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full w-[25%]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recruiter Performance -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                <h5 class="text-lg font-bold text-slate-800 mb-6">Recruiter Load</h5>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">AS</div>
+                            <span class="ml-3 text-sm font-semibold text-slate-700">Alice Smith</span>
+                        </div>
+                        <span class="text-xs font-bold text-slate-500">12 Active Roles</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-xs">BJ</div>
+                            <span class="ml-3 text-sm font-semibold text-slate-700">Bob Johnson</span>
+                        </div>
+                        <span class="text-xs font-bold text-slate-500">8 Active Roles</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

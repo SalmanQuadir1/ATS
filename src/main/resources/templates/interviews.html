@@ -1,0 +1,410 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+
+        <!-- ── Page Header ─────────────────────────────────────────────────── -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+                <h3 class="text-2xl font-bold text-slate-800">Interview Calendar</h3>
+                <p class="text-slate-500 text-sm mt-0.5">Schedule, track, and manage applicant interview outcomes</p>
+            </div>
+            <button id="openScheduleBtn"
+                    onclick="document.getElementById('scheduleModal').classList.remove('hidden')"
+                    sec:authorize="hasAnyRole('ADMIN', 'HR')"
+                    class="inline-flex items-center gap-2 bg-teal-600 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md shadow-teal-100 hover:bg-teal-700 active:scale-95 transition-all text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Schedule Interview
+            </button>
+        </div>
+
+        <!-- ── Feature Badges ──────────────────────────────────────────────── -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+            <div class="bg-teal-50 border border-teal-100 rounded-2xl p-4 flex items-center gap-3">
+                <div class="w-9 h-9 bg-teal-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-teal-700 uppercase tracking-wider">Auto Invite</p>
+                    <p class="text-xs text-teal-600">Sent on schedule</p>
+                </div>
+            </div>
+            <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-center gap-3">
+                <div class="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Calendar Sync</p>
+                    <p class="text-xs text-blue-600">.ics attached</p>
+                </div>
+            </div>
+            <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-center gap-3">
+                <div class="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Auto Reminder</p>
+                    <p class="text-xs text-amber-600">24h before</p>
+                </div>
+            </div>
+            <div class="bg-purple-50 border border-purple-100 rounded-2xl p-4 flex items-center gap-3">
+                <div class="w-9 h-9 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-purple-700 uppercase tracking-wider">HR Outcomes</p>
+                    <p class="text-xs text-purple-600">Reject / KIV / Offer</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Interviews Table ─────────────────────────────────────────────── -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h4 class="font-bold text-slate-700 text-sm">All Interviews</h4>
+                <span class="text-xs text-slate-400 font-medium" th:text="${#lists.size(interviews)} + ' interview(s)'">0 interviews</span>
+            </div>
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left border-collapse min-w-[900px]">
+                    <thead class="bg-slate-50 border-b border-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Applicant</th>
+                            <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Job Role</th>
+                            <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Interviewer</th>
+                            <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Date &amp; Time</th>
+                            <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Location</th>
+                            <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Invite</th>
+                            <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <tr th:if="${#lists.isEmpty(interviews)}">
+                            <td colspan="8" class="px-6 py-16 text-center">
+                                <div class="flex flex-col items-center gap-3">
+                                    <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center">
+                                        <svg class="w-7 h-7 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    </div>
+                                    <p class="text-slate-500 font-semibold">No interviews scheduled yet</p>
+                                    <p class="text-slate-400 text-xs">Click "Schedule Interview" to get started</p>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:each="interview : ${interviews}" class="hover:bg-slate-50/70 transition-colors group">
+                            <!-- Candidate -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0 text-teal-700 font-bold text-xs"
+                                         th:text="${interview.candidate.fullName != null ? #strings.substring(interview.candidate.fullName, 0, 1).toUpperCase() : '?'}">J</div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-slate-800" th:text="${interview.candidate.fullName}">John Doe</p>
+                                        <p class="text-xs text-slate-400" th:text="${interview.candidate.email}">john@email.com</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <!-- Job -->
+                            <td class="px-6 py-4 text-sm text-slate-600 font-medium" th:text="${interview.jobVacancy?.title ?: '—'}">Software Engineer</td>
+                            <!-- Interviewer -->
+                            <td class="px-6 py-4">
+                                <span th:if="${interview.interviewer != null}"
+                                      class="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg"
+                                      th:text="${interview.interviewer.username}">interviewer@stie.com</span>
+                                <span th:if="${interview.interviewer == null}"
+                                      class="text-xs text-slate-400 italic">Unassigned</span>
+                            </td>
+                            <!-- Time -->
+                            <td class="px-6 py-4 text-sm text-slate-600" th:text="${interview.interviewTime != null ? #temporals.format(interview.interviewTime, 'dd MMM yyyy, HH:mm') : '—'}">15 May, 10:30</td>
+                            <!-- Location -->
+                            <td class="px-6 py-4 text-sm text-slate-600" th:text="${interview.location ?: '—'}">Room A</td>
+                            <!-- Status -->
+                            <td class="px-6 py-4">
+                                <span th:switch="${interview.status?.name()}">
+                                    <span th:case="'SCHEDULED'"   class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-[10px] font-bold uppercase tracking-wide">Scheduled</span>
+                                    <span th:case="'COMPLETED'"   class="px-2.5 py-1 bg-green-50 text-green-700 border border-green-200 rounded-full text-[10px] font-bold uppercase tracking-wide">Completed</span>
+                                    <span th:case="'CANCELLED'"   class="px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full text-[10px] font-bold uppercase tracking-wide">Cancelled</span>
+                                    <span th:case="'NO_SHOW'"     class="px-2.5 py-1 bg-slate-100 text-slate-600 border border-slate-200 rounded-full text-[10px] font-bold uppercase tracking-wide">No Show</span>
+                                    <span th:case="*"             class="px-2.5 py-1 bg-slate-50 text-slate-500 rounded-full text-[10px] font-bold uppercase">—</span>
+                                </span>
+                            </td>
+                            <!-- Invite sent indicator -->
+                            <td class="px-6 py-4">
+                                <span th:if="${interview.inviteSent}"
+                                      title="Invite with .ics sent"
+                                      class="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-full">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 111.414-1.414L8.414 12.172l7.879-7.879a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                    Sent
+                                </span>
+                                <span th:if="${!interview.inviteSent}"
+                                      class="text-[10px] text-slate-400 italic">Pending</span>
+                            </td>
+                            <!-- Actions -->
+                            <td class="px-6 py-4">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <!-- HR Outcome button (SCHEDULED only) -->
+                                    <button th:if="${interview.status?.name() == 'SCHEDULED'}"
+                                            th:data-interview-id="${interview.id}"
+                                            th:data-candidate-name="${interview.candidate.fullName}"
+                                            onclick="openOutcomeModal(this.dataset.interviewId, this.dataset.candidateName)"
+                                            sec:authorize="hasAnyRole('ADMIN', 'HR')"
+                                            class="inline-flex items-center gap-1 text-[10px] font-bold bg-purple-600 text-white px-2.5 py-1.5 rounded-lg hover:bg-purple-700 transition-colors">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>
+                                        Outcome
+                                    </button>
+
+                                    <!-- Resend Invite -->
+                                    <a th:href="@{/interviews/{id}/resend-invite(id=${interview.id})}"
+                                       sec:authorize="hasAnyRole('ADMIN', 'HR')"
+                                       class="inline-flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                        Resend
+                                    </a>
+
+                                    <!-- Manual Reminder -->
+                                    <a th:href="@{/interviews/{id}/reminder(id=${interview.id})}"
+                                       sec:authorize="hasAnyRole('ADMIN', 'HR')"
+                                       class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1.5 rounded-lg hover:bg-amber-100 transition-colors">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                        Remind
+                                    </a>
+
+                                    <!-- Scorecard -->
+                                    <a th:href="@{'/interviews/' + ${interview.id} + '/scorecard'}"
+                                       class="inline-flex items-center gap-1 text-[10px] font-bold text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-1.5 rounded-lg hover:bg-orange-100 transition-colors">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                        Scorecard
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════════
+             MODAL: Schedule Interview
+             ════════════════════════════════════════════════════════════════════ -->
+        <div id="scheduleModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-teal-600 to-teal-500 px-8 py-6">
+                    <h3 class="text-xl font-bold text-white">Schedule Interview</h3>
+                    <p class="text-teal-100 text-sm mt-1">Invite will be sent automatically with a .ics calendar attachment</p>
+                </div>
+                <!-- Body -->
+                <form th:action="@{/interviews/schedule}" method="POST" class="p-8 space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Applicant <span class="text-red-500">*</span></label>
+                        <select id="schedCandidateId" name="candidateId" required
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+                            <option value="" disabled selected>Select applicant…</option>
+                            <option th:each="c : ${candidates}" th:value="${c.id}" th:text="${c.fullName + ' — ' + (c.email ?: '')}"></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Job Role <span class="text-red-500">*</span></label>
+                        <select name="jobVacancyId" required
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+                            <option value="" disabled selected>Select job vacancy…</option>
+                            <option th:each="j : ${jobs}" th:value="${j.id}" th:text="${j.title + ' — ' + (j.department ?: '')}"></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Assign Interviewer</label>
+                        <select name="interviewerId"
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+                            <option value="">None (send to applicant only)</option>
+                            <option th:each="iv : ${interviewers}" th:value="${iv.id}" th:text="${iv.username}"></option>
+                        </select>
+                        <p class="text-xs text-slate-400 mt-1">Interviewer will also receive the calendar invite via email.</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-600 mb-1.5">Date &amp; Time <span class="text-red-500">*</span></label>
+                            <input type="datetime-local" name="time" required
+                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-600 mb-1.5">Location <span class="text-red-500">*</span></label>
+                            <input type="text" name="location" placeholder="e.g. Zoom, Room 101" required
+                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+                        </div>
+                    </div>
+                    <!-- Auto-send notice -->
+                    <div class="bg-teal-50 border border-teal-100 rounded-xl p-3 flex items-start gap-2.5">
+                        <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                        <p class="text-xs text-teal-700 font-medium">An invitation email with a <strong>.ics calendar file</strong> will be sent automatically to the applicant and interviewer upon confirmation. A 24-hour reminder will be auto-dispatched the day before.</p>
+                    </div>
+                    <div class="flex gap-3 pt-1">
+                        <button type="button" onclick="document.getElementById('scheduleModal').classList.add('hidden')"
+                                class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors text-sm">Cancel</button>
+                        <button type="submit"
+                                class="flex-1 px-4 py-2.5 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors text-sm">
+                            Confirm &amp; Send Invite
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════════
+             MODAL: HR Outcome Panel
+             ════════════════════════════════════════════════════════════════════ -->
+        <div id="outcomeModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-purple-700 to-purple-500 px-8 py-6">
+                    <h3 class="text-xl font-bold text-white">Interview Outcome</h3>
+                    <p id="outcomeSubtitle" class="text-purple-100 text-sm mt-1">Select the outcome for this applicant</p>
+                </div>
+                <!-- Body -->
+                <form id="outcomeForm" method="POST" class="p-8 space-y-5">
+                    <!-- Outcome Cards -->
+                    <div class="space-y-3">
+                        <p class="text-sm font-bold text-slate-600 uppercase tracking-wide">Select Outcome</p>
+
+                        <label class="flex items-center gap-4 p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-red-300 hover:bg-red-50 transition-all peer-checked:border-red-500 group has-[:checked]:border-red-400 has-[:checked]:bg-red-50">
+                            <input type="radio" name="outcome" value="REJECTED" class="sr-only peer" required>
+                            <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0 group-[.has-\[\:checked\]]:bg-red-200">
+                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm">Reject Applicant</p>
+                                <p class="text-xs text-slate-500">Sends a professional rejection email. Applicant status → REJECTED.</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-4 p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 hover:bg-amber-50 transition-all has-[:checked]:border-amber-400 has-[:checked]:bg-amber-50">
+                            <input type="radio" name="outcome" value="KIV" class="sr-only peer" required>
+                            <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm">Keep In View (KIV)</p>
+                                <p class="text-xs text-slate-500">Retains applicant in talent pool. Sends a KIV holding email. Status → KIV.</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-4 p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-green-300 hover:bg-green-50 transition-all has-[:checked]:border-green-400 has-[:checked]:bg-green-50">
+                            <input type="radio" name="outcome" value="OFFERED" class="sr-only peer" required>
+                            <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm">Extend Offer</p>
+                                <p class="text-xs text-slate-500">Sends offer letter email to applicant. Status → OFFERED.</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Notes / Remarks (optional)</label>
+                        <textarea name="notes" rows="3" placeholder="Add interview notes for the audit trail…"
+                                  class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-sm resize-none"></textarea>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="button" onclick="document.getElementById('outcomeModal').classList.add('hidden')"
+                                class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors text-sm">Cancel</button>
+                        <button type="submit"
+                                class="flex-1 px-4 py-2.5 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-colors text-sm">
+                            Confirm &amp; Update STIE
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════════
+             MODAL: Leave Feedback (legacy — for interviewers)
+             ════════════════════════════════════════════════════════════════════ -->
+        <div id="feedbackModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-lg p-8 shadow-2xl">
+                <h3 class="text-xl font-bold text-slate-800 mb-6">Interviewer Scorecard</h3>
+                <form id="feedbackForm" method="POST" class="space-y-6">
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2">
+                                <span>Technical Ability</span><span id="techVal">3</span>
+                            </div>
+                            <input type="range" name="technicalScore" min="1" max="5" value="3"
+                                   oninput="document.getElementById('techVal').innerText = this.value"
+                                   class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-teal-600">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2">
+                                <span>Culture Fit</span><span id="cultVal">3</span>
+                            </div>
+                            <input type="range" name="cultureScore" min="1" max="5" value="3"
+                                   oninput="document.getElementById('cultVal').innerText = this.value"
+                                   class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2">
+                                <span>Communication</span><span id="commVal">3</span>
+                            </div>
+                            <input type="range" name="communicationScore" min="1" max="5" value="3"
+                                   oninput="document.getElementById('commVal').innerText = this.value"
+                                   class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Applicant Status</label>
+                        <select name="candidateStatus" required
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+                            <option value="OFFERED">Extend Offer (OFFERED)</option>
+                            <option value="KIV">Retain Applicant (KIV)</option>
+                            <option value="REJECTED">Reject Applicant (REJECTED)</option>
+                            <option value="SHORTLISTED">Return to Shortlisted Pool</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Qualitative Feedback</label>
+                        <textarea name="feedback" rows="3" required
+                                  class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm resize-none"></textarea>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="document.getElementById('feedbackModal').classList.add('hidden')"
+                                class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors text-sm">Cancel</button>
+                        <button type="submit"
+                                class="flex-1 px-4 py-2.5 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors text-sm">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function openOutcomeModal(interviewId, candidateName) {
+                const form = document.getElementById('outcomeForm');
+                form.action = '/interviews/' + interviewId + '/outcome';
+                document.getElementById('outcomeSubtitle').textContent = 'Applicant: ' + candidateName;
+                // Reset radio selections
+                document.querySelectorAll('#outcomeForm input[type="radio"]').forEach(r => r.checked = false);
+                document.getElementById('outcomeModal').classList.remove('hidden');
+            }
+
+            function openFeedbackModal(interviewId) {
+                const form = document.getElementById('feedbackForm');
+                form.action = '/interviews/' + interviewId + '/feedback';
+                document.getElementById('feedbackModal').classList.remove('hidden');
+            }
+
+            // Auto-open schedule modal if candidateId is provided in URL
+            window.addEventListener('DOMContentLoaded', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const candidateId = urlParams.get('candidateId');
+                if (candidateId) {
+                    const selectEl = document.getElementById('schedCandidateId');
+                    if (selectEl) {
+                        selectEl.value = candidateId;
+                        document.getElementById('scheduleModal').classList.remove('hidden');
+                    }
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>
+

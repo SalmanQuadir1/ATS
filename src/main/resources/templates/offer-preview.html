@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+        <div class="max-w-3xl mx-auto bg-white p-12 rounded-3xl border border-slate-100 shadow-sm">
+            <div class="flex justify-between items-start mb-12">
+                <h3 class="text-2xl font-bold text-slate-800">Offer Letter Preview</h3>
+                <button onclick="window.print()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-200 transition-colors">
+                    Print / Download PDF
+                </button>
+            </div>
+            
+            <div class="bg-slate-50 p-10 rounded-2xl border border-slate-100 font-serif text-slate-800 whitespace-pre-wrap leading-relaxed shadow-inner" 
+                 th:text="${letter}">
+                Letter content goes here...
+            </div>
+            
+            <div class="mt-12 flex space-x-4">
+                <button class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-100">
+                    Send to Applicant via Email
+                </button>
+                <a th:href="@{/candidates}" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-center hover:bg-slate-200 transition-colors">
+                    Back to Pool
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

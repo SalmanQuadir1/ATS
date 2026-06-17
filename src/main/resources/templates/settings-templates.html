@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+        <div class="mb-8">
+            <h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Recruitment Email Templates Builder</h3>
+            <p class="text-slate-500 mt-1">Design and customize the transactional emails sent during stage movements and scheduling invites.</p>
+        </div>
+
+        <!-- Horizontal Tab Selector -->
+        <div class="mb-8 bg-white p-2.5 rounded-2xl border border-slate-100 shadow-sm flex flex-wrap gap-2">
+            <button th:each="t : ${templates}" 
+                    th:id="'tab-' + ${t.templateCode}"
+                    th:onclick="selectTemplate([[${t.templateCode}]])"
+                    type="button" 
+                    class="tab-btn px-5 py-3 rounded-xl font-bold text-sm transition-all flex items-center space-x-2 text-slate-500 hover:bg-slate-50">
+                <span class="w-2.5 h-2.5 rounded-full" 
+                      th:classappend="${t.templateCode == 'APPLICATION_ACK' ? 'bg-teal-500' :
+                                       (t.templateCode == 'INTERVIEW_INVITE' ? 'bg-amber-500' :
+                                       (t.templateCode == 'JOB_OFFER' ? 'bg-emerald-500' : 'bg-rose-500'))}"></span>
+                <span th:text="${t.templateName}">Template Name</span>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Left Panel: Edit Form (5 cols) -->
+            <div class="lg:col-span-5 bg-white p-6 rounded-3xl border border-slate-100 shadow-md space-y-6">
+                <div class="flex items-center space-x-3 pb-4 border-b border-slate-100">
+                    <div class="p-2.5 bg-teal-50 text-teal-600 rounded-2xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 id="formTitle" class="text-lg font-bold text-slate-800">Edit Template</h4>
+                        <p class="text-xs text-slate-400">Insert custom branding and layouts</p>
+                    </div>
+                </div>
+
+                <form th:action="@{/settings/email-templates}" method="POST" class="space-y-5">
+                    <input type="hidden" id="templateCode" name="templateCode">
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2" for="subject">Email Subject Line</label>
+                        <input type="text" id="subject" name="subject" required
+                               class="w-full bg-slate-50 border-none rounded-2xl px-4 py-3.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+                               oninput="updateLivePreview()">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2" for="body">Email Message Body</label>
+                        <textarea id="body" name="body" rows="9" required
+                                  class="w-full bg-slate-50 border-none rounded-2xl px-4 py-3.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-mono text-xs resize-none"
+                                  oninput="updateLivePreview()"></textarea>
+                    </div>
+
+                    <!-- Available Placeholders box -->
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">Available Merge Variables</span>
+                        <div class="grid grid-cols-2 gap-2 text-[10px]">
+                            <button type="button" onclick="insertTag('{{candidate_name}}')" class="text-left bg-white p-2 rounded-xl border border-slate-200 hover:border-teal-400 font-mono font-semibold text-slate-700 select-none transition-all">
+                                <span class="text-teal-600">{{candidate_name}}</span>
+                                <span class="block text-[8px] text-slate-400 font-normal">Applicant Name</span>
+                            </button>
+                            <button type="button" onclick="insertTag('{{job_title}}')" class="text-left bg-white p-2 rounded-xl border border-slate-200 hover:border-teal-400 font-mono font-semibold text-slate-700 select-none transition-all">
+                                <span class="text-teal-600">{{job_title}}</span>
+                                <span class="block text-[8px] text-slate-400 font-normal">Job Title</span>
+                            </button>
+                            <button type="button" onclick="insertTag('{{sender_name}}')" class="text-left bg-white p-2 rounded-xl border border-slate-200 hover:border-teal-400 font-mono font-semibold text-slate-700 select-none transition-all">
+                                <span class="text-teal-600">{{sender_name}}</span>
+                                <span class="block text-[8px] text-slate-400 font-normal">Sender Name</span>
+                            </button>
+                            <button type="button" onclick="insertTag('{{interview_time}}')" class="text-left bg-white p-2 rounded-xl border border-slate-200 hover:border-teal-400 font-mono font-semibold text-slate-700 select-none transition-all">
+                                <span class="text-teal-600">{{interview_time}}</span>
+                                <span class="block text-[8px] text-slate-400 font-normal">Interview Time</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-teal-100 transition-all duration-300 flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                        </svg>
+                        <span>Save Email Template</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Panel: Live simulator preview (7 cols) -->
+            <div class="lg:col-span-7 bg-slate-100 p-8 rounded-3xl border border-slate-200 shadow-inner relative flex flex-col min-h-[500px]">
+                <span class="absolute top-4 right-4 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-slate-500 border border-slate-200 tracking-widest uppercase">Email Simulator Preview</span>
+                
+                <!-- Simulated Email Client Layout -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col flex-1 mt-6">
+                    <!-- Email Header Mocks -->
+                    <div class="bg-slate-50 p-4 border-b border-slate-150 text-xs space-y-2 text-slate-600">
+                        <div class="flex items-center">
+                            <span class="w-14 text-slate-400 font-semibold uppercase">From:</span>
+                            <span class="font-bold text-slate-800">recruiter@company.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-14 text-slate-400 font-semibold uppercase">To:</span>
+                            <span class="font-bold text-slate-800">candidate_name_mock@domain.com</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="w-14 text-slate-400 font-semibold uppercase mt-0.5">Subject:</span>
+                            <span id="previewSubject" class="font-bold text-teal-600 break-words flex-1">Application Received</span>
+                        </div>
+                    </div>
+
+                    <!-- Email Message Body Simulated Area -->
+                    <div class="p-6 flex-1 flex flex-col justify-between min-h-[280px]">
+                        <div id="previewBody" class="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap font-sans">
+                            <!-- Populated dynamically -->
+                        </div>
+                        
+                        <div class="mt-8 pt-4 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-bold tracking-wider uppercase">
+                            <span>System Generated Sandbox Notification</span>
+                            <span class="bg-slate-100 px-2 py-0.5 rounded">HTML Mode</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seeding database records into JS for instant updates -->
+        <script th:inline="javascript">
+            const templatesData = {};
+            /*[# th:each="t : ${templates}"]*/
+            templatesData[[${t.templateCode}]] = {
+                name: [[${t.templateName}]],
+                subject: [[${t.subject}]],
+                body: [[${t.body}]]
+            };
+            /*[/]*/
+
+            const mocks = {
+                '{{candidate_name}}': 'Leonard Hofstadter',
+                '{{job_title}}': 'Lead AI Security Engineer',
+                '{{sender_name}}': 'Dr. Elizabeth Cooper (HR Director)',
+                '{{interview_time}}': 'Monday, June 8 at 2:00 PM (SGT)'
+            };
+
+            function selectTemplate(code) {
+                // Remove active styling from all tabs
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+                    btn.classList.add('text-slate-500');
+                });
+
+                // Add active styling to target tab
+                const targetTab = document.getElementById('tab-' + code);
+                if (targetTab) {
+                    targetTab.classList.remove('text-slate-500');
+                    targetTab.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+                }
+
+                // Load template data
+                const template = templatesData[code];
+                if (template) {
+                    document.getElementById('templateCode').value = code;
+                    document.getElementById('formTitle').innerText = 'Modify ' + template.name;
+                    document.getElementById('subject').value = template.subject;
+                    document.getElementById('body').value = template.body;
+                    updateLivePreview();
+                }
+            }
+
+            function insertTag(tag) {
+                const textarea = document.getElementById('body');
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const text = textarea.value;
+                
+                textarea.value = text.substring(0, start) + tag + text.substring(end);
+                textarea.focus();
+                textarea.selectionStart = textarea.selectionEnd = start + tag.length;
+                updateLivePreview();
+            }
+
+            function updateLivePreview() {
+                let subjectVal = document.getElementById('subject').value || '';
+                let bodyVal = document.getElementById('body').value || '';
+
+                // Replace mock variables
+                for (const [tag, val] of Object.entries(mocks)) {
+                    subjectVal = subjectVal.replaceAll(tag, val);
+                    bodyVal = bodyVal.replaceAll(tag, val);
+                }
+
+                document.getElementById('previewSubject').innerText = subjectVal ? subjectVal : '(No Subject)';
+                document.getElementById('previewBody').innerText = bodyVal ? bodyVal : '(No Body Message Content)';
+            }
+
+            // Init default selection
+            window.addEventListener('DOMContentLoaded', () => {
+                const defaultCode = 'APPLICATION_ACK';
+                selectTemplate(defaultCode);
+            });
+        </script>
+    </div>
+</body>
+</html>

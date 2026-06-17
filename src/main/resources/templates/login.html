@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - STIE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream:   #FFFBF5;
+            --ink:     #1C1917;
+            --em:      #059669;
+        }
+        * { font-family: 'Inter', sans-serif; }
+        .syne { font-family: 'Syne', sans-serif; }
+        body { background: var(--cream); color: var(--ink); }
+
+        /* ── Blob background ── */
+        .blob-wrap { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+        .blob { position: absolute; border-radius: 9999px; filter: blur(90px); opacity: 0.5; animation: drift 20s ease-in-out infinite; }
+        .blob-1 { width: 700px; height: 600px; background: radial-gradient(circle, #A7F3D0, transparent 70%); top: -200px; right: -200px; animation-delay: 0s; }
+        .blob-2 { width: 500px; height: 500px; background: radial-gradient(circle, #FED7AA, transparent 70%); bottom: -150px; left: -150px; animation-delay: -7s; }
+        .blob-3 { width: 300px; height: 300px; background: radial-gradient(circle, #FEF3C7, transparent 70%); top: 50%; left: 30%; animation-delay: -14s; }
+        @keyframes drift {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33%      { transform: translate(50px,-40px) scale(1.1); }
+            66%      { transform: translate(-40px,50px) scale(0.93); }
+        }
+
+        /* ── Noise overlay ── */
+        .noise-layer {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+            background-size: 200px; opacity: 0.35;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(28, 25, 23, 0.08);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
+        }
+
+        .btn-gradient { 
+            background: linear-gradient(135deg, #059669 0%, #047857 100%); 
+            box-shadow: 0 8px 30px -6px rgba(5,150,105,0.45);
+        }
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #10B981, #059669);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative">
+    
+    <div class="blob-wrap">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+    <div class="noise-layer"></div>
+
+    <div class="max-w-md w-full login-card rounded-[2.5rem] p-10 relative z-10">
+        <div class="text-center mb-10">
+            <div class="w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-500 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-emerald-200 mb-6 transform rotate-3">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </div>
+            <h1 class="syne text-3xl font-black text-stone-900 mb-2 tracking-tight">Welcome Back</h1>
+            <p class="text-stone-500 text-sm font-medium">Enterprise Applicant Tracking System</p>
+        </div>
+
+        <div th:if="${param.error}" class="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-600 text-xs text-center font-bold">
+            Invalid credentials. Please try again.
+        </div>
+        <div th:if="${param.logout}" class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-700 text-xs text-center font-bold">
+            You have been successfully logged out.
+        </div>
+
+        <form th:action="@{/login}" method="POST" class="space-y-6">
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-stone-500 uppercase tracking-widest ml-1">Username</label>
+                <div class="relative">
+                    <input type="text" name="username" required 
+                           class="w-full bg-stone-50/50 border border-stone-200 rounded-2xl px-5 py-3.5 text-stone-900 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all placeholder-stone-400 font-medium"
+                           placeholder="Enter your username">
+                </div>
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-stone-500 uppercase tracking-widest ml-1">Password</label>
+                <div class="relative">
+                    <input type="password" name="password" required 
+                           class="w-full bg-stone-50/50 border border-stone-200 rounded-2xl px-5 py-3.5 text-stone-900 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all placeholder-stone-400 font-medium"
+                           placeholder="••••••••">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full btn-gradient text-white font-bold py-4 rounded-2xl transition-all flex justify-center gap-2">
+                Sign In
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+            </button>
+        </form>
+
+        <div class="mt-10 pt-8 border-t border-stone-100 text-center">
+            <p class="text-[10px] text-stone-400 uppercase tracking-widest font-bold mb-4">Quick Access Demo</p>
+            <div class="flex justify-center gap-3">
+                <span class="px-3 py-1.5 bg-stone-100 rounded-xl text-[10px] font-bold text-stone-500">admin / admin123</span>
+                <span class="px-3 py-1.5 bg-stone-100 rounded-xl text-[10px] font-bold text-stone-500">hr / hr123</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

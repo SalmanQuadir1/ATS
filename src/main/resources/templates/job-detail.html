@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+        <a th:href="@{/jobs}" class="inline-flex items-center text-sm text-slate-500 hover:text-emerald-600 mb-6 transition-colors">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Vacancies
+        </a>
+
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-3xl font-bold text-slate-800" th:text="${job.title}">Senior Java Developer</h3>
+                    <p class="text-slate-500 mt-1" th:text="${job.department}">Engineering Department</p>
+                </div>
+                <div class="flex space-x-2">
+                    <span th:classappend="${job.status == T(com.stie.model.JobVacancy.JobStatus).OPEN ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600'}" 
+                          class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider" th:text="${job.status}">OPEN</span>
+                </div>
+            </div>
+
+            <div class="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div th:if="${job.category != null}" class="mb-8 pb-8 border-b border-slate-100">
+                        <h5 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Category & Skills</h5>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="px-3 py-1 bg-slate-100 text-slate-600 font-bold text-xs rounded-lg" th:text="${job.category.name}">Category Name</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2" th:if="${job.skills != null and !job.skills.empty}">
+                            <span th:each="skill : ${job.skills}" th:text="${skill.name}" 
+                                  class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-lg border border-indigo-100">Skill</span>
+                        </div>
+                    </div>
+
+                    <h5 class="text-lg font-bold text-slate-800 mb-4">Job Description</h5>
+                    <div class="text-slate-600 leading-relaxed space-y-4 whitespace-pre-line" th:text="${job.description}">
+                        Provide a detailed job description here...
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-slate-50 p-6 rounded-2xl">
+                        <h6 class="text-xs font-bold text-slate-400 uppercase mb-4">Quick Stats</h6>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-500">Total Applicants</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-slate-800 font-bold" th:text="${totalApplicants}">0</span>
+                                    <a th:href="@{/candidates(jobId=${job.id})}" class="text-[10px] font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded transition">View</a>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-500">Shortlisted</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-slate-800 font-bold" th:text="${shortlistedCount}">0</span>
+                                    <a th:href="@{/candidates(jobId=${job.id},status='SHORTLISTED')}" class="text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded transition">View</a>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-500">No. of Openings</span>
+                                <span class="text-emerald-600 font-bold" th:text="${job.noOfPosts}">5</span>
+                            </div>
+                            <div class="flex justify-between text-sm" th:if="${job.expiryDate != null}">
+                                <span class="text-slate-500">Expiry Date</span>
+                                <span class="text-rose-600 font-bold" th:text="${#temporals.format(job.expiryDate, 'dd MMM yyyy')}">30 Jun 2026</span>
+                            </div>
+
+                        </div>
+                    </div>
+                    <form th:if="${job.approvalStatus == T(com.stie.model.JobVacancy.ApprovalStatus).PENDING}" 
+                          sec:authorize="hasAnyRole('ADMIN', 'HR')"
+                          th:action="@{/jobs/{id}/approve(id=${job.id})}" method="POST">
+                        <button class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-shadow shadow-lg shadow-emerald-100">
+                            Approve Vacancy
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

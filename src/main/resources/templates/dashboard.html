@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex items-center">
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-slate-500">Active Jobs</p>
+                        <h3 class="text-2xl font-bold text-slate-800" th:text="${totalJobs}">12</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex items-center">
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-slate-500">Applicants</p>
+                        <h3 class="text-2xl font-bold text-slate-800" th:text="${totalCandidates}">248</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex items-center">
+                    <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-slate-500">Interviews Today</p>
+                        <h3 class="text-2xl font-bold text-slate-800" th:text="${interviewsToday}">5</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex items-center">
+                    <div class="p-3 bg-rose-50 text-rose-600 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-slate-500">Offers Sent</p>
+                        <h3 class="text-2xl font-bold text-slate-800" th:text="${offersSent}">8</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pipeline Preview -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                <h4 class="text-lg font-semibold text-slate-800 mb-6">Recruitment Funnel</h4>
+                <div class="h-64">
+                    <canvas id="pipelineChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-center">
+                <h4 class="text-lg font-semibold text-slate-800 mb-6">Pipeline Breakdown</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex items-center justify-between p-3 border-r-4 border-slate-300 bg-slate-50 rounded-xl">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Applied</span>
+                        <span class="text-lg font-bold text-slate-700" th:text="${countApplied}">45</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 border-r-4 border-emerald-500 bg-emerald-50 rounded-xl">
+                        <span class="text-xs font-bold text-emerald-500 uppercase">Shortlisted</span>
+                        <span class="text-lg font-bold text-emerald-600" th:text="${countShortlisted}">12</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 border-r-4 border-amber-500 bg-amber-50 rounded-xl">
+                        <span class="text-xs font-bold text-amber-500 uppercase">Interview</span>
+                        <span class="text-lg font-bold text-amber-600" th:text="${countInterview}">8</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 border-r-4 border-teal-500 bg-teal-50 rounded-xl">
+                        <span class="text-xs font-bold text-teal-500 uppercase">Offered</span>
+                        <span class="text-lg font-bold text-teal-600" th:text="${countOffered}">3</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 border-r-4 border-slate-900 bg-slate-900/5 rounded-xl">
+                        <span class="text-xs font-bold text-slate-800 uppercase">Hired</span>
+                        <span class="text-lg font-bold text-slate-900" th:text="${countHired}">2</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 border-r-4 border-rose-500 bg-rose-50 rounded-xl">
+                        <span class="text-xs font-bold text-rose-500 uppercase">Rejected</span>
+                        <span class="text-lg font-bold text-rose-600" th:text="${countRejected}">10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            const ctx = document.getElementById('pipelineChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Applied', 'Shortlisted', 'Interview', 'Offered', 'Hired', 'KIV', 'Rejected'],
+                    datasets: [{
+                        data: [
+                            /*[[${countApplied}]]*/ 0,
+                            /*[[${countShortlisted}]]*/ 0,
+                            /*[[${countInterview}]]*/ 0,
+                            /*[[${countOffered}]]*/ 0,
+                            /*[[${countHired}]]*/ 0,
+                            /*[[${countKiv}]]*/ 0,
+                            /*[[${countRejected}]]*/ 0
+                        ],
+                        backgroundColor: ['#cbd5e1', '#3b82f6', '#f59e0b', '#0d9488', '#0f172a', '#d97706', '#f43f5e'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 10 } }
+                    },
+                    cutout: '70%'
+                }
+            });
+            /*]]>*/
+        </script>
+
+        <!-- Recent Activity -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                <h4 class="text-lg font-semibold text-slate-800 mb-4">Latest Applicants</h4>
+                <div class="space-y-4">
+                    <div th:each="candidate : ${latestCandidates}" 
+                         th:onclick="|location.href='/candidates/' + ${candidate.id}|" 
+                         class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-slate-100">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold" 
+                                 th:text="${candidate.fullName != null && #strings.length(candidate.fullName) > 1 ? #strings.substring(candidate.fullName, 0, 2) : (candidate.fullName != null ? candidate.fullName : 'C')}">JD</div>
+                            <div class="ml-4">
+                                <p class="text-sm font-semibold text-slate-700" th:text="${candidate.fullName}">John Doe</p>
+                                <p class="text-xs text-slate-400">
+                                    <span th:text="${candidate.experienceYears + ' Yrs Exp'}">5 Yrs</span> • 
+                                    Applied <span th:text="${#temporals.format(candidate.appliedAt, 'yyyy-MM-dd')}">2026-05-19</span>
+                                </p>
+                            </div>
+                        </div>
+                        <span th:text="${candidate.status}" 
+                              th:classappend="${candidate.status == T(com.stie.model.Candidate.CandidateStatus).SHORTLISTED ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                                               candidate.status == T(com.stie.model.Candidate.CandidateStatus).REJECTED ? 'bg-rose-50 text-rose-600 border-rose-100' : 
+                                               candidate.status == T(com.stie.model.Candidate.CandidateStatus).KIV ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-slate-50 text-slate-600 border-slate-200'}"
+                              class="px-2 py-1 text-[10px] font-bold uppercase rounded-lg border">SHORTLISTED</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                <h4 class="text-lg font-semibold text-slate-800 mb-4">Pipeline Actions Quick Access</h4>
+                <div class="flex flex-col justify-center h-48 text-center bg-slate-50 rounded-2xl border border-slate-100 p-4">
+                    <p class="text-sm text-slate-500 font-medium mb-3">Ensure applicant states are updated promptly after screenings.</p>
+                    <a href="/candidates" class="inline-block mx-auto px-6 py-2.5 bg-slate-900 text-white text-xs font-bold uppercase rounded-xl tracking-wider hover:bg-slate-800 transition-colors">Open Applicant Pool</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

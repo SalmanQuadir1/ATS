@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+        <div class="max-w-3xl mx-auto">
+            <div class="mb-8">
+                <a th:href="@{/jobs}" class="text-sm text-slate-500 hover:text-emerald-600 flex items-center mb-4 transition-colors">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    Back to Vacancies
+                </a>
+                <h3 class="text-3xl font-bold text-slate-800" th:text="${vacancy.id != null} ? 'Edit Vacancy' : 'Post New Vacancy'">Post New Vacancy</h3>
+                <p class="text-slate-500" th:text="${vacancy.id != null} ? 'Update the details of this recruitment request.' : 'Fill in the details to start a new recruitment request.'">Fill in the details to start a new recruitment request.</p>
+            </div>
+
+            <div class="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-xl shadow-slate-200/50">
+                <form th:action="${vacancy.id != null} ? @{/jobs/update} : @{/jobs/create}" th:object="${vacancy}" method="POST" class="space-y-8">
+                    <input type="hidden" name="id" th:value="${vacancy.id}" th:if="${vacancy.id != null}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Title</label>
+                            <input type="text" th:field="*{title}" required 
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder-slate-400"
+                                   placeholder="e.g. Senior Software Engineer">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Department</label>
+                            <select th:field="*{department}" required 
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                                <option value="" disabled selected>Select Department</option>
+                                <option th:each="dept : ${departments}" th:value="${dept}" th:text="${dept}"></option>
+                                <option th:if="${departments == null or departments.empty}" value="" disabled>No departments configured. Please configure in settings.</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Expiry Date</label>
+                            <input type="datetime-local" th:field="*{expiryDate}" required 
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Location / Work Site</label>
+                            <select name="location" required 
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                                <option value="" disabled selected>Select Location</option>
+                                <option th:each="loc : ${locations}" th:value="${loc}" th:text="${loc}" th:selected="${vacancy.location == loc}"></option>
+                                <option th:if="${locations == null or locations.empty}" value="" disabled>No locations configured. Please configure in settings.</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">No. of Posts / Headcount</label>
+                            <input type="number" th:field="*{noOfPosts}" min="1" required 
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                                   placeholder="e.g. 5">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Category</label>
+                                <select name="categoryId" id="categorySelect" required 
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                                    <option value="" disabled selected>Select Category</option>
+                                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:selected="${vacancy.category != null and vacancy.category.id == cat.id}"></option>
+                                </select>
+                        </div>
+                        <div class="space-y-2 md:col-span-2 hidden" id="skillsWrapper">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Required Skills</label>
+                            <div id="skillsContainer" class="flex flex-wrap gap-3 mt-2">
+                                <!-- Skills injected here by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Description</label>
+                        <textarea th:field="*{description}" rows="6" required 
+                                  class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder-slate-400"
+                                  placeholder="Describe the roles, responsibilities and requirements..."></textarea>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center text-slate-400">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <p class="text-xs">Your request will be sent to HR/Admin for approval.</p>
+                        </div>
+                        <div class="flex space-x-4">
+                            <button type="button" onclick="window.history.back()" 
+                                    class="px-8 py-4 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" 
+                                    class="bg-emerald-600 text-white font-bold px-10 py-4 rounded-2xl shadow-lg shadow-emerald-500/30 hover:bg-emerald-700 hover:scale-[1.02] transition-all">
+                                <span th:text="${vacancy.id != null} ? 'Update Vacancy' : 'Submit Request'">Submit Request</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.getElementById('categorySelect');
+            const skillsWrapper = document.getElementById('skillsWrapper');
+            const skillsContainer = document.getElementById('skillsContainer');
+
+            /*<![CDATA[*/
+            const existingCategoryId = [[${vacancy.category != null ? vacancy.category.id : null}]];
+            const existingSkillIds = [[${existingSkillIds != null ? existingSkillIds : []}]];
+            /*]]>*/
+
+            function loadSkills(categoryId) {
+                if (!categoryId) {
+                    skillsWrapper.classList.add('hidden');
+                    return;
+                }
+                fetch(`/api/categories/${categoryId}/skills`)
+                    .then(response => response.json())
+                    .then(skills => {
+                        skillsContainer.innerHTML = '';
+                        if (skills.length > 0) {
+                            skillsWrapper.classList.remove('hidden');
+                            skills.forEach(skill => {
+                                const checked = existingSkillIds.includes(skill.id);
+                                const label = document.createElement('label');
+                                label.className = 'cursor-pointer flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 transition-colors';
+                                label.innerHTML = `
+                                    <input type="checkbox" name="skillIds" value="${skill.id}" ${checked ? 'checked' : ''} class="rounded text-emerald-600 focus:ring-emerald-500">
+                                    ${skill.name}
+                                `;
+                                skillsContainer.appendChild(label);
+                            });
+                        } else {
+                            skillsWrapper.classList.add('hidden');
+                        }
+                    })
+                    .catch(error => console.error('Error fetching skills:', error));
+            }
+
+            categorySelect.addEventListener('change', function() {
+                loadSkills(this.value);
+            });
+
+            if (existingCategoryId) {
+                categorySelect.value = existingCategoryId;
+                loadSkills(existingCategoryId);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+    th:fragment="html">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STIE - Enterprise Recruitment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFBF5;
+        }
+
+        .syne {
+            font-family: 'Syne', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar-item:hover {
+            background-color: #FFF7ED;
+            color: #1C1917;
+        }
+
+        .active-nav {
+            background-color: #ECFDF5;
+            color: #047857;
+            border-right: 4px solid #059669;
+        }
+
+        /* Custom Scrollbar for Sidebar */
+        nav::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        nav::-webkit-scrollbar-thumb {
+            background-color: #CBD5E1;
+            border-radius: 20px;
+        }
+
+        nav::-webkit-scrollbar-thumb:hover {
+            background-color: #94A3B8;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex overflow-hidden">
+    <!-- Sidebar Backdrop for Mobile -->
+    <div id="sidebarBackdrop" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 md:hidden"
+        onclick="toggleSidebar(false)"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebarMenu"
+        class="h-screen fixed inset-y-0 left-0 w-64 bg-white border-r border-slate-200 z-50 transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 md:flex flex-col shrink-0">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div>
+                <h1
+                    class="text-2xl font-black bg-gradient-to-br from-emerald-600 to-teal-600 bg-clip-text text-transparent syne">
+                    STIE</h1>
+                <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold">Recruitment Suite</p>
+            </div>
+            <!-- Close Button for Mobile -->
+            <button onclick="toggleSidebar(false)" class="md:hidden p-1 text-slate-400 hover:text-slate-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+            <a th:href="@{/}"
+                class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
+                th:classappend="${#httpServletRequest.requestURI == '/' ? 'active-nav' : ''}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                    </path>
+                </svg>
+                Dashboard
+            </a>
+            <a th:href="@{/jobs}"
+                class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
+                th:classappend="${#httpServletRequest.requestURI == '/jobs' ? 'active-nav' : ''}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                    </path>
+                </svg>
+                Jobs
+            </a>
+            <a th:href="@{/candidates}" sec:authorize="hasAuthority('MANAGE_APPLICANTS')"
+                class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
+                th:classappend="${#httpServletRequest.requestURI == '/candidates' ? 'active-nav' : ''}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                    </path>
+                </svg>
+                Applicants
+            </a>
+            <a th:href="@{/candidates/kanban}" sec:authorize="hasAuthority('MANAGE_APPLICANTS')"
+                class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
+                th:classappend="${#httpServletRequest.requestURI == '/candidates/kanban' ? 'active-nav' : ''}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2">
+                    </path>
+                </svg>
+                Pipeline Kanban
+            </a>
+            <a th:href="@{/interviews}" sec:authorize="hasAuthority('MANAGE_INTERVIEWS')"
+                class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
+                th:classappend="${#httpServletRequest.requestURI == '/interviews' ? 'active-nav' : ''}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z">
+                    </path>
+                </svg>
+                Interviews
+            </a>
+            <a th:href="@{/reports}" sec:authorize="hasAuthority('VIEW_REPORTS')"
+                class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
+                th:classappend="${#httpServletRequest.requestURI == '/reports' ? 'active-nav' : ''}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                    </path>
+                </svg>
+                Analytics
+            </a>
+
+            <a th:href="@{/super-admin}" sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')"
+                class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
+                th:classappend="${#httpServletRequest.requestURI != null and #strings.startsWith(#httpServletRequest.requestURI, '/super-admin') ? 'active-nav' : ''}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Sites (Tenants)
+            </a>
+            
+            <a th:href="@{/super-admin/roles}" sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')"
+                class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
+                th:classappend="${#httpServletRequest.requestURI != null and #strings.startsWith(#httpServletRequest.requestURI, '/super-admin/roles') ? 'active-nav' : ''}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+                Roles & Permissions
+            </a>
+
+            <!-- User Management Dropdown -->
+            <div class="space-y-1">
+                <button onclick="toggleUserMenu()"
+                    class="w-full flex items-center justify-between p-3 text-slate-600 rounded-lg transition-all duration-200 hover:bg-slate-50">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                            </path>
+                        </svg>
+                        <span>User Management</span>
+                    </div>
+                    <svg id="userMenuArrow" class="w-4 h-4 transition-transform duration-200" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div id="userSubMenu" class="hidden pl-8 space-y-1">
+                    <a th:href="@{/users/register}" sec:authorize="hasAuthority('MANAGE_USERS')"
+                        class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors">Register
+                        User</a>
+                    <a th:href="@{/users/password}"
+                        class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors">Change
+                        Password</a>
+                </div>
+            </div>
+
+            <!-- System Settings Dropdown -->
+            <div class="space-y-1" sec:authorize="hasAnyAuthority('MANAGE_SETTINGS', 'MANAGE_DEPARTMENTS')">
+                <button onclick="toggleSettingsMenu()"
+                    class="w-full flex items-center justify-between p-3 text-slate-600 rounded-lg transition-all duration-200 hover:bg-slate-50">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>System Settings</span>
+                    </div>
+                    <svg id="settingsMenuArrow" class="w-4 h-4 transition-transform duration-200" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div id="settingsSubMenu" class="hidden pl-8 space-y-1">
+                    <!-- <a th:href="@{/settings}" 
+                       class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+                       th:classappend="${#httpServletRequest.requestURI == '/settings' ? 'text-emerald-600 font-semibold' : ''}">Overview & Audit</a>
+                    <a th:href="@{/settings/branding}" 
+                       class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+                       th:classappend="${#httpServletRequest.requestURI == '/settings/branding' ? 'text-emerald-600 font-semibold' : ''}">Portal Branding</a>
+                    <a th:href="@{/settings/email-templates}" 
+                       class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+                       th:classappend="${#httpServletRequest.requestURI == '/settings/email-templates' ? 'text-emerald-600 font-semibold' : ''}">Email Templates</a> -->
+                    <a th:href="@{/departments}"
+                        class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+                        th:classappend="${#httpServletRequest.requestURI == '/departments' ? 'text-emerald-600 font-semibold' : ''}">Departments</a>
+                    <a th:href="@{/settings/categories}"
+                        class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+                        th:classappend="${#httpServletRequest.requestURI != null and #strings.startsWith(#httpServletRequest.requestURI, '/settings/categories') ? 'text-emerald-600 font-semibold' : ''}">Job
+                        Categories & Skills</a>
+                    <a th:href="@{/locations}"
+                        class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+                        th:classappend="${#httpServletRequest.requestURI == '/locations' ? 'text-emerald-600 font-semibold' : ''}">Locations</a>
+                </div>
+            </div>
+        </nav>
+        <div class="p-4 border-t border-slate-100 space-y-4 shrink-0">
+            <a th:href="@{/profile}"
+                class="flex items-center p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-xs"
+                    sec:authentication="name">AD</div>
+                <div class="ml-3">
+                    <p class="text-sm font-semibold text-slate-700" sec:authentication="name">User</p>
+                    <p class="text-xs text-slate-400">
+                        <span th:each="auth : ${#authentication.authorities}" th:if="${#strings.startsWith(auth.authority, 'ROLE_')}" th:text="${#strings.replace(auth.authority, 'ROLE_', '')} + ' '"></span>
+                    </p>
+                </div>
+            </a>
+            <form th:action="@{/logout}" method="POST">
+                <button type="submit"
+                    class="w-full flex items-center justify-center p-3 text-rose-600 font-bold text-xs uppercase tracking-widest hover:bg-rose-50 rounded-xl transition-all">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                        </path>
+                    </svg>
+                    Logout System
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <header
+            class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/80 flex items-center justify-between px-6 shrink-0 sticky top-0 z-30">
+
+            <!-- Left: Hamburger + Page Title -->
+            <div class="flex items-center gap-3 min-w-0">
+                <button onclick="toggleSidebar(true)"
+                    class="p-2 rounded-xl hover:bg-slate-100 md:hidden text-slate-500 focus:outline-none transition-colors shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div
+                        class="w-1 h-6 rounded-full bg-gradient-to-b from-emerald-500 to-orange-500 shrink-0 hidden sm:block">
+                    </div>
+                    <h2 class="text-base font-bold text-slate-800 truncate" th:text="${pageTitle}">Dashboard</h2>
+                </div>
+            </div>
+
+            <!-- Right: Actions -->
+            <div class="flex items-center gap-1.5">
+
+                <!-- Search Bar -->
+                <div class="relative hidden md:block">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input type="text" placeholder="Search applicants…"
+                        class="bg-slate-100 border border-transparent rounded-xl pl-8 pr-4 py-2 text-xs w-48 text-slate-600 placeholder-slate-400 focus:outline-none focus:w-56 focus:bg-white focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all duration-300">
+                </div>
+
+                <!-- Notification Bell -->
+                <div class="relative">
+                    <button onclick="toggleNotifications()" title="Notifications"
+                        class="relative p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all duration-200 focus:outline-none">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        <span th:if="${notificationCount > 0}" th:text="${notificationCount}"
+                            class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white px-0.5 animate-pulse">
+                        </span>
+                    </button>
+
+                    <div id="notificationsDropdown"
+                        class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-2xl shadow-slate-200/80 z-50 overflow-hidden">
+                        <div
+                            class="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                    </svg>
+                                </div>
+                                <h4 class="font-bold text-slate-800 text-sm">Notifications</h4>
+                            </div>
+                            <form th:action="@{/notifications/clear-all}" method="POST" class="inline">
+                                <button type="submit"
+                                    class="text-[11px] text-rose-500 font-semibold hover:text-rose-700 transition-colors px-2 py-1 rounded-lg hover:bg-rose-50">Clear
+                                    All</button>
+                            </form>
+                        </div>
+                        <div class="max-h-72 overflow-y-auto divide-y divide-slate-50">
+                            <div th:each="notif : ${appNotifications}"
+                                th:classappend="${notif.read ? 'opacity-60' : ''}"
+                                class="group px-4 py-3 hover:bg-slate-50/80 transition-colors flex items-start gap-3">
+                                <div class="w-2 h-2 rounded-full mt-1.5 shrink-0"
+                                    th:classappend="${notif.read ? 'bg-slate-300' : 'bg-emerald-500 animate-pulse'}">
+                                </div>
+                                <a th:href="${notif.targetUrl}" class="flex-1 min-w-0">
+                                    <p class="text-xs leading-relaxed"
+                                        th:classappend="${notif.read ? 'text-slate-400 font-normal' : 'font-semibold text-slate-700'}"
+                                        th:text="${notif.message}">New applicant application received.</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5" th:text="${notif.time}">5m ago</p>
+                                </a>
+                                <form th:action="@{'/notifications/dismiss/' + ${notif.id}}" method="POST"
+                                    class="shrink-0">
+                                    <button type="submit" title="Dismiss"
+                                        class="text-slate-300 hover:text-rose-400 transition-colors text-sm font-bold opacity-0 group-hover:opacity-100 mt-0.5 leading-none">
+                                        &times;
+                                    </button>
+                                </form>
+                            </div>
+                            <div th:if="${#lists.isEmpty(appNotifications)}" class="py-10 text-center">
+                                <div
+                                    class="w-10 h-10 mx-auto bg-slate-100 rounded-2xl flex items-center justify-center mb-2">
+                                    <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <p class="text-xs text-slate-400 font-medium">All caught up!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thin Divider -->
+                <div class="w-px h-5 bg-slate-200 mx-1 hidden sm:block"></div>
+
+                <!-- Walk-in Link Button -->
+                <button onclick="copyWalkinLink(this)"
+                    class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold transition-all duration-200 whitespace-nowrap focus:outline-none">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    <span id="walkinBtnText">Walk-in Link</span>
+                </button>
+
+                <!-- New Job Button -->
+                <a th:href="@{/jobs/new}"
+                    class="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl text-xs font-bold hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-md shadow-emerald-200 whitespace-nowrap focus:outline-none">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                    New Job
+                </a>
+
+                <!-- Thin Divider -->
+                <div class="w-px h-5 bg-slate-200 mx-1 hidden sm:block"></div>
+
+                <!-- Logout -->
+                <form th:action="@{/logout}" method="POST">
+                    <button type="submit" title="Logout"
+                        class="flex items-center gap-1.5 px-3 py-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-semibold transition-all duration-200 whitespace-nowrap focus:outline-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span class="hidden sm:inline">Logout</span>
+                    </button>
+                </form>
+
+            </div>
+        </header>
+        <div class="flex-1 overflow-y-auto p-4 md:p-8">
+            <!-- Global Alerts -->
+            <div th:if="${success}"
+                class="mb-6 p-4 bg-emerald-50 text-emerald-600 rounded-2xl text-sm font-medium border border-emerald-100 flex items-center justify-between">
+                <span th:text="${success}"></span>
+                <button onclick="this.parentElement.style.display='none'"
+                    class="text-emerald-400 hover:text-emerald-600">&times;</button>
+            </div>
+            <div th:if="${error}"
+                class="mb-6 p-4 bg-rose-50 text-rose-600 rounded-2xl text-sm font-medium border border-rose-100 flex items-center justify-between">
+                <span th:text="${error}"></span>
+                <button onclick="this.parentElement.style.display='none'"
+                    class="text-rose-400 hover:text-rose-600">&times;</button>
+            </div>
+
+            <div th:insert="this :: content"></div>
+        </div>
+    </main>
+    <script>
+        function toggleUserMenu() {
+            const menu = document.getElementById('userSubMenu');
+            const arrow = document.getElementById('userMenuArrow');
+            menu.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+        function toggleSettingsMenu() {
+            const menu = document.getElementById('settingsSubMenu');
+            const arrow = document.getElementById('settingsMenuArrow');
+            menu.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+        function toggleSidebar(open) {
+            const sidebar = document.getElementById('sidebarMenu');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (open) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationsDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+        window.addEventListener('click', function (e) {
+            const dropdown = document.getElementById('notificationsDropdown');
+            if (dropdown && !dropdown.contains(e.target) && !e.target.closest('button[title="Notifications"]')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+        function copyWalkinLink(btn) {
+            navigator.clipboard.writeText(window.location.origin + '/walkin').then(() => {
+                const label = document.getElementById('walkinBtnText');
+                if (label) {
+                    label.textContent = 'Copied! ✓';
+                    btn.classList.add('text-emerald-600', 'bg-emerald-50');
+                    btn.classList.remove('text-slate-600', 'bg-slate-100');
+                    setTimeout(() => {
+                        label.textContent = 'Walk-in Link';
+                        btn.classList.remove('text-emerald-600', 'bg-emerald-50');
+                        btn.classList.add('text-slate-600', 'bg-slate-100');
+                    }, 2000);
+                }
+            });
+        }
+
+        // Auto-expand menus based on current path
+        window.addEventListener('DOMContentLoaded', () => {
+            const path = window.location.pathname;
+            if (path.startsWith('/settings') || path.startsWith('/departments') || path.startsWith('/locations')) {
+                const menu = document.getElementById('settingsSubMenu');
+                const arrow = document.getElementById('settingsMenuArrow');
+                if (menu) menu.classList.remove('hidden');
+                if (arrow) arrow.classList.add('rotate-180');
+            }
+            if (path.startsWith('/users')) {
+                const menu = document.getElementById('userSubMenu');
+                const arrow = document.getElementById('userMenuArrow');
+                if (menu) menu.classList.remove('hidden');
+                if (arrow) arrow.classList.add('rotate-180');
+            }
+        });
+    </script>
+</body>
+
+</html>

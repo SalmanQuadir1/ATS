@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+<div th:fragment="content">
+    <div class="max-w-xl mx-auto">
+        <div class="mb-8">
+            <a th:href="@{/locations}" class="text-sm text-slate-500 hover:text-emerald-600 flex items-center mb-4 transition-colors">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                Back to Locations
+            </a>
+            <h3 class="text-3xl font-bold text-slate-800" th:text="${location.id == null ? 'New Location' : 'Edit Location'}">New Location</h3>
+            <p class="text-slate-500 mt-1" th:text="${location.id == null ? 'Add a new work location to your organization.' : 'Update the location name.'}">Add a new location.</p>
+        </div>
+
+        <div class="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-xl shadow-slate-200/50">
+            <form th:if="${location.id == null}" th:action="@{/locations/create}" method="POST" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Location Name</label>
+                    <input type="text" name="name" th:value="${location.name}" required
+                           class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder-slate-400"
+                           placeholder="e.g. New York HQ">
+                </div>
+                <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
+                    <a th:href="@{/locations}" class="px-8 py-4 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors">Cancel</a>
+                    <button type="submit" class="bg-emerald-600 text-white font-bold px-10 py-4 rounded-2xl shadow-lg shadow-emerald-500/30 hover:bg-emerald-700 hover:scale-[1.02] transition-all">Save</button>
+                </div>
+            </form>
+            <form th:if="${location.id != null}" th:action="@{'/locations/' + ${location.id} + '/update'}" method="POST" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Location Name</label>
+                    <input type="text" name="name" th:value="${location.name}" required
+                           class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder-slate-400"
+                           placeholder="e.g. New York HQ">
+                </div>
+                <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
+                    <a th:href="@{/locations}" class="px-8 py-4 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors">Cancel</a>
+                    <button type="submit" class="bg-emerald-600 text-white font-bold px-10 py-4 rounded-2xl shadow-lg shadow-emerald-500/30 hover:bg-emerald-700 hover:scale-[1.02] transition-all">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Application Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #090e1a 0%, #1a103c 100%);
+            color: #f8fafc;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .step-active {
+            background-color: #8b5cf6; /* violet-500 */
+            box-shadow: 0 0 15px 3px rgba(139, 92, 246, 0.5);
+        }
+        .step-completed {
+            background-color: #10b981; /* emerald-500 */
+        }
+        .step-upcoming {
+            background-color: #334155; /* slate-700 */
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <div class="max-w-5xl mx-auto">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-10 pb-6 border-b border-slate-800">
+            <div>
+                <span class="px-3 py-1 bg-violet-500/20 text-violet-300 rounded-full text-xs font-semibold tracking-wider uppercase">Applicant Secure Space</span>
+                <h1 class="text-4xl font-extrabold bg-gradient-to-r from-violet-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent mt-2">Applicant Portal</h1>
+                <p class="text-slate-400 text-sm mt-1">Track application timelines and update contact details instantly</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-xs text-slate-400">Logged in as</p>
+                    <p class="text-sm font-bold text-violet-300" th:text="${user.username}">applicant@email.com</p>
+                </div>
+                <form th:action="@{/logout}" method="post" class="inline">
+                    <button type="submit" class="px-4 py-2 bg-rose-600/25 hover:bg-rose-600/40 text-rose-300 border border-rose-500/30 rounded-xl text-sm font-semibold transition-all">Sign Out</button>
+                </form>
+            </div>
+        </header>
+
+        <!-- Dynamic Success / Alert notifications -->
+        <div th:if="${param.success}" class="mb-6 p-4 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 rounded-2xl text-sm font-semibold flex items-center justify-between">
+            <span>Profile details synchronized successfully.</span>
+            <button onclick="this.parentElement.style.display='none'" class="text-emerald-400 hover:text-emerald-200">&times;</button>
+        </div>
+
+        <main th:if="${candidate == null}" class="glass-panel rounded-3xl p-8 max-w-2xl mx-auto text-center space-y-6">
+            <div class="p-4 bg-violet-500/10 text-violet-300 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-2xl">📋</div>
+            <h2 class="text-2xl font-bold text-white">Create Applicant Profile File</h2>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Welcome to our SaaS portal! Since your user profile does not have an active application folder linked, let's create one now to instantly link your portfolio.
+            </p>
+            <!-- Form to initialize profile if candidate is null -->
+            <!-- Note: Let's redirect to a mock handler or allow creating one. Actually, seeding takes care of it, but having this fallback is exceptionally robust. -->
+            <div class="pt-4">
+                <p class="text-slate-500 text-xs italic">Please contact your system recruiter or utilize the pre-seeded applicant account to log in.</p>
+            </div>
+        </main>
+
+        <div th:if="${candidate != null}" class="space-y-8">
+            
+            <!-- Timeline Tracking Stepper Card -->
+            <section class="glass-panel rounded-3xl p-8">
+                <h2 class="text-xl font-bold text-white mb-2">Application Tracking Stepper</h2>
+                <p class="text-slate-400 text-xs mb-8">Real-time status updates from our corporate hiring panel</p>
+
+                <!-- Rejected / KIV special conditions -->
+                <div th:if="${candidate.status.name() == 'REJECTED'}" class="mb-8 p-4 bg-rose-500/15 border border-rose-500/30 rounded-2xl flex items-start gap-3">
+                    <span class="text-xl">❌</span>
+                    <div>
+                        <h4 class="font-bold text-rose-300 text-sm">Application Status: Declined</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed mt-1">Thank you for your interest and time. While this role isn't the right fit at this moment, we will keep your profile in mind for future openings.</p>
+                    </div>
+                </div>
+
+                <div th:if="${candidate.status.name() == 'KIV'}" class="mb-8 p-4 bg-amber-500/15 border border-amber-500/30 rounded-2xl flex items-start gap-3">
+                    <span class="text-xl">⏳</span>
+                    <div>
+                        <h4 class="font-bold text-amber-300 text-sm">Application Status: Keep In View</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed mt-1">Your profile has been marked as KIV. Our recruiting team will reach out once matching openings become available.</p>
+                    </div>
+                </div>
+
+                <!-- Stepper component -->
+                <div class="relative flex flex-col md:flex-row justify-between items-center gap-6 md:gap-0 pt-4 pb-4">
+                    <!-- Progress Line (desktop only) -->
+                    <div class="absolute hidden md:block left-0 right-0 h-1 bg-slate-800 top-1/2 -translate-y-1/2 z-0">
+                        <div class="h-1 bg-gradient-to-r from-emerald-500 to-violet-500 transition-all duration-500" 
+                             th:style="${candidate.status.name() == 'HIRED' ? 'width: 100%' : 
+                                        candidate.status.name() == 'OFFERED' ? 'width: 75%' : 
+                                        candidate.status.name() == 'INTERVIEW' ? 'width: 50%' : 
+                                        candidate.status.name() == 'SHORTLISTED' ? 'width: 25%' : 'width: 5%'}"></div>
+                    </div>
+
+                    <!-- Step 1: APPLIED -->
+                    <div class="relative z-10 flex flex-col items-center text-center">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white transition-all"
+                             th:classappend="${candidate.status.name() == 'APPLIED' ? 'step-active' : 'step-completed'}">1</div>
+                        <span class="block text-xs font-bold text-white mt-3">Applied</span>
+                        <span class="text-[9px] text-slate-500 mt-0.5" th:text="${#strings.substring(candidate.appliedAt, 0, 10)}">Date</span>
+                    </div>
+
+                    <!-- Step 2: SHORTLISTED -->
+                    <div class="relative z-10 flex flex-col items-center text-center">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white transition-all"
+                             th:classappend="${candidate.status.name() == 'SHORTLISTED' ? 'step-active' : 
+                                              (candidate.status.name() == 'APPLIED' ? 'step-upcoming' : 'step-completed')}">2</div>
+                        <span class="block text-xs font-bold text-white mt-3">Shortlisted</span>
+                        <span class="text-[9px] text-slate-500 mt-0.5">Screening</span>
+                    </div>
+
+                    <!-- Step 3: INTERVIEW -->
+                    <div class="relative z-10 flex flex-col items-center text-center">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white transition-all"
+                             th:classappend="${candidate.status.name() == 'INTERVIEW' ? 'step-active' : 
+                                              (candidate.status.name() == 'APPLIED' || candidate.status.name() == 'SHORTLISTED' ? 'step-upcoming' : 'step-completed')}">3</div>
+                        <span class="block text-xs font-bold text-white mt-3">Panel Interview</span>
+                        <span class="text-[9px] text-slate-500 mt-0.5">Technical Assessment</span>
+                    </div>
+
+                    <!-- Step 4: OFFERED -->
+                    <div class="relative z-10 flex flex-col items-center text-center">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white transition-all"
+                             th:classappend="${candidate.status.name() == 'OFFERED' ? 'step-active' : 
+                                              (candidate.status.name() == 'HIRED' ? 'step-completed' : 'step-upcoming')}">4</div>
+                        <span class="block text-xs font-bold text-white mt-3">Offer Released</span>
+                        <span class="text-[9px] text-slate-500 mt-0.5">Agreement</span>
+                    </div>
+
+                    <!-- Step 5: HIRED -->
+                    <div class="relative z-10 flex flex-col items-center text-center">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white transition-all"
+                             th:classappend="${candidate.status.name() == 'HIRED' ? 'step-active' : 'step-upcoming'}">5</div>
+                        <span class="block text-xs font-bold text-white mt-3">Hired</span>
+                        <span class="text-[9px] text-slate-500 mt-0.5">Onboarded</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Portal Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Left Side: Profile Details & Updates -->
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="glass-panel rounded-3xl p-6">
+                        <h2 class="text-xl font-bold text-white mb-2">My Profile Details</h2>
+                        <p class="text-slate-400 text-xs mb-6">Review applicant portfolio information currently saved on platform</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm mb-6">
+                            <div class="space-y-1">
+                                <span class="text-slate-500 text-xs font-semibold block uppercase">Full Name</span>
+                                <span class="font-bold text-white block text-md" th:text="${candidate.fullName}">John Doe</span>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-slate-500 text-xs font-semibold block uppercase">Email Address</span>
+                                <span class="font-bold text-white block text-md" th:text="${candidate.email}">john.doe@company.com</span>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-slate-500 text-xs font-semibold block uppercase">Experience Level</span>
+                                <span class="font-bold text-white block text-md" th:text="${candidate.experienceYears + ' Years Depth'}">3 Years Depth</span>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-slate-500 text-xs font-semibold block uppercase">Education Credentials</span>
+                                <span class="font-bold text-white block text-md" th:text="${candidate.education}">BS Computer Science</span>
+                            </div>
+                            <div class="space-y-1 md:col-span-2">
+                                <span class="text-slate-500 text-xs font-semibold block uppercase">Skills Portfolio</span>
+                                <div class="flex flex-wrap gap-1.5 mt-2">
+                                    <span th:each="skill : ${#strings.arraySplit(candidate.skills, ',')}" 
+                                          class="px-2.5 py-1 bg-violet-500/10 text-violet-300 rounded-lg text-xs font-semibold border border-violet-500/20"
+                                          th:text="${#strings.trim(skill)}">Java</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Projects Section -->
+                            <div class="space-y-1 md:col-span-2" th:if="${candidate.projects != null && !#strings.isEmpty(candidate.projects)}">
+                                <span class="text-slate-500 text-xs font-semibold block uppercase">Projects</span>
+                                <span class="font-bold text-white block text-sm whitespace-pre-wrap" th:text="${candidate.projects}">Built an app...</span>
+                            </div>
+                            <div class="space-y-1 md:col-span-2" th:if="${candidate.projectUrl != null && !#strings.isEmpty(candidate.projectUrl)}">
+                                <span class="text-slate-500 text-xs font-semibold block uppercase">Project / Portfolio URL</span>
+                                <a th:href="${candidate.projectUrl}" target="_blank" class="font-bold text-violet-400 hover:text-violet-300 hover:underline block text-sm break-all" th:text="${candidate.projectUrl}">https://github.com/...</a>
+                            </div>
+                        </div>
+
+                        <!-- Update Form -->
+                        <div class="pt-6 border-t border-slate-800">
+                            <h3 class="text-md font-bold text-white mb-4">Modify Contact & Salary Preferences</h3>
+                            <form th:action="@{/candidate/portal/profile/update}" method="post" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Active Contact Phone</label>
+                                    <input type="text" name="phone" th:value="${candidate.phone}" required class="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-violet-500 transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Expected Monthly Salary ($)</label>
+                                    <input type="number" name="expectedSalary" th:value="${candidate.expectedSalary}" required class="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-violet-500 transition-all">
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <button type="submit" class="w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-bold shadow-md transition-all">Synchronize Details</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Document Hub & Info -->
+                <div class="space-y-8">
+                    <!-- Secure Upload Card -->
+                    <div class="glass-panel rounded-3xl p-6">
+                        <h2 class="text-lg font-bold text-white mb-2">Document Hub</h2>
+                        <p class="text-slate-400 text-xs mb-6">Linked portfolio documents and resumes</p>
+
+                        <div class="space-y-4">
+                            <!-- Resume Item -->
+                            <div class="flex items-center justify-between p-3.5 bg-slate-900/30 rounded-2xl border border-slate-800/80">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xl">📄</span>
+                                    <div>
+                                        <span class="block text-xs font-bold text-white">Curriculum_Vitae.pdf</span>
+                                        <span class="text-[9px] text-slate-400">PDF Document &bull; 1.4 MB</span>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold rounded-lg border border-emerald-500/20">Verified</span>
+                            </div>
+
+                            <!-- Certifications -->
+                            <div th:if="${candidate.certifications != null}" class="p-3.5 bg-slate-900/30 rounded-2xl border border-slate-800/80">
+                                <span class="block text-xs font-bold text-white mb-1.5">Linked Certifications</span>
+                                <p class="text-xs text-slate-400 leading-relaxed" th:text="${candidate.certifications}">Google Professional Cloud Architect</p>
+                            </div>
+                        </div>
+
+                        <!-- Dropzone simulation -->
+                        <div class="mt-6 border-2 border-dashed border-slate-700/80 rounded-2xl p-6 text-center hover:border-violet-500/55 transition-all cursor-pointer">
+                            <span class="text-2xl block mb-2">☁️</span>
+                            <span class="block text-xs font-semibold text-white">Drag & drop new portfolio resume</span>
+                            <span class="block text-[10px] text-slate-500 mt-1">Supports PDF, DOCX up to 10MB</span>
+                        </div>
+                    </div>
+
+                    <!-- Platform Tenant Branding Badge -->
+                    <div class="glass-panel rounded-3xl p-6 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Managed By</span>
+                            <span class="text-sm font-bold text-white mt-1 block" th:text="${candidate.tenant.name}">Acme Corp</span>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs uppercase text-slate-100"
+                             th:classappend="${candidate.tenant.themeColor == 'emerald' ? 'bg-emerald-600' : 
+                                              candidate.tenant.themeColor == 'rose' ? 'bg-rose-600' : 
+                                              candidate.tenant.themeColor == 'violet' ? 'bg-violet-600' : 
+                                              candidate.tenant.themeColor == 'amber' ? 'bg-amber-600' : 'bg-teal-600'}"
+                             th:text="${#strings.substring(candidate.tenant.name, 0, 2)}">
+                            AC
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</body>
+</html>

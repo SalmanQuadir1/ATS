@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+<div th:fragment="content">
+    <div class="mb-4">
+        <a th:href="@{/settings/categories}" class="text-sm text-emerald-600 hover:underline flex items-center gap-1 font-semibold mb-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Back to Categories
+        </a>
+    </div>
+
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h3 class="text-3xl font-bold text-slate-800" th:text="${category.name}">Category</h3>
+            <p class="text-slate-500 mt-1">Manage specific skills for this category.</p>
+        </div>
+    </div>
+
+    <!-- Error/Success Messages -->
+    <div th:if="${error}" class="mb-6 p-4 bg-rose-50 text-rose-600 rounded-2xl text-sm font-medium border border-rose-100 flex items-center justify-between">
+        <span th:text="${error}"></span>
+    </div>
+    <div th:if="${success}" class="mb-6 p-4 bg-emerald-50 text-emerald-600 rounded-2xl text-sm font-medium border border-emerald-100">
+        <span th:text="${success}"></span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="md:col-span-1">
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <h4 class="font-bold text-slate-700 mb-4 text-sm uppercase tracking-widest">Add New Skill</h4>
+                <form th:action="@{'/settings/categories/' + ${category.id} + '/skills/add'}" method="post" class="space-y-4">
+                    <input type="text" name="name" required placeholder="e.g. Java"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-400">
+                    <button type="submit" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors text-sm">Add Skill</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="md:col-span-2">
+            <div class="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm">
+                <h4 class="font-bold text-slate-700 mb-6 text-sm uppercase tracking-widest">Configured Skills</h4>
+                
+                <div th:if="${#lists.isEmpty(skills)}" class="py-8 text-center text-slate-400 text-sm font-medium">
+                    No skills added to this category yet.
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                    <div th:each="skill : ${skills}" class="group flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700">
+                        <span th:text="${skill.name}">Java</span>
+                        <div class="flex items-center gap-1 opacity-50 group-hover:opacity-100 transition-opacity ml-1">
+                            <button type="button" class="text-slate-400 hover:text-emerald-500" title="Edit skill"
+                                    th:data-id="${skill.id}" th:data-name="${skill.name}" onclick="editSkill(this.getAttribute('data-id'), this.getAttribute('data-name'))">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                            </button>
+                            <form th:id="'editForm-' + ${skill.id}" th:action="@{'/settings/categories/' + ${category.id} + '/skills/' + ${skill.id} + '/update'}" method="POST" style="display:none">
+                                <input type="hidden" name="name" th:id="'editInput-' + ${skill.id}">
+                            </form>
+                            <form th:action="@{'/settings/categories/' + ${category.id} + '/skills/' + ${skill.id} + '/delete'}" method="POST" class="inline">
+                                <button type="submit" class="text-slate-400 hover:text-rose-500" title="Remove skill">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function editSkill(id, oldName) {
+            var newName = prompt("Edit Skill Name:", oldName);
+            if (newName && newName.trim() !== '' && newName !== oldName) {
+                document.getElementById('editInput-' + id).value = newName.trim();
+                document.getElementById('editForm-' + id).submit();
+            }
+        }
+    </script>
+</div>
+</body>
+</html>

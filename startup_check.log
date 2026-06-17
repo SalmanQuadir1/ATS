@@ -1,0 +1,97 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< com.stie:stie-system >------------------------
+[INFO] Building STIE System 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:2.7.18:run (default-cli) > test-compile @ stie-system >>>
+[INFO] 
+[INFO] --- resources:3.2.0:resources (default-resources) @ stie-system ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 1 resource
+[INFO] Copying 38 resources
+[INFO] 
+[INFO] --- compiler:3.10.1:compile (default-compile) @ stie-system ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.2.0:testResources (default-testResources) @ stie-system ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] skip non existing resourceDirectory C:\Users\Asus\OneDrive\Desktop\ATS\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.10.1:testCompile (default-testCompile) @ stie-system ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] <<< spring-boot:2.7.18:run (default-cli) < test-compile @ stie-system <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:2.7.18:run (default-cli) @ stie-system ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::               (v2.7.18)
+
+2026-06-16 15:11:26.081  INFO 20848 --- [           main] com.stie.StieApplication                 : Starting StieApplication using Java 22 on LAPTOP-5D79A4B9 with PID 20848 (C:\Users\Asus\OneDrive\Desktop\ATS\target\classes started by Salman_Quadir in C:\Users\Asus\OneDrive\Desktop\ATS)
+2026-06-16 15:11:26.083 DEBUG 20848 --- [           main] com.stie.StieApplication                 : Running with Spring Boot v2.7.18, Spring v5.3.31
+2026-06-16 15:11:26.083  INFO 20848 --- [           main] com.stie.StieApplication                 : No active profile set, falling back to 1 default profile: "default"
+2026-06-16 15:11:26.494  INFO 20848 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-16 15:11:26.547  INFO 20848 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 47 ms. Found 14 JPA repository interfaces.
+2026-06-16 15:11:26.943  INFO 20848 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2026-06-16 15:11:26.951  INFO 20848 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-16 15:11:26.951  INFO 20848 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.83]
+2026-06-16 15:11:27.030  INFO 20848 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-16 15:11:27.030  INFO 20848 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 914 ms
+2026-06-16 15:11:27.146  INFO 20848 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-16 15:11:27.187  INFO 20848 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 5.6.15.Final
+2026-06-16 15:11:27.294  INFO 20848 --- [           main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-06-16 15:11:27.354  INFO 20848 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-16 15:11:27.475  INFO 20848 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-16 15:11:27.490  INFO 20848 --- [           main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2026-06-16 15:11:28.250  INFO 20848 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-06-16 15:11:28.267  INFO 20848 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+Hibernate: select count(*) as col_0_0_ from branding_config brandingco0_
+Hibernate: select count(*) as col_0_0_ from email_templates emailtempl0_
+2026-06-16 15:11:29.910  INFO 20848 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@556e4588, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4f5df012, org.springframework.security.web.context.SecurityContextPersistenceFilter@17e66aed, org.springframework.security.web.header.HeaderWriterFilter@47d4468a, org.springframework.security.web.authentication.logout.LogoutFilter@241abc2, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@2e6f1f48, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6a905513, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2f98fe6f, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@38f3dbbf, org.springframework.security.web.session.SessionManagementFilter@3ec98000, org.springframework.security.web.access.ExceptionTranslationFilter@1399ad68, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@3e265811]
+2026-06-16 15:11:30.000  WARN 20848 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-16 15:11:30.744  WARN 20848 --- [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'; nested exception is org.springframework.boot.web.server.PortInUseException: Port 8080 is already in use
+2026-06-16 15:11:30.755  INFO 20848 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-16 15:11:30.761  INFO 20848 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-16 15:11:30.778  INFO 20848 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-16 15:11:30.785  INFO 20848 --- [           main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-06-16 15:11:30.815  INFO 20848 --- [           main] ConditionEvaluationReportLoggingListener : 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2026-06-16 15:11:30.871 ERROR 20848 --- [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  7.164 s
+[INFO] Finished at: 2026-06-16T15:11:30+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:2.7.18:run (default-cli) on project stie-system: Application finished with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

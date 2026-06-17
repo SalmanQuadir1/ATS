@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+        <div class="max-w-2xl mx-auto">
+            <div class="mb-8">
+                <h3 class="text-3xl font-bold text-slate-800">User Profile</h3>
+                <p class="text-slate-500">Manage your account settings and security.</p>
+            </div>
+
+            <!-- Profile Info -->
+            <div class="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50 mb-8">
+                <div class="flex items-center mb-8">
+                    <div class="w-20 h-20 bg-emerald-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-emerald-200">
+                        <span th:text="${#strings.substring(user.username, 0, 1).toUpperCase()}">U</span>
+                    </div>
+                    <div class="ml-6">
+                        <h4 class="text-xl font-bold text-slate-800" th:text="${user.username}">Username</h4>
+                        <div class="flex space-x-2 mt-1">
+                            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase rounded-full" th:text="${user.role}">ROLE_ADMIN</span>
+                            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase rounded-full">ACTIVE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Email Address</p>
+                        <p class="text-sm font-semibold text-slate-700" th:text="${user.username + '@stie.com'}">admin@stie.com</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Department</p>
+                        <p class="text-sm font-semibold text-slate-700" th:text="${user.role == 'ROLE_HR' ? 'Human Resources' : (user.role == 'ROLE_MANAGER' ? 'Engineering' : 'Global Admin')}">Department Name</p>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

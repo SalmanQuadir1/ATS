@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+        <div class="mb-8">
+            <h3 class="text-2xl font-bold text-slate-800">System Configuration</h3>
+            <p class="text-slate-500">Manage user permissions and platform settings</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <!-- Organization Structure -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                <h5 class="text-lg font-bold text-slate-800 mb-6 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    Organization Structure
+                </h5>
+                <p class="text-sm text-slate-500 mb-6">Manage departments and locations for your site.</p>
+                <div class="pt-6 border-t border-slate-50 flex gap-3">
+                    <a th:href="@{/departments}" class="text-indigo-600 text-sm font-bold hover:underline flex items-center">
+                        Departments
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                    <a th:href="@{/locations}" class="text-emerald-600 text-sm font-bold hover:underline flex items-center">
+                        Locations
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Access Control -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                <h5 class="text-lg font-bold text-slate-800 mb-6 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Role Based Access (RBAC)
+                </h5>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">Admin</p>
+                            <p class="text-xs text-slate-500">Full system access & user management</p>
+                        </div>
+                        <span class="text-[10px] bg-slate-200 px-2 py-1 rounded font-bold">2 USERS</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">HR Department</p>
+                            <p class="text-xs text-slate-500">Recruitment & applicant management</p>
+                        </div>
+                        <span class="text-[10px] bg-slate-200 px-2 py-1 rounded font-bold">5 USERS</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">Hiring Manager</p>
+                            <p class="text-xs text-slate-500">Submit requests & interview feedback</p>
+                        </div>
+                        <span class="text-[10px] bg-slate-200 px-2 py-1 rounded font-bold">12 USERS</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global Settings -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                <h5 class="text-lg font-bold text-slate-800 mb-6 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Compliance & Workflow
+                </h5>
+                <form class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">PDPA Compliance Mode</p>
+                            <p class="text-xs text-slate-500">Encrypt applicant PII at rest</p>
+                        </div>
+                        <div class="w-12 h-6 bg-emerald-600 rounded-full relative">
+                            <div class="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">Auto-Approval Threshold</p>
+                            <p class="text-xs text-slate-500">Auto-approve budget for roles < $5000</p>
+                        </div>
+                        <div class="w-12 h-6 bg-slate-200 rounded-full relative">
+                            <div class="w-4 h-4 bg-white rounded-full absolute left-1 top-1"></div>
+                        </div>
+                    </div>
+                    <div class="pt-6 border-t border-slate-50">
+                        <button type="button" class="text-emerald-600 text-sm font-bold hover:underline">Download Audit Logs (FY26)</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Audit Trail Section -->
+        <div class="mt-8 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+            <h5 class="text-lg font-bold text-slate-800 mb-6 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                System Audit Trail (SOP D.9 Compliance)
+            </h5>
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left border-collapse min-w-[750px]">
+                    <thead class="bg-slate-50 border-b border-slate-100">
+                        <tr>
+                            <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase">Timestamp</th>
+                            <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase">Action</th>
+                            <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase">User</th>
+                            <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase">Target</th>
+                            <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <tr th:each="log : ${auditLogs}" class="hover:bg-slate-50 transition-colors">
+                            <td class="px-4 py-3 text-xs text-slate-500" th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-05-15 12:00:00</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded" th:text="${log.action}">JOB_CREATED</span>
+                            </td>
+                            <td class="px-4 py-3 text-xs font-semibold text-slate-700" th:text="${log.performedBy}">Admin</td>
+                            <td class="px-4 py-3 text-xs text-slate-500" th:text="${log.targetEntity + ' (#' + log.targetId + ')'}">Job (1)</td>
+                            <td class="px-4 py-3 text-xs text-slate-600" th:text="${log.details}">Created new job: Senior Java Dev</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

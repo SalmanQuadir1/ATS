@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Applicant Pool</h3>
+                <p class="text-slate-500 font-medium mt-1">Screen, filter, and rank applicants for active vacancies</p>
+            </div>
+            
+            <div class="w-full md:w-auto flex-1 max-w-4xl">
+                <form th:action="@{/candidates}" method="GET" id="searchForm" class="space-y-4">
+                    <div class="flex flex-wrap gap-3 items-center justify-end">
+                        <div class="flex flex-wrap gap-2 items-center w-full md:w-auto">
+                            <!-- Keyword search -->
+                            <div class="relative flex-1 md:flex-initial">
+                                <input type="text" name="search" th:value="${param.search}" placeholder="Search name, skills, edu..." 
+                                       class="bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm w-full md:w-56 focus:ring-2 focus:ring-emerald-500 outline-none">
+                                <svg class="w-4 h-4 absolute left-4 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            
+                            <!-- Rank by Job -->
+                            <select name="rankJobId" class="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Rank by Job Relevance...</option>
+                                <option th:each="job : ${jobs}" th:value="${job.id}" th:text="${job.title}" th:selected="${param.rankJobId != null && #strings.equals(param.rankJobId, #strings.toString(job.id))}"></option>
+                            </select>
+
+                            <button type="button" onclick="toggleAdvancedFilters()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-colors inline-flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                                Advanced Filters
+                            </button>
+                        </div>
+                        
+                        <div class="flex gap-2 w-full md:w-auto justify-end">
+                            <button type="submit" class="bg-slate-800 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors">Apply & Rank</button>
+                            <a th:href="@{/candidates}" class="bg-slate-100 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-200 transition-colors inline-flex items-center">Reset</a>
+                            <a th:href="@{/candidates/export}" class="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors inline-flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Export CSV
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Advanced Filters Section -->
+                    <div id="advancedFiltersSection" class="hidden bg-slate-50 border border-slate-100 p-6 rounded-2xl grid grid-cols-1 md:grid-cols-4 gap-4 transition-all duration-300">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Nationality</label>
+                            <select name="nationality" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">All Nationalities</option>
+                                <option value="Singaporean" th:selected="${#strings.equals(param.nationality, 'Singaporean')}">Singaporean</option>
+                                <option value="PR" th:selected="${#strings.equals(param.nationality, 'PR')}">Singapore PR</option>
+                                <option value="Foreigner" th:selected="${#strings.equals(param.nationality, 'Foreigner')}">Foreigner</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Min Experience</label>
+                            <select name="minExp" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="0">Min Experience</option>
+                                <option value="2" th:selected="${#strings.equals(param.minExp, '2')}">2+ Years</option>
+                                <option value="5" th:selected="${#strings.equals(param.minExp, '5')}">5+ Years</option>
+                                <option value="10" th:selected="${#strings.equals(param.minExp, '10')}">10+ Years</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Max Expected Salary (S$/mo)</label>
+                            <input type="number" name="maxSalary" th:value="${param.maxSalary}" placeholder="e.g. 5000"
+                                   class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Certifications</label>
+                            <input type="text" name="certifications" th:value="${param.certifications}" placeholder="e.g. AWS, CSM..."
+                                   class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        
+                        <!-- Toggle filters -->
+                        <div class="md:col-span-4 flex flex-wrap gap-6 pt-3 border-t border-slate-100 mt-2">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="hasSecurityLicense" value="true" th:checked="${#strings.equals(param.hasSecurityLicense, 'true')}" class="rounded text-emerald-600 border-slate-300 focus:ring-emerald-500 mr-2 h-4 w-4">
+                                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Security License (PLRD) Holder Only</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="workPermitEligible" value="true" th:checked="${#strings.equals(param.workPermitEligible, 'true')}" class="rounded text-emerald-600 border-slate-300 focus:ring-emerald-500 mr-2 h-4 w-4">
+                                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Work Permit / S-Pass Eligible Only</span>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Candidate Table -->
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left border-collapse min-w-[900px]">
+                <thead class="bg-slate-50 border-b border-slate-100">
+                    <tr>
+                        <th class="px-6 py-4 w-10" sec:authorize="hasAnyRole('ADMIN', 'HR')">
+                            <input type="checkbox" id="selectAll" class="rounded text-emerald-600 border-slate-300">
+                        </th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Applicant Details</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Applied For</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Experience & Salary</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Skills & Credentials</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nationality</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider" sec:authorize="hasAnyRole('ADMIN', 'HR', 'MANAGER')">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    <tr th:each="candidate : ${candidates}" class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4" sec:authorize="hasAnyRole('ADMIN', 'HR')">
+                            <input type="checkbox" class="candidate-check rounded text-emerald-600 border-slate-300" th:value="${candidate.id}">
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold" 
+                                     th:text="${#strings.substring(candidate.fullName, 0, 1)}">J</div>
+                                <div class="ml-4">
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-sm font-bold text-slate-800" th:text="${candidate.fullName}">John Doe</p>
+                                        <span th:if="${candidate.matchScore > 0}" 
+                                              th:classappend="${applicant.matchScore >= 80 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : applicant.matchScore >= 50 ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-slate-50 text-slate-700 border-slate-100'}"
+                                              class="px-2 py-0.5 text-[9px] font-extrabold rounded-full border" 
+                                              th:text="${applicant.matchScore + '% Match'}">85% Match</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400 font-medium" th:text="${candidate.email}">john@example.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div th:if="${candidate.jobVacancy != null}" class="flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                <span class="text-sm font-semibold text-slate-700" th:text="${candidate.jobVacancy.title}">Job Title</span>
+                            </div>
+                            <div th:if="${candidate.jobVacancy == null}" class="text-xs text-slate-400">—</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-slate-800 font-semibold" th:text="${candidate.experienceYears + ' Years'}">5 Years</div>
+                            <div class="text-xs text-slate-400 font-medium" th:text="${candidate.expectedSalary != null ? 'S$' + candidate.expectedSalary + '/mo' : 'Salary: Negotiable'}">S$6,000/mo</div>
+                            <div class="mt-1" th:if="${candidate.securityLicense != null && !#strings.isEmpty(candidate.securityLicense)}">
+                                <span class="px-1.5 py-0.5 bg-rose-50 text-rose-600 text-[9px] font-bold rounded border border-rose-100" th:text="${'PLRD: ' + candidate.securityLicense}">PLRD-Licensed</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-wrap gap-1">
+                                <span th:each="skill : ${#strings.arraySplit(candidate.skills, ',')}" 
+                                      class="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded" th:text="${skill}">Java</span>
+                            </div>
+                            <div class="mt-1.5 flex flex-wrap gap-1" th:if="${candidate.certifications != null && !#strings.isEmpty(candidate.certifications)}">
+                                <span th:each="cert : ${#strings.arraySplit(candidate.certifications, ',')}" 
+                                      class="px-2 py-0.5 bg-amber-50 text-amber-600 text-[9px] font-medium rounded border border-amber-100" th:text="${cert.trim()}">AWS Certified</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-slate-600 font-semibold" th:text="${candidate.nationality}">Singaporean</td>
+                        <td class="px-6 py-4">
+                            <span th:classappend="${candidate.status == T(com.stie.model.Candidate.CandidateStatus).SHORTLISTED ? 'bg-emerald-50 text-emerald-600' : 
+                                                 candidate.status == T(com.stie.model.Candidate.CandidateStatus).REJECTED ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 text-slate-600'}" 
+                                  class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-current" 
+                                  th:text="${candidate.status}">APPLIED</span>
+                            <div class="mt-1.5" th:if="${candidate.sharedWithHM}">
+                                <span class="px-2 py-0.5 bg-teal-50 text-teal-600 text-[9px] font-extrabold rounded-md border border-teal-100 uppercase tracking-wider">Shared with HM</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4" sec:authorize="hasAnyRole('ADMIN', 'HR', 'MANAGER')">
+                            <div class="flex space-x-1">
+                                <form th:action="@{/candidates/{id}/status(id=${candidate.id})}" method="POST" class="inline" sec:authorize="hasAnyRole('ADMIN', 'HR')">
+                                    <input type="hidden" name="status" value="SHORTLISTED">
+                                    <button type="submit" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Shortlist">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    </button>
+                                </form>
+                                <form th:action="@{/candidates/{id}/status(id=${candidate.id})}" method="POST" class="inline" sec:authorize="hasAnyRole('ADMIN', 'HR')">
+                                    <input type="hidden" name="status" value="REJECTED">
+                                    <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Reject">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </form>
+                                <a th:href="@{/candidates/{id}(id=${candidate.id})}" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="View Details">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+            
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(candidates)}" class="p-12 text-center">
+                <p class="text-slate-400">No applicants found matching your criteria.</p>
+            </div>
+            
+            <!-- Pagination Footer -->
+            <div th:if="${!isSearch && totalPages > 1}" class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <p class="text-xs text-slate-500" th:text="${'Page ' + (currentPage + 1) + ' of ' + totalPages}">Page 1 of 5</p>
+                <div class="flex space-x-2">
+                    <a th:if="${currentPage > 0}" th:href="@{/applicants(page=${currentPage - 1})}" 
+                       class="px-3 py-1 bg-white border border-slate-200 rounded text-xs font-semibold hover:bg-slate-50">Previous</a>
+                    <a th:if="${currentPage < totalPages - 1}" th:href="@{/candidates(page=${currentPage + 1})}" 
+                       class="px-3 py-1 bg-white border border-slate-200 rounded text-xs font-semibold hover:bg-slate-50">Next</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Actions Bar -->
+        <div id="bulkActions" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl z-50 flex items-center space-x-8 animate-bounce-short">
+            <span class="text-sm font-bold"><span id="selectedCount">0</span> Applicants Selected</span>
+            <div class="h-6 w-px bg-slate-700"></div>
+            <div class="flex space-x-4">
+                <button onclick="alert('Bulk rejection sent to selected candidates.')" class="text-sm font-bold text-rose-400 hover:text-rose-300">Bulk Reject</button>
+                <button onclick="alert('Shortlist status updated for selected candidates.')" class="text-sm font-bold text-emerald-400 hover:text-emerald-300">Bulk Shortlist</button>
+            </div>
+            <button onclick="deselectAll()" class="text-xs text-slate-400 hover:text-white">Deselect All</button>
+        </div>
+
+        <script>
+            const selectAll = document.getElementById('selectAll');
+            const checks = document.querySelectorAll('.candidate-check');
+            const bulkBar = document.getElementById('bulkActions');
+            const countDisplay = document.getElementById('selectedCount');
+
+            function updateBulkBar() {
+                const checked = document.querySelectorAll('.candidate-check:checked');
+                if (checked.length > 0) {
+                    bulkBar.classList.remove('hidden');
+                    countDisplay.innerText = checked.length;
+                } else {
+                    bulkBar.classList.add('hidden');
+                }
+            }
+
+            if (selectAll) {
+                selectAll.onchange = (e) => {
+                    checks.forEach(c => c.checked = e.target.checked);
+                    updateBulkBar();
+                };
+            }
+
+            checks.forEach(c => c.onchange = updateBulkBar);
+
+            function deselectAll() {
+                checks.forEach(c => c.checked = false);
+                if (selectAll) selectAll.checked = false;
+                updateBulkBar();
+            }
+
+            function toggleAdvancedFilters() {
+                const section = document.getElementById('advancedFiltersSection');
+                section.classList.toggle('hidden');
+            }
+            
+            // Auto open if filters are already active on page load
+            document.addEventListener('DOMContentLoaded', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const hasAdvanced = urlParams.has('nationality') || urlParams.has('maxSalary') || urlParams.has('certifications') || urlParams.has('hasSecurityLicense') || urlParams.has('workPermitEligible');
+                if (hasAdvanced) {
+                    document.getElementById('advancedFiltersSection').classList.remove('hidden');
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>
+

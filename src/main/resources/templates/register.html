@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+        <div class="max-w-4xl mx-auto">
+            <div class="mb-8">
+                <h3 class="text-3xl font-bold text-slate-800">Team Members</h3>
+                <p class="text-slate-500 mt-1" th:if="${currentSite != null}">
+                    Manage users for
+                    <span class="font-semibold text-emerald-600" th:text="${currentSite.name}">Site Name</span>
+                </p>
+                <p class="text-slate-500 mt-1" th:if="${currentSite == null}">
+                    Manage global users
+                </p>
+            </div>
+
+            <!-- Add User Form -->
+            <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm mb-8">
+                <h5 class="text-sm font-bold text-slate-700 mb-6 uppercase tracking-widest">Register New User</h5>
+                <form th:action="@{/users/register}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Display Name</label>
+                        <input type="text" name="displayName" required
+                               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+                               placeholder="e.g. John Tan">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Username</label>
+                        <input type="text" name="username" required
+                               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+                               placeholder="e.g. jtan">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Email</label>
+                        <input type="email" name="email"
+                               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+                               placeholder="john@company.com">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</label>
+                        <input type="password" name="password" required
+                               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div class="space-y-1.5 md:col-span-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Role *</label>
+                        <div class="relative">
+                            <select name="roleId" required
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-10 py-3.5 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none appearance-none transition-all cursor-pointer">
+                                <option value="" disabled selected>Select Role</option>
+                                <option th:each="r : ${availableRoles}" th:value="${r.id}" th:text="${r.name}"></option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <button type="submit"
+                                class="bg-emerald-600 text-white font-bold px-8 py-3 rounded-2xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200">
+                            Create Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- User List -->
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                <div class="px-8 py-5 border-b border-slate-100">
+                    <h5 class="font-bold text-slate-800">Current Team Members
+                        <span class="ml-2 text-xs text-slate-400 font-normal"
+                              th:text="'(' + ${siteUsers.size()} + ' users)'"></span>
+                    </h5>
+                </div>
+                <div th:if="${siteUsers.empty}" class="py-16 text-center text-slate-400 text-sm">
+                    No users registered for this site yet.
+                </div>
+                <div class="divide-y divide-slate-50">
+                    <div th:each="u : ${siteUsers}" class="flex items-center justify-between px-8 py-4 hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">
+                                <span th:text="${u.displayName != null ? u.displayName.substring(0,1).toUpperCase() : u.username.substring(0,1).toUpperCase()}">A</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800"
+                                   th:text="${u.displayName != null ? u.displayName : u.username}">Name</p>
+                                <p class="text-xs text-slate-400" th:text="'@' + ${u.username}">@username</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs font-bold px-3 py-1 rounded-lg bg-slate-100 text-slate-600"
+                                  th:text="${u.role != null ? u.role.replace('ROLE_', '') : ''}">HR</span>
+                            <form th:action="@{'/users/' + ${u.id} + '/delete'}" method="POST"
+                                  onsubmit="return confirm('Delete user ' + this.closest('.flex').querySelector('p').textContent + '?')">
+                                <button type="submit"
+                                        class="text-xs text-rose-400 hover:text-rose-600 font-semibold transition-colors px-2 py-1 hover:bg-rose-50 rounded-lg">
+                                    Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

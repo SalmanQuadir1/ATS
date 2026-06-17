@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+<div th:fragment="content">
+
+    <!-- Stats Bar -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+        <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Sites</p>
+            <p class="text-4xl font-black text-slate-800 mt-2" th:text="${totalSites}">0</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Sites</p>
+            <p class="text-4xl font-black text-emerald-600 mt-2" th:text="${activeSites}">0</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Users</p>
+            <p class="text-4xl font-black text-slate-800 mt-2" th:text="${totalUsers}">0</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Sites Table -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-800">All Sites</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">Each site is fully isolated with its own users, jobs and applicants.</p>
+                    </div>
+                </div>
+
+                <div th:if="${sites.empty}" class="py-20 text-center text-slate-400 text-sm">
+                    No sites created yet. Use the form to create your first site.
+                </div>
+
+                <div class="divide-y divide-slate-50">
+                    <div th:each="site : ${sites}" class="px-8 py-5 hover:bg-slate-50/70 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm"
+                                     th:classappend="${site.suspended ? 'bg-rose-50 text-rose-400' : 'bg-emerald-50 text-emerald-600'}">
+                                    <span th:text="${site.name.substring(0,1).toUpperCase()}">A</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-800" th:text="${site.name}">Site Name</p>
+                                    <p class="text-xs text-slate-400" th:text="${site.location}">Location</p>
+                                    <p class="text-xs text-slate-300" th:if="${site.contactEmail}" th:text="${site.contactEmail}">email</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span th:if="${site.suspended}"
+                                      class="text-xs font-bold px-3 py-1 bg-rose-50 text-rose-500 rounded-lg">Suspended</span>
+                                <span th:unless="${site.suspended}"
+                                      class="text-xs font-bold px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg">Active</span>
+
+                                <!-- Users button -->
+                                <a th:href="@{'/super-admin/sites/' + ${site.id} + '/users'}"
+                                   class="text-xs font-bold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors">
+                                    Users
+                                </a>
+
+                                <!-- Suspend / Resume -->
+                                <form th:unless="${site.suspended}"
+                                      th:action="@{'/super-admin/sites/' + ${site.id} + '/suspend'}" method="POST">
+                                    <button type="submit"
+                                            class="text-xs font-bold px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors">
+                                        Suspend
+                                    </button>
+                                </form>
+                                <form th:if="${site.suspended}"
+                                      th:action="@{'/super-admin/sites/' + ${site.id} + '/resume'}" method="POST">
+                                    <button type="submit"
+                                            class="text-xs font-bold px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors">
+                                        Reactivate
+                                    </button>
+                                </form>
+
+                                <!-- Delete -->
+                                <form th:action="@{'/super-admin/sites/' + ${site.id} + '/delete'}" method="POST"
+                                      onsubmit="return confirm('Permanently delete site and all its data?')">
+                                    <button type="submit"
+                                            class="text-xs font-bold px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-100 transition-colors">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Edit form (inline, hidden by default) -->
+                        <div class="mt-4 pt-4 border-t border-slate-100 hidden" th:id="'edit-' + ${site.id}">
+                            <form th:action="@{'/super-admin/sites/' + ${site.id} + '/edit'}" method="POST"
+                                  class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <input type="text" name="name" th:value="${site.name}" required
+                                       class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400"
+                                       placeholder="Site Name">
+                                <input type="text" name="location" th:value="${site.location}"
+                                       class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400"
+                                       placeholder="Location">
+                                <input type="email" name="contactEmail" th:value="${site.contactEmail}"
+                                       class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400"
+                                       placeholder="Contact Email">
+                                <div class="sm:col-span-3 flex gap-2">
+                                    <button type="submit"
+                                            class="text-xs font-bold px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
+                                        Save Changes
+                                    </button>
+                                    <button type="button"
+                                            th:onclick="'document.getElementById(\'edit-\' + ' + ${site.id} + ').classList.add(\'hidden\')'"
+                                            class="text-xs font-bold px-4 py-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <button th:onclick="'document.getElementById(\'edit-\' + ' + ${site.id} + ').classList.toggle(\'hidden\')'"
+                                class="mt-2 text-xs text-slate-400 hover:text-emerald-600 transition-colors font-medium">
+                            ✏ Edit site details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Site Form -->
+        <div>
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+                <h5 class="text-sm font-bold text-slate-700 uppercase tracking-widest mb-6">Create New Site</h5>
+                <form th:action="@{/super-admin/sites/create}" method="POST" class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Site Name *</label>
+                        <input type="text" name="name" required
+                               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                               placeholder="e.g. Marina Bay Sands HQ">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Location</label>
+                        <input type="text" name="location"
+                               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                               placeholder="e.g. 10 Bayfront Ave, Singapore">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Contact Email</label>
+                        <input type="email" name="contactEmail"
+                               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                               placeholder="admin@site.com">
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Site Admin Account (optional)</p>
+                        <div class="space-y-3">
+                            <input type="text" name="adminDisplayName"
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                   placeholder="Admin display name">
+                            <input type="text" name="adminUsername"
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                   placeholder="Admin username">
+                            <input type="password" name="adminPassword"
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                   placeholder="Admin password">
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full mt-2 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-2xl hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200 text-sm">
+                        Create Site
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

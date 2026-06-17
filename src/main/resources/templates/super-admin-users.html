@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+<div th:fragment="content">
+    <div class="mb-6 flex items-center gap-3">
+        <a th:href="@{/super-admin}"
+           class="text-sm text-slate-500 hover:text-emerald-600 flex items-center transition-colors">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to Sites
+        </a>
+        <span class="text-slate-300">/</span>
+        <span class="text-sm font-semibold text-slate-700" th:text="${site.name}">Site Name</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Add User Form -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+                <h5 class="text-sm font-bold text-slate-700 uppercase tracking-widest mb-6">Add Team Member</h5>
+                <form th:action="@{'/super-admin/sites/' + ${site.id} + '/users/add'}" method="POST" class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Display Name</label>
+                        <input type="text" name="displayName"
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                               placeholder="Full name">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Username *</label>
+                        <input type="text" name="username" required
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                               placeholder="e.g. jsmith">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Email</label>
+                        <input type="email" name="email"
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                               placeholder="user@site.com">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Password *</label>
+                        <input type="password" name="password" required
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div class="space-y-1.5 md:col-span-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Role *</label>
+                        <div class="relative">
+                            <select name="roleId" required
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-10 py-3.5 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none appearance-none transition-all cursor-pointer">
+                                <option value="" disabled selected>Select Role</option>
+                                <option th:each="r : ${availableRoles}" th:value="${r.id}" th:text="${r.name}"></option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit"
+                            class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 text-sm">
+                        Add User
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Users List -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-100">
+                    <h4 class="font-bold text-slate-800">
+                        Team Members
+                        <span class="ml-2 text-sm font-normal text-slate-400"
+                              th:text="'(' + ${users.size()} + ')'"></span>
+                    </h4>
+                    <p class="text-xs text-slate-400 mt-0.5"
+                       th:text="${site.location}">Location</p>
+                </div>
+                <div th:if="${users.empty}" class="py-20 text-center text-slate-400 text-sm">
+                    No users in this site yet.
+                </div>
+                <div class="divide-y divide-slate-50">
+                    <div th:each="u : ${users}" class="flex items-center justify-between px-8 py-4 hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-700 font-bold text-sm">
+                                <span th:text="${u.displayName != null ? u.displayName.substring(0,1).toUpperCase() : u.username.substring(0,1).toUpperCase()}">A</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800"
+                                   th:text="${u.displayName != null ? u.displayName : u.username}">Name</p>
+                                <p class="text-xs text-slate-400"
+                                   th:text="'@' + ${u.username} + (${u.email != null ? ' · ' + u.email : ''})">@username</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-bold px-3 py-1 rounded-lg bg-slate-100 text-slate-600"
+                                  th:text="${u.role != null ? u.role.replace('ROLE_', '') : ''}">HR</span>
+                            <form th:action="@{'/super-admin/sites/' + ${site.id} + '/users/' + ${u.id} + '/delete'}"
+                                  method="POST"
+                                  onsubmit="return confirm('Delete this user?')">
+                                <button type="submit"
+                                        class="text-xs text-rose-400 hover:text-rose-600 font-semibold transition-colors px-2 py-1 hover:bg-rose-50 rounded-lg">
+                                    Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
