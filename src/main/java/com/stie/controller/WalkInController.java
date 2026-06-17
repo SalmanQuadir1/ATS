@@ -38,15 +38,21 @@ public class WalkInController {
     @Autowired
     private com.stie.service.JobService jobService;
 
-    @GetMapping("/walkin")
-    public String showForm(@RequestParam(required = false) Long jobId, Model model) {
+    @Autowired
+    private com.stie.service.TenantService tenantService;
+
+    @GetMapping("/{tenantName}/walkin")
+    public String showForm(@org.springframework.web.bind.annotation.PathVariable("tenantName") String tenantName, @RequestParam(required = false) Long jobId, Model model) {
+        com.stie.model.Tenant tenant = tenantService.getSiteBySubdomain(tenantName);
+        if (tenant == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("tenant", tenant);
         model.addAttribute("candidate", new Candidate());
-        model.addAttribute("branding", brandingService.getBranding());
+        model.addAttribute("branding", brandingService.getBranding(tenant));
         
         // Pass all active jobs to the view for the dropdown
-        model.addAttribute("activeJobs", jobService.getAllVacancies().stream()
-            .filter(j -> j.getStatus() == com.stie.model.JobVacancy.JobStatus.OPEN || j.getStatus() == com.stie.model.JobVacancy.JobStatus.DRAFT)
-            .collect(Collectors.toList()));
+        model.addAttribute("activeJobs", jobService.getOpenJobsForTenant(tenant));
             
         if (jobId != null) {
             model.addAttribute("applyingJob", jobService.getJobById(jobId));
@@ -54,12 +60,18 @@ public class WalkInController {
         return "walkin";
     }
 
-    @PostMapping("/walkin/submit")
-    public String submitApplication(@RequestParam(value = "resume", required = false) MultipartFile resume,
+    @PostMapping("/{tenantName}/walkin/submit")
+    public String submitApplication(@org.springframework.web.bind.annotation.PathVariable("tenantName") String tenantName,
+                                    @RequestParam(value = "resume", required = false) MultipartFile resume,
                                     @RequestParam(value = "photo", required = false) MultipartFile photo,
                                     @RequestParam(value = "jobId", required = false) Long jobId,
                                     Candidate candidate, Model model) {
-        model.addAttribute("branding", brandingService.getBranding());
+        com.stie.model.Tenant tenant = tenantService.getSiteBySubdomain(tenantName);
+        if (tenant == null) return "redirect:/login";
+
+        model.addAttribute("tenant", tenant);
+        model.addAttribute("branding", brandingService.getBranding(tenant));
+        candidate.setTenant(tenant);
         if (jobId != null) {
             candidate.setJobVacancy(jobService.getJobById(jobId));
         }

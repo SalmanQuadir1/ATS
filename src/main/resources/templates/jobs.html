@@ -15,7 +15,7 @@
             </p>
         </div>
         <a th:href="@{/jobs/new}"
-           sec:authorize="hasAnyAuthority('MANAGE_JOBS')"
+           sec:authorize="hasAuthority('CREATE_JOBS')"
            class="inline-flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md shadow-emerald-100 hover:bg-emerald-700 active:scale-95 transition-all text-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
@@ -65,7 +65,7 @@
     </div>
 
     <!-- ── Pending approvals tab (HR/Admin) ──────────────────────────── -->
-    <div class="flex gap-4 mb-4 border-b border-slate-100" sec:authorize="hasAuthority('MANAGE_JOBS')">
+    <div class="flex gap-4 mb-4 border-b border-slate-100" sec:authorize="hasAuthority('APPROVE_JOBS')">
         <a th:href="@{/jobs}"
            class="pb-2 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-600">All Jobs</a>
         <a th:href="@{/jobs/approvals}"
@@ -103,7 +103,7 @@
                                     <p class="font-semibold text-slate-700">No jobs found</p>
                                     <p class="text-xs text-slate-400 mt-0.5">Try adjusting your search or create a new job posting.</p>
                                 </div>
-                                <a th:href="@{/jobs/new}" sec:authorize="hasAuthority('MANAGE_JOBS')"
+                                <a th:href="@{/jobs/new}" sec:authorize="hasAuthority('CREATE_JOBS')"
                                    class="mt-1 inline-flex items-center gap-1.5 bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                                     Create First Job
@@ -170,7 +170,7 @@
                                 <!-- Quick approve if pending -->
                                 <form th:if="${job.approvalStatus != null and job.approvalStatus.name() == 'PENDING'}"
                                       th:action="@{/jobs/{id}/approve(id=${job.id})}" method="POST"
-                                      sec:authorize="hasAuthority('MANAGE_JOBS')">
+                                      sec:authorize="hasAuthority('APPROVE_JOBS')">
                                     <button type="submit"
                                             class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-lg hover:bg-emerald-100 transition border border-emerald-100">
                                         ✓ Approve
@@ -198,7 +198,7 @@
 
                                 <!-- Edit -->
                                 <a th:href="@{/jobs/edit/{id}(id=${job.id})}"
-                                   sec:authorize="hasAuthority('MANAGE_JOBS')"
+                                   sec:authorize="hasAuthority('CREATE_JOBS')"
                                    title="Edit Job"
                                    class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

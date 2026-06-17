@@ -16,10 +16,18 @@ public class LandingController {
     @Autowired
     private JobService jobService;
 
-    @GetMapping("/landing")
-    public String landing(Model model) {
-        model.addAttribute("branding", brandingService.getBranding());
-        model.addAttribute("openJobs", jobService.getOpenJobs());
+    @Autowired
+    private com.stie.service.TenantService tenantService;
+
+    @GetMapping("/{tenantName}/landing")
+    public String landing(@org.springframework.web.bind.annotation.PathVariable("tenantName") String tenantName, Model model) {
+        com.stie.model.Tenant tenant = tenantService.getSiteBySubdomain(tenantName);
+        if (tenant == null) {
+            return "redirect:/login"; // or show a 404
+        }
+        model.addAttribute("tenant", tenant);
+        model.addAttribute("branding", brandingService.getBranding(tenant));
+        model.addAttribute("openJobs", jobService.getOpenJobsForTenant(tenant));
         return "landing";
     }
 }

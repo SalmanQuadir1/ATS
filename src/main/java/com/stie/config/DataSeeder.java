@@ -26,9 +26,24 @@ public class DataSeeder implements CommandLineRunner {
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private com.stie.repository.RoleRepository roleRepo;
     @Autowired private com.stie.repository.PermissionModuleRepository permissionModuleRepo;
+    @Autowired private com.stie.service.EmailTemplateService emailTemplateService;
+    @Autowired private com.stie.service.BrandingService brandingService;
+    @Autowired private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     @Override
     public void run(String... args) {
+
+        // ── 0. Fix Constraints (Remove global email uniqueness) ──────────────
+        try {
+            String constraintName = jdbcTemplate.queryForObject(
+                "SELECT CONSTRAINT_NAME FROM information_schema.table_constraints WHERE table_schema = DATABASE() AND table_name = 'candidates' AND constraint_type = 'UNIQUE' AND CONSTRAINT_NAME != 'PRIMARY' LIMIT 1", String.class);
+            if (constraintName != null) {
+                jdbcTemplate.execute("ALTER TABLE candidates DROP INDEX " + constraintName);
+                System.out.println("Dropped global unique constraint on candidates table: " + constraintName);
+            }
+        } catch (Exception e) {
+            // It might not exist or there are no constraints, just continue
+        }
 
         // ── 0. Roles & Permissions (Dynamic RBAC) ──────────────
         String[][] baseModules = {
@@ -37,7 +52,9 @@ public class DataSeeder implements CommandLineRunner {
             {"MANAGE_ROLES", "Create and manage custom roles"},
             {"MANAGE_SETTINGS", "Manage app or tenant settings"},
             {"MANAGE_DEPARTMENTS", "Manage departments and locations"},
-            {"MANAGE_JOBS", "Create and approve job vacancies"},
+            {"CREATE_JOBS", "Create new job vacancies"},
+            {"APPROVE_JOBS", "Approve job vacancies for publishing"},
+            {"MANAGE_JOBS", "Manage all aspects of jobs (legacy)"},
             {"MANAGE_APPLICANTS", "View and edit job applicants"},
             {"MANAGE_INTERVIEWS", "Schedule and score interviews"},
             {"VIEW_REPORTS", "View analytical reports"},
@@ -58,8 +75,15 @@ public class DataSeeder implements CommandLineRunner {
 
         Role superAdminRole = getOrCreateRole("ROLE_SUPER_ADMIN", allPermissions, true);
         Role adminRole = getOrCreateRole("ROLE_ADMIN", allPermissions, true);
-        Role hrRole = getOrCreateRole("ROLE_HR", allPermissions, true);
-        Role managerRole = getOrCreateRole("ROLE_MANAGER", allPermissions, true);
+        
+        Set<String> hrPermissions = new HashSet<>(allPermissions);
+        hrPermissions.remove("CREATE_JOBS"); // HR doesn't create jobs
+        Role hrRole = getOrCreateRole("ROLE_HR", hrPermissions, true);
+        
+        Set<String> managerPermissions = new HashSet<>(allPermissions);
+        managerPermissions.remove("APPROVE_JOBS"); // Manager doesn't approve jobs
+        Role managerRole = getOrCreateRole("ROLE_MANAGER", managerPermissions, true);
+        
         Role interviewerRole = getOrCreateRole("ROLE_INTERVIEWER", allPermissions, true);
 
         // ── 1. SuperAdmin ────────────────────────────────────────────────────
@@ -97,14 +121,22 @@ public class DataSeeder implements CommandLineRunner {
         if (alpha == null) {
             alpha = new com.stie.model.Tenant("Alpha Security HQ",
                     "10 Bayfront Ave, Singapore 018956", "alpha@stie.com");
+            alpha.setSubdomain("alpha");
             alpha = tenantRepo.save(alpha);
+            
+            emailTemplateService.seedTemplatesForTenant(alpha);
+            brandingService.getBranding(alpha);
         }
 
         com.stie.model.Tenant beta = tenantRepo.findByName("Beta Logistics Centre").orElse(null);
         if (beta == null) {
             beta = new com.stie.model.Tenant("Beta Logistics Centre",
                     "10 Airport Blvd, Singapore 819665", "beta@stie.com");
+            beta.setSubdomain("beta");
             beta = tenantRepo.save(beta);
+            
+            emailTemplateService.seedTemplatesForTenant(beta);
+            brandingService.getBranding(beta);
         }
 
         // ── 2b. Seed Departments & Locations ────────────────────────────────

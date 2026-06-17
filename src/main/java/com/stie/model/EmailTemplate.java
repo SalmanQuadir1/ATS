@@ -10,7 +10,7 @@ public class EmailTemplate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String templateCode;
 
     @Column(nullable = false)
@@ -22,13 +22,18 @@ public class EmailTemplate {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String body;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id")
+    private Tenant tenant;
+
     public EmailTemplate() {}
 
-    public EmailTemplate(String templateCode, String templateName, String subject, String body) {
+    public EmailTemplate(String templateCode, String templateName, String subject, String body, Tenant tenant) {
         this.templateCode = templateCode;
         this.templateName = templateName;
         this.subject = subject;
         this.body = body;
+        this.tenant = tenant;
     }
 
     public Long getId() { return id; }
@@ -45,5 +50,8 @@ public class EmailTemplate {
 
     public String getBody() { return body; }
     public void setBody(String body) { this.body = body; }
+
+    public Tenant getTenant() { return tenant; }
+    public void setTenant(Tenant tenant) { this.tenant = tenant; }
 }
 

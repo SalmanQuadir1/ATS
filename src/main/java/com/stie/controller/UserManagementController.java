@@ -33,7 +33,7 @@ public class UserManagementController {
         model.addAttribute("currentSite", current.getTenant());
         model.addAttribute("siteUsers", current.getTenant() != null
                 ? userService.getUsersBySite(current.getTenant()) : java.util.Collections.emptyList());
-        model.addAttribute("availableRoles", roleRepository.findByTenantIsNull());
+        model.addAttribute("availableRoles", current.getTenant() != null ? roleRepository.findByTenantOrTenantIsNull(current.getTenant()) : roleRepository.findByTenantIsNull());
         
         return "register";
     }
@@ -54,7 +54,7 @@ public class UserManagementController {
             model.addAttribute("pageTitle", "Register New Team Member");
             model.addAttribute("currentSite", site);
             model.addAttribute("siteUsers", site != null ? userService.getUsersBySite(site) : java.util.Collections.emptyList());
-            model.addAttribute("availableRoles", roleRepository.findByTenantIsNull());
+            model.addAttribute("availableRoles", current.getTenant() != null ? roleRepository.findByTenantOrTenantIsNull(current.getTenant()) : roleRepository.findByTenantIsNull());
             return "register";
         }
 

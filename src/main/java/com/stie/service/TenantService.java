@@ -24,6 +24,12 @@ public class TenantService {
     private UserRepository userRepository;
 
     @Autowired
+    private EmailTemplateService emailTemplateService;
+
+    @Autowired
+    private BrandingService brandingService;
+
+    @Autowired
     private com.stie.repository.RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -34,6 +40,10 @@ public class TenantService {
 
     public Optional<Tenant> getSiteById(Long id) {
         return tenantRepository.findById(id);
+    }
+
+    public Tenant getSiteBySubdomain(String subdomain) {
+        return tenantRepository.findBySubdomain(subdomain).orElse(null);
     }
 
     public long getActiveSiteCount() {
@@ -54,7 +64,11 @@ public class TenantService {
             throw new IllegalArgumentException("A site named '" + name + "' already exists.");
         }
         Tenant site = new Tenant(name, location, contactEmail);
+        site.setSubdomain(generateSubdomain(name));
         Tenant saved = tenantRepository.save(site);
+        
+        emailTemplateService.seedTemplatesForTenant(saved);
+        brandingService.getBranding(saved); // This creates default branding if none exists
 
         if (adminUsername != null && !adminUsername.trim().isEmpty()
                 && adminPassword != null && !adminPassword.trim().isEmpty()) {
@@ -83,7 +97,26 @@ public class TenantService {
         if (tenantRepository.findByName(name).isPresent()) {
             throw new IllegalArgumentException("A site named '" + name + "' already exists.");
         }
-        return tenantRepository.save(new Tenant(name, location, contactEmail));
+        Tenant site = new Tenant(name, location, contactEmail);
+        site.setSubdomain(generateSubdomain(name));
+        Tenant saved = tenantRepository.save(site);
+        
+        emailTemplateService.seedTemplatesForTenant(saved);
+        brandingService.getBranding(saved);
+        
+        return saved;
+    }
+    
+    private String generateSubdomain(String name) {
+        String slug = name.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+        if (tenantRepository.findBySubdomain(slug).isPresent()) {
+            int counter = 1;
+            while (tenantRepository.findBySubdomain(slug + "-" + counter).isPresent()) {
+                counter++;
+            }
+            return slug + "-" + counter;
+        }
+        return slug;
     }
 
     public Tenant updateSite(Long id, String name, String location, String contactEmail) {

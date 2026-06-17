@@ -22,13 +22,18 @@ public class BrandingConfig {
     @Column(columnDefinition = "TEXT")
     private String welcomeMessage = "Explore available job openings and start your recruitment journey today.";
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id")
+    private Tenant tenant;
+
     public BrandingConfig() {}
 
-    public BrandingConfig(String companyName, String portalHeadline, String themeColor, String welcomeMessage) {
+    public BrandingConfig(String companyName, String portalHeadline, String themeColor, String welcomeMessage, Tenant tenant) {
         this.companyName = companyName;
         this.portalHeadline = portalHeadline;
         this.themeColor = themeColor;
         this.welcomeMessage = welcomeMessage;
+        this.tenant = tenant;
     }
 
     public Long getId() { return id; }
@@ -45,5 +50,8 @@ public class BrandingConfig {
 
     public String getWelcomeMessage() { return welcomeMessage; }
     public void setWelcomeMessage(String welcomeMessage) { this.welcomeMessage = welcomeMessage; }
+
+    public Tenant getTenant() { return tenant; }
+    public void setTenant(Tenant tenant) { this.tenant = tenant; }
 }
 

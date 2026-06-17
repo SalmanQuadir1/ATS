@@ -45,15 +45,21 @@ public class SettingController {
 
     @GetMapping("/settings")
     public String showSettings(Model model) {
+        User user = userService.getCurrentUser();
+        if (user == null) return "redirect:/login";
+
         model.addAttribute("pageTitle", "System Settings & Access Control");
-        model.addAttribute("auditLogs", auditService.getRecentLogs());
+        model.addAttribute("auditLogs", auditService.getRecentLogs(user.getTenant()));
         return "settings";
     }
 
     @GetMapping("/settings/email-templates")
     public String showEmailTemplates(Model model) {
+        User user = userService.getCurrentUser();
+        if (user == null) return "redirect:/login";
+
         model.addAttribute("pageTitle", "Recruitment Email Templates Builder");
-        model.addAttribute("templates", emailTemplateService.getAllTemplates());
+        model.addAttribute("templates", emailTemplateService.getAllTemplates(user.getTenant()));
         return "settings-templates";
     }
 
@@ -64,13 +70,16 @@ public class SettingController {
             @RequestParam("body") String body,
             RedirectAttributes redirectAttributes) {
 
-        EmailTemplate template = emailTemplateService.getTemplateByCode(templateCode);
+        User user = userService.getCurrentUser();
+        if (user == null) return "redirect:/login";
+
+        EmailTemplate template = emailTemplateService.getTemplateByCode(templateCode, user.getTenant());
         if (template != null) {
             template.setSubject(subject);
             template.setBody(body);
             emailTemplateService.saveTemplate(template);
             auditService.log("EMAIL_TEMPLATE_UPDATE", getCurrentUser(), "EmailTemplate", template.getId(), 
-                "Updated email template: " + template.getTemplateName());
+                "Updated email template: " + template.getTemplateName(), user.getTenant());
             redirectAttributes.addFlashAttribute("success", "Email template '" + template.getTemplateName() + "' saved successfully.");
         } else {
             redirectAttributes.addFlashAttribute("error", "Email template not found.");
@@ -80,8 +89,11 @@ public class SettingController {
 
     @GetMapping("/settings/branding")
     public String showBranding(Model model) {
+        User user = userService.getCurrentUser();
+        if (user == null) return "redirect:/login";
+
         model.addAttribute("pageTitle", "Career Portal Branding Settings");
-        model.addAttribute("branding", brandingService.getBranding());
+        model.addAttribute("branding", brandingService.getBranding(user.getTenant()));
         return "settings-branding";
     }
 
@@ -90,9 +102,12 @@ public class SettingController {
             BrandingConfig brandingConfig,
             RedirectAttributes redirectAttributes) {
 
-        brandingService.saveBranding(brandingConfig);
+        User user = userService.getCurrentUser();
+        if (user == null) return "redirect:/login";
+
+        brandingService.saveBranding(brandingConfig, user.getTenant());
         auditService.log("BRANDING_UPDATE", getCurrentUser(), "BrandingConfig", 1L, 
-            "Updated career portal branding details.");
+            "Updated career portal branding details.", user.getTenant());
         redirectAttributes.addFlashAttribute("success", "Career Portal Branding settings saved successfully.");
         return "redirect:/settings/branding";
     }
@@ -134,7 +149,7 @@ public class SettingController {
         tenantService.updateOrganizationConfig(user.getTenant().getId(), departments, locations);
         
         auditService.log("ORG_UPDATE", getCurrentUser(), "Tenant", user.getTenant().getId(), 
-            "Updated organization departments and locations.");
+            "Updated organization departments and locations.", user.getTenant());
             
         redirectAttributes.addFlashAttribute("success", "Organization structure updated successfully.");
         return "redirect:/settings/organization";

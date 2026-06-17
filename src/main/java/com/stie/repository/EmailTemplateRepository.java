@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface EmailTemplateRepository extends JpaRepository<EmailTemplate, Long> {
-    Optional<EmailTemplate> findByTemplateCode(String templateCode);
+    Optional<EmailTemplate> findByTemplateCodeAndTenant(String templateCode, com.stie.model.Tenant tenant);
+    java.util.List<EmailTemplate> findByTenant(com.stie.model.Tenant tenant);
 }
 

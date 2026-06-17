@@ -14,12 +14,19 @@ public class AuditService {
     private AuditLogRepository repository;
 
     public void log(String action, String user, String entity, Long id, String details) {
-        AuditLog log = new AuditLog(action, user, entity, id, details);
+        log(action, user, entity, id, details, null);
+    }
+
+    public void log(String action, String user, String entity, Long id, String details, com.stie.model.Tenant tenant) {
+        AuditLog log = new AuditLog(action, user, entity, id, details, tenant);
         repository.save(log);
     }
 
-    public List<AuditLog> getRecentLogs() {
-        return repository.findAll(); // In production: findTop50ByOrderByTimestampDesc()
+    public List<AuditLog> getRecentLogs(com.stie.model.Tenant tenant) {
+        if (tenant != null) {
+            return repository.findByTenantOrderByTimestampDesc(tenant);
+        }
+        return repository.findAll(); // For SuperAdmin
     }
 
     public List<AuditLog> getLogsForEntity(String entity, Long id) {

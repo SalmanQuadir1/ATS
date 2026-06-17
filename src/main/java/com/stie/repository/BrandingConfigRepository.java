@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BrandingConfigRepository extends JpaRepository<BrandingConfig, Long> {
+    java.util.Optional<BrandingConfig> findByTenant(com.stie.model.Tenant tenant);
 }
 

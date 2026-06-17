@@ -220,10 +220,7 @@ public class JobController {
         model.addAttribute("job", job);
         model.addAttribute("totalApplicants", candidateRepository.countByJobVacancy(job));
         model.addAttribute("shortlistedCount", candidateRepository.countByJobVacancyAndStatusIn(job, java.util.Arrays.asList(
-                com.stie.model.Candidate.CandidateStatus.SHORTLISTED,
-                com.stie.model.Candidate.CandidateStatus.INTERVIEW,
-                com.stie.model.Candidate.CandidateStatus.OFFERED,
-                com.stie.model.Candidate.CandidateStatus.HIRED
+                com.stie.model.Candidate.CandidateStatus.SHORTLISTED
         )));
         return "job-detail";
     }

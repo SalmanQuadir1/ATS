@@ -19,7 +19,11 @@ public class EmailTemplateService {
 
     @PostConstruct
     public void initTemplates() {
-        if (emailTemplateRepository.count() == 0) {
+        seedTemplatesForTenant(null); // Seed global templates
+    }
+
+    public void seedTemplatesForTenant(com.stie.model.Tenant tenant) {
+        if (emailTemplateRepository.findByTenant(tenant).isEmpty()) {
             emailTemplateRepository.save(new EmailTemplate(
                 "APPLICATION_ACK",
                 "Application Acknowledgment",
@@ -29,7 +33,8 @@ public class EmailTemplateService {
                 "<p>Thank you for applying for the <strong>{{job_title}}</strong> position at {{company_name}}!</p>" +
                 "<p>We have successfully received your credentials and our recruitment panel is currently evaluating your profile. If your skills match our target requirements, we will contact you for an interview round.</p>" +
                 "<br/><p>Warm regards,<br/>Recruitment Team<br/>{{company_name}}</p>" +
-                "</div>"
+                "</div>",
+                tenant
             ));
 
             emailTemplateRepository.save(new EmailTemplate(
@@ -42,7 +47,8 @@ public class EmailTemplateService {
                 "<p><strong>Location:</strong> {{interview_location}}</p>" +
                 "<p>Our interviewers are eager to review your background and discuss how your skills align with our goals.</p>" +
                 "<br/><p>Best regards,<br/>Talent Acquisition<br/>{{company_name}}</p>" +
-                "</div>"
+                "</div>",
+                tenant
             ));
 
             emailTemplateRepository.save(new EmailTemplate(
@@ -55,7 +61,8 @@ public class EmailTemplateService {
                 "<p>We are confident that your expertise and experience will make you a vital contributor to our engineering success.</p>" +
                 "<p>Your formal offer letter has been generated with a target salary of <strong>S${{salary}}/month</strong>. Please review, sign, and return it at your earliest convenience.</p>" +
                 "<br/><p>Welcome aboard!<br/>Executive Director<br/>{{company_name}}</p>" +
-                "</div>"
+                "</div>",
+                tenant
             ));
 
             emailTemplateRepository.save(new EmailTemplate(
@@ -68,17 +75,25 @@ public class EmailTemplateService {
                 "<p>While your skills are impressive, we have decided to move forward with another applicant whose technical profiles align more closely with our direct current needs.</p>" +
                 "<p>We will keep your resume in our talent pool for future vacancies. We wish you the absolute best in your professional search.</p>" +
                 "<br/><p>Sincerely,<br/>Human Resources<br/>{{company_name}}</p>" +
-                "</div>"
+                "</div>",
+                tenant
             ));
         }
     }
 
-    public List<EmailTemplate> getAllTemplates() {
+    public List<EmailTemplate> getAllTemplates(com.stie.model.Tenant tenant) {
+        if (tenant != null) {
+            return emailTemplateRepository.findByTenant(tenant);
+        }
         return emailTemplateRepository.findAll();
     }
 
-    public EmailTemplate getTemplateByCode(String code) {
-        return emailTemplateRepository.findByTemplateCode(code).orElse(null);
+    public EmailTemplate getTemplateByCode(String code, com.stie.model.Tenant tenant) {
+        if (tenant != null) {
+            return emailTemplateRepository.findByTemplateCodeAndTenant(code, tenant)
+                    .orElseGet(() -> emailTemplateRepository.findByTemplateCodeAndTenant(code, null).orElse(null));
+        }
+        return emailTemplateRepository.findByTemplateCodeAndTenant(code, null).orElse(null);
     }
 
     public void saveTemplate(EmailTemplate template) {

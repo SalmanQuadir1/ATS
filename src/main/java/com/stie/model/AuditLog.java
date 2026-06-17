@@ -16,19 +16,25 @@ public class AuditLog {
     private String targetEntity;
     private Long targetId;
     private String details;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id")
+    private Tenant tenant;
+    
     private LocalDateTime timestamp;
 
     public AuditLog() {
         this.timestamp = LocalDateTime.now();
     }
 
-    public AuditLog(String action, String performedBy, String targetEntity, Long targetId, String details) {
+    public AuditLog(String action, String performedBy, String targetEntity, Long targetId, String details, Tenant tenant) {
         this();
         this.action = action;
         this.performedBy = performedBy;
         this.targetEntity = targetEntity;
         this.targetId = targetId;
         this.details = details;
+        this.tenant = tenant;
     }
 
     // Getters and Setters
@@ -52,5 +58,8 @@ public class AuditLog {
 
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+
+    public Tenant getTenant() { return tenant; }
+    public void setTenant(Tenant tenant) { this.tenant = tenant; }
 }
 

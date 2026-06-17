@@ -68,7 +68,7 @@
                         </div>
                     </div>
                     <form th:if="${job.approvalStatus == T(com.stie.model.JobVacancy.ApprovalStatus).PENDING}" 
-                          sec:authorize="hasAnyRole('ADMIN', 'HR')"
+                          sec:authorize="hasAuthority('APPROVE_JOBS')"
                           th:action="@{/jobs/{id}/approve(id=${job.id})}" method="POST">
                         <button class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-shadow shadow-lg shadow-emerald-100">
                             Approve Vacancy

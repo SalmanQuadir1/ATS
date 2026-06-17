@@ -91,7 +91,7 @@
                 </svg>
                 Dashboard
             </a>
-            <a th:href="@{/jobs}"
+            <a th:href="@{/jobs}" sec:authorize="hasAnyAuthority('MANAGE_JOBS', 'CREATE_JOBS', 'APPROVE_JOBS', 'MANAGE_APPLICANTS')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI == '/jobs' ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,6 +223,9 @@
                         class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
                         th:classappend="${#httpServletRequest.requestURI != null and #strings.startsWith(#httpServletRequest.requestURI, '/settings/categories') ? 'text-emerald-600 font-semibold' : ''}">Job
                         Categories & Skills</a>
+                    <a th:href="@{/settings/roles}"
+                        class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+                        th:classappend="${#httpServletRequest.requestURI == '/settings/roles' ? 'text-emerald-600 font-semibold' : ''}">Custom Roles</a>
                     <a th:href="@{/locations}"
                         class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
                         th:classappend="${#httpServletRequest.requestURI == '/locations' ? 'text-emerald-600 font-semibold' : ''}">Locations</a>

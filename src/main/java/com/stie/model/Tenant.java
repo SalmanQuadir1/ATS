@@ -23,6 +23,9 @@ public class Tenant {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Column(unique = true)
+    private String subdomain;
+
     private String location; // Physical address or region
 
     private String contactEmail;
@@ -61,6 +64,9 @@ public class Tenant {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+    public String getSubdomain() { return subdomain; }
+    public void setSubdomain(String subdomain) { this.subdomain = subdomain; }
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }

@@ -42,23 +42,32 @@ public class ApplyController {
     @Autowired
     private BrandingService brandingService;
 
-    @GetMapping("/apply/{id}")
-    public String showApplyForm(@PathVariable Long id, Model model, RedirectAttributes ra) {
+    @Autowired
+    private com.stie.service.TenantService tenantService;
+
+    @GetMapping("/{tenantName}/apply/{id}")
+    public String showApplyForm(@PathVariable("tenantName") String tenantName, @PathVariable("id") Long id, Model model, RedirectAttributes ra) {
         System.out.println("DEBUG: showApplyForm called for job ID: " + id);
+        com.stie.model.Tenant tenant = tenantService.getSiteBySubdomain(tenantName);
+        if (tenant == null) {
+            ra.addFlashAttribute("error", "Tenant not found: " + tenantName);
+            return "redirect:/login";
+        }
         JobVacancy job = jobService.getJobById(id);
         System.out.println("DEBUG: Job found: " + (job != null ? job.getTitle() : "null"));
-        if (job == null) {
+        if (job == null || job.getTenant() == null || !job.getTenant().getId().equals(tenant.getId())) {
             ra.addFlashAttribute("error", "Job vacancy not found with ID: " + id);
-            return "redirect:/landing";
+            return "redirect:/" + tenantName + "/landing";
         }
-        model.addAttribute("branding", brandingService.getBranding());
+        model.addAttribute("tenant", tenant);
+        model.addAttribute("branding", brandingService.getBranding(tenant));
         model.addAttribute("job", job);
         model.addAttribute("candidate", new Candidate());
         return "apply";
     }
 
-    @PostMapping("/apply/{id}/submit")
-    public String submitApplication(@PathVariable Long id,
+    @PostMapping("/{tenantName}/apply/{id}/submit")
+    public String submitApplication(@PathVariable("tenantName") String tenantName, @PathVariable("id") Long id,
                                     @RequestParam(value = "resume", required = false) MultipartFile resume,
                                     @RequestParam(value = "photo", required = false) MultipartFile photo,
                                     Candidate candidate,
@@ -66,18 +75,24 @@ public class ApplyController {
         System.out.println("DEBUG: submitApplication called for job ID: " + id);
         System.out.println("DEBUG: Candidate name: " + candidate.getFullName() + ", email: " + candidate.getEmail());
 
+        com.stie.model.Tenant tenant = tenantService.getSiteBySubdomain(tenantName);
+        if (tenant == null) return "redirect:/login";
+
         JobVacancy job = jobService.getJobById(id);
         System.out.println("DEBUG: Job found: " + (job != null ? job.getTitle() : "null"));
 
-        if (job == null) {
+        if (job == null || job.getTenant() == null || !job.getTenant().getId().equals(tenant.getId())) {
             model.addAttribute("error", "Job vacancy not found with ID: " + id);
-            model.addAttribute("branding", brandingService.getBranding());
+            model.addAttribute("tenant", tenant);
+            model.addAttribute("branding", brandingService.getBranding(tenant));
             return "apply";
         }
 
-        model.addAttribute("branding", brandingService.getBranding());
+        model.addAttribute("tenant", tenant);
+        model.addAttribute("branding", brandingService.getBranding(tenant));
         model.addAttribute("job", job);
         candidate.setJobVacancy(job);
+        candidate.setTenant(tenant);
 
         String uploadDir = "uploads/";
         Path uploadPath = Paths.get(uploadDir);
@@ -115,9 +130,9 @@ public class ApplyController {
             if (candidate.getEmail() != null && !candidate.getEmail().trim().isEmpty()) {
                 String email = candidate.getEmail().trim().toLowerCase();
                 boolean emailExists = candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 1000)).getContent().stream()
-                        .anyMatch(c -> email.equals(c.getEmail().trim().toLowerCase()));
+                        .anyMatch(c -> email.equals(c.getEmail().trim().toLowerCase()) && c.getJobVacancy() != null && c.getJobVacancy().getId().equals(job.getId()));
                 if (emailExists) {
-                    model.addAttribute("error", "An application with this email address ('" + candidate.getEmail() + "') already exists.");
+                    model.addAttribute("error", "You have already applied for this job with the email address ('" + candidate.getEmail() + "').");
                     model.addAttribute("candidate", candidate);
                     return "apply";
                 }
@@ -138,4 +153,3 @@ public class ApplyController {
         }
     }
 }
-

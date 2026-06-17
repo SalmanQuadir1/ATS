@@ -43,8 +43,9 @@ public class SecurityConfig {
                 .antMatchers("/settings/**").hasAuthority("MANAGE_SETTINGS")
 
                 // Jobs & Candidates
-                .antMatchers("/jobs/new", "/jobs/edit/**", "/jobs/*/approve", "/jobs/*/reject", "/jobs/approvals").hasAuthority("MANAGE_JOBS")
-                .antMatchers("/jobs/**").hasAnyAuthority("MANAGE_JOBS", "MANAGE_APPLICANTS")
+                .antMatchers("/jobs/new", "/jobs/create", "/jobs/edit/**", "/jobs/update").hasAuthority("CREATE_JOBS")
+                .antMatchers("/jobs/*/approve", "/jobs/*/reject", "/jobs/approvals", "/jobs/pending").hasAuthority("APPROVE_JOBS")
+                .antMatchers("/jobs/**").hasAnyAuthority("MANAGE_JOBS", "CREATE_JOBS", "APPROVE_JOBS", "MANAGE_APPLICANTS")
                 .antMatchers("/candidates/**").hasAuthority("MANAGE_APPLICANTS")
 
                 // Interviews

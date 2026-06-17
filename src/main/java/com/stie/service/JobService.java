@@ -76,7 +76,19 @@ public class JobService {
     }
 
     public List<JobVacancy> getOpenJobs() {
+        com.stie.model.Tenant tenant = userService.getCurrentTenant();
+        if (tenant != null) {
+            return getOpenJobsForTenant(tenant);
+        }
         return repository.findAll().stream()
+                .filter(j -> j.getStatus() == JobVacancy.JobStatus.OPEN
+                          && j.getApprovalStatus() == JobVacancy.ApprovalStatus.APPROVED)
+                .collect(Collectors.toList());
+    }
+
+    public List<JobVacancy> getOpenJobsForTenant(Tenant tenant) {
+        if (tenant == null) return getOpenJobs();
+        return repository.findByTenant(tenant).stream()
                 .filter(j -> j.getStatus() == JobVacancy.JobStatus.OPEN
                           && j.getApprovalStatus() == JobVacancy.ApprovalStatus.APPROVED)
                 .collect(Collectors.toList());
