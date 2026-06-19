@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" 
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" 
+              name="CandidatesReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a476834d-176f-474c-83b6-cb82b3d11b34">
+    
+    <field name="candidateName" class="java.lang.String"/>
+    <field name="email" class="java.lang.String"/>
+    <field name="phone" class="java.lang.String"/>
+    <field name="jobTitle" class="java.lang.String"/>
+    <field name="status" class="java.lang.String"/>
+    
+    <title>
+        <band height="50">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="30" uuid="e613f898-d107-4e6f-b1b7-7e62a8c3d79b"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Candidates Report]]></text>
+            </staticText>
+        </band>
+    </title>
+    
+    <columnHeader>
+        <band height="30">
+            <staticText>
+                <reportElement x="0" y="0" width="120" height="30" uuid="bd41b312-d023-4589-a292-6f296313361e"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Candidate Name]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="120" y="0" width="140" height="30" uuid="3d8e5f90-1c32-47dc-a843-16f393847e9a"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Email]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="260" y="0" width="90" height="30" uuid="c2f0f4a8-6b2c-4ec7-9f60-d2cf7d7f7632"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Phone]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="350" y="0" width="125" height="30" uuid="428a1c97-6a77-4cf3-a612-421712a67bc4"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Applied Job]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="475" y="0" width="80" height="30" uuid="6f08129e-21ea-42ec-a06f-12c8b74c2d33"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Status]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+    
+    <detail>
+        <band height="20">
+            <textField>
+                <reportElement x="0" y="0" width="120" height="20" uuid="df19f5a1-77e8-4ec8-b64d-587291a1df28"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{candidateName}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="120" y="0" width="140" height="20" uuid="bf8a7c2e-4b2a-4467-8854-c9f28a2cf3df"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="260" y="0" width="90" height="20" uuid="a7f8b9e8-4621-4f93-b472-e1d87e35bdfa"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{phone}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="350" y="0" width="125" height="20" uuid="f98d4d8c-79e4-4d1e-876e-5f448c3b999d"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{jobTitle}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="475" y="0" width="80" height="20" uuid="9a1f2c3d-6b5a-4e8c-9a4f-8b212f38d39e"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{status}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+    
+</jasperReport>

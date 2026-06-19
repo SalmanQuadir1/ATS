@@ -71,6 +71,24 @@ public class NotificationService {
 
     public void clearAll() { notifications.clear(); }
 
+    public void notifyInterviewerAssigned(Interview interview) {
+        if (interview.getInterviewer() != null) {
+            String message = "You have been assigned to interview " + interview.getCandidate().getFullName() + 
+                             " for the role of " + (interview.getJobVacancy() != null ? interview.getJobVacancy().getTitle() : "TBD");
+            // Assuming we prepend username internally in addNotification or filter later. 
+            // For now, STIE's notification system is global in memory, so we prefix it.
+            addNotification("[To: " + interview.getInterviewer().getUsername() + "] " + message, "/interviews");
+        }
+    }
+
+    public void notifyHrFeedbackSubmitted(com.stie.model.InterviewScorecard scorecard) {
+        String interviewerName = scorecard.getSubmitter();
+        String candidateName = scorecard.getInterview().getCandidate().getFullName();
+        String message = "Feedback submitted by " + interviewerName + " for candidate: " + candidateName;
+        // In a real multi-tenant system, this would target HR roles or the specific hiring manager.
+        addNotification("[To: HR] " + message, "/interviews/" + scorecard.getInterview().getId() + "/scorecard");
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Interview lifecycle emails  (with .ics calendar attachment)
     // ─────────────────────────────────────────────────────────────────────────
@@ -227,6 +245,93 @@ public class NotificationService {
                 + "Please review and confirm your acceptance at your earliest convenience.\n\n"
                 + "Best Regards,\nHR Department";
         sendEmail(toEmail, subject, body);
+    }
+
+    /**
+     * Sends a status-change notification email to the candidate whenever their
+     * application status is updated by HR.
+     *
+     * @param toEmail     candidate's email address
+     * @param name        candidate's full name
+     * @param jobTitle    the job title they applied for (may be null)
+     * @param newStatus   the new AppStatus value
+     */
+    public void sendApplicationStatusUpdateEmail(String toEmail, String name, String jobTitle,
+                                                  com.stie.model.CandidateApplication.AppStatus newStatus) {
+        if (toEmail == null || toEmail.trim().isEmpty()) return;
+
+        String role = (jobTitle != null && !jobTitle.trim().isEmpty()) ? jobTitle : "the position";
+        String subject;
+        String body;
+
+        switch (newStatus) {
+            case SHORTLISTED:
+                subject = "Great News! You've Been Shortlisted — " + role;
+                body = "Dear " + name + ",\n\n"
+                        + "Congratulations! After reviewing your application for " + role + ", we are pleased to inform you "
+                        + "that you have been shortlisted for the next stage of our selection process.\n\n"
+                        + "Our HR team will be in touch shortly with further details.\n\n"
+                        + "Best Regards,\nHR Department";
+                break;
+
+            case INTERVIEW:
+                subject = "Interview Invitation — " + role;
+                body = "Dear " + name + ",\n\n"
+                        + "We are pleased to invite you for an interview for the role of " + role + ".\n\n"
+                        + "Our HR team will contact you shortly to confirm the date, time, and location of the interview.\n\n"
+                        + "Please ensure that you are available and prepared. If you have any questions, feel free to reach out to us.\n\n"
+                        + "Best Regards,\nHR Department";
+                break;
+
+            case OFFERED:
+                subject = "Employment Offer — " + role;
+                body = "Dear " + name + ",\n\n"
+                        + "We are delighted to inform you that you have been selected for the position of " + role + "!\n\n"
+                        + "Our HR team will be reaching out to you with the formal offer letter and next steps very shortly.\n\n"
+                        + "Congratulations on this achievement, and we look forward to welcoming you to our team!\n\n"
+                        + "Best Regards,\nHR Department";
+                break;
+
+            case HIRED:
+                subject = "Welcome Aboard! — " + role;
+                body = "Dear " + name + ",\n\n"
+                        + "We are thrilled to officially welcome you as a new member of our team for the position of " + role + "!\n\n"
+                        + "Please watch out for onboarding details that will be shared with you shortly.\n\n"
+                        + "We look forward to working with you.\n\n"
+                        + "Best Regards,\nHR Department";
+                break;
+
+            case REJECTED:
+                subject = "Application Status Update — " + role;
+                body = "Dear " + name + ",\n\n"
+                        + "Thank you for your interest in the position of " + role + " and for the time you invested in the application process.\n\n"
+                        + "After careful consideration, we regret to inform you that we will not be moving forward with your application at this time.\n\n"
+                        + "We appreciate your efforts and encourage you to apply for future opportunities that match your profile. "
+                        + "We wish you all the best in your career journey.\n\n"
+                        + "Best Regards,\nHR Department";
+                break;
+
+            case KIV:
+                subject = "Application Retained in Talent Pool — " + role;
+                body = "Dear " + name + ",\n\n"
+                        + "Thank you for applying for " + role + ". While we are not proceeding to an immediate offer, "
+                        + "we have been impressed with your profile and have retained your application in our active talent pool (Keep In View — KIV).\n\n"
+                        + "We will reach out should a suitable opportunity matching your profile arise.\n\n"
+                        + "Best Regards,\nHR Department";
+                break;
+
+            case APPLIED:
+            default:
+                subject = "Application Received — " + role;
+                body = "Dear " + name + ",\n\n"
+                        + "Thank you for applying for " + role + ". Your application has been received and is currently under review by our HR team.\n\n"
+                        + "We will keep you informed of any updates.\n\n"
+                        + "Best Regards,\nHR Department";
+                break;
+        }
+
+        sendEmail(toEmail, subject, body);
+        System.out.println("[STATUS EMAIL] Sent '" + newStatus + "' notification to: " + toEmail);
     }
 
     public void shareCandidateWithHM(String hmEmail, String hmName, String candidateName, String candidateUrl) {

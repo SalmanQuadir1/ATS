@@ -49,6 +49,8 @@ public class JobVacancy {
     @Column(name = "no_of_posts", nullable = false)
     private Integer noOfPosts = 1;
 
+    private String experienceRequired;
+
     @ManyToOne
     @JoinColumn(name = "tenant_id")
     private Tenant tenant;
@@ -58,6 +60,8 @@ public class JobVacancy {
     private User hiringManager;
 
     private String approvalNote;
+
+    private String approvedByUser;
 
     private boolean approvedByManager = false;
 
@@ -109,6 +113,9 @@ public class JobVacancy {
     public Integer getNoOfPosts() { return noOfPosts; }
     public void setNoOfPosts(Integer noOfPosts) { this.noOfPosts = noOfPosts; }
 
+    public String getExperienceRequired() { return experienceRequired; }
+    public void setExperienceRequired(String experienceRequired) { this.experienceRequired = experienceRequired; }
+
     public Tenant getTenant() { return tenant; }
     public void setTenant(Tenant tenant) { this.tenant = tenant; }
 
@@ -117,6 +124,9 @@ public class JobVacancy {
 
     public String getApprovalNote() { return approvalNote; }
     public void setApprovalNote(String approvalNote) { this.approvalNote = approvalNote; }
+
+    public String getApprovedByUser() { return approvedByUser; }
+    public void setApprovedByUser(String approvedByUser) { this.approvedByUser = approvedByUser; }
 
     public boolean isApprovedByManager() { return approvedByManager; }
     public void setApprovedByManager(boolean approvedByManager) { this.approvedByManager = approvedByManager; }

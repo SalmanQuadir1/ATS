@@ -31,7 +31,7 @@ public class DashboardController {
     public String dashboard(@org.springframework.web.bind.annotation.RequestParam(value = "error", required = false) String error, Model model) {
         com.stie.model.User user = userService.getCurrentUser();
         if (user == null) {
-            return "redirect:/landing";
+            return "redirect:/login";
         }
         String role = user.getRole(); // returns first role name from Set
         boolean isSuperAdmin = user.getRoles().stream().anyMatch(r -> "ROLE_SUPER_ADMIN".equals(r.getName()));
@@ -83,6 +83,56 @@ public class DashboardController {
         // Latest candidates list
         int limit = Math.min(allCandidates.size(), 5);
         model.addAttribute("latestCandidates", allCandidates.subList(0, limit));
+
+        // ── Interview Calendar Events ──────────────────────────────────────
+        // Serialize SCHEDULED interviews to FullCalendar-compatible JSON.
+        List<com.stie.model.Interview> scheduledInterviews = interviewService.getAllInterviews().stream()
+                .filter(i -> i.getStatus() == com.stie.model.Interview.InterviewStatus.SCHEDULED
+                          && i.getInterviewTime() != null)
+                .collect(java.util.stream.Collectors.toList());
+
+        java.util.List<java.util.Map<String, Object>> calendarEvents = scheduledInterviews.stream()
+                .map(i -> {
+                    java.util.Map<String, Object> evt = new java.util.LinkedHashMap<>();
+                    evt.put("id", String.valueOf(i.getId()));
+
+                    String candidateName = (i.getCandidate() != null) ? i.getCandidate().getFullName() : "Unknown";
+                    String jobTitle      = (i.getJobVacancy()  != null) ? i.getJobVacancy().getTitle()  : "Interview";
+                    String siteName      = (i.getTenant() != null) ? i.getTenant().getName() : "Global";
+                    
+                    evt.put("title", candidateName + " — " + jobTitle + " (" + siteName + ")");
+
+                    // ISO-8601 date-time string that FullCalendar expects
+                    evt.put("start", i.getInterviewTime().toString());
+                    // 1-hour end block for display width in time-grid views
+                    evt.put("end", i.getInterviewTime().plusHours(1).toString());
+
+                    // Emerald colour scheme matching the app theme
+                    evt.put("backgroundColor", "#059669");
+                    evt.put("borderColor", "#047857");
+                    evt.put("textColor", "#ffffff");
+
+                    // Extra data surfaced in the event tooltip / click popup
+                    java.util.Map<String, Object> ext = new java.util.LinkedHashMap<>();
+                    ext.put("site",        siteName);
+                    ext.put("location",    i.getLocation()    != null ? i.getLocation()                    : "TBD");
+                    ext.put("candidateId", i.getCandidate()   != null ? i.getCandidate().getId()            : null);
+                    ext.put("interviewer", i.getInterviewer() != null ? i.getInterviewer().getUsername()    : "Unassigned");
+                    evt.put("extendedProps", ext);
+
+                    evt.put("url", "/interviews");
+                    return evt;
+                })
+                .collect(java.util.stream.Collectors.toList());
+
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            mapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+            mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            model.addAttribute("calendarEventsJson", mapper.writeValueAsString(calendarEvents));
+        } catch (Exception ex) {
+            model.addAttribute("calendarEventsJson", "[]");
+        }
         
         return "dashboard";
     }

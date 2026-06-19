@@ -1,204 +1,287 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
 <head></head>
 <body>
-    <div th:fragment="content">
+    <div th:fragment="content" class="pb-12">
         <!-- Header -->
         <div class="mb-8">
             <h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Panel Evaluation Scorecard</h3>
             <p class="text-slate-500 mt-1">Submit structured scorecards to aggregate reviews and maintain hiring consistency.</p>
         </div>
 
-        <!-- Candidate & Interview context banner -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-            <div class="flex items-center space-x-4">
-                <div class="w-14 h-14 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center font-bold text-lg">
-                    <span th:text="${#strings.substring(interview.candidate.fullName,0,1)}">C</span>
-                </div>
-                <div>
-                    <h4 class="text-lg font-black text-slate-800 leading-snug" th:text="${interview.candidate.fullName}">Applicant Name</h4>
-                    <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400 mt-1 font-semibold">
-                        <span th:text="'Vacancy: ' + ${interview.jobVacancy.title}">Software Engineer</span>
-                        <span>&bull;</span>
-                        <span th:text="'Exp: ' + ${interview.candidate.experienceYears} + ' Yrs'">3 Yrs</span>
+        <!-- Candidate & Interview Glassmorphic Banner -->
+        <div class="relative overflow-hidden rounded-[2rem] p-8 mb-10 shadow-2xl shadow-indigo-100/50 border border-white bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600 group">
+            <!-- Decorative blur blobs -->
+            <div class="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-white/10 blur-3xl rounded-full pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-black/10 blur-3xl rounded-full pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                <div class="flex items-center space-x-6">
+                    <div class="w-20 h-20 bg-white/20 backdrop-blur-md text-white rounded-3xl flex items-center justify-center font-black text-3xl shadow-inner border border-white/30 transform group-hover:scale-105 transition-transform duration-500">
+                        <span th:text="${#strings.substring(interview.candidate.fullName,0,1)}">C</span>
+                    </div>
+                    <div>
+                        <h4 class="text-3xl font-black text-white tracking-tight drop-shadow-md" th:text="${interview.candidate.fullName}">Applicant Name</h4>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 backdrop-blur-md rounded-xl text-xs font-bold text-white border border-white/20">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                <span th:text="${interview.jobVacancy.title}">Software Engineer</span>
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 backdrop-blur-md rounded-xl text-xs font-bold text-white/90 border border-white/10">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span th:text="${interview.candidate.experienceYears} + ' Yrs Exp'">3 Yrs Exp</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="flex flex-col text-right justify-center border-t md:border-t-0 pt-4 md:pt-0 border-slate-150">
-                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Scheduled Time</span>
-                <span class="text-sm font-bold text-slate-700 mt-0.5" th:text="${#temporals.format(interview.interviewTime, 'yyyy-MM-dd HH:mm')}">Date Time</span>
-                <span class="text-xs text-slate-400 mt-0.5" th:text="${interview.location}">Meeting Room 3A</span>
+                <div class="flex flex-col text-left md:text-right bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 self-start md:self-center">
+                    <span class="text-[10px] text-white/70 font-bold uppercase tracking-wider mb-1">Scheduled Session</span>
+                    <span class="text-lg font-black text-white flex items-center gap-2 justify-start md:justify-end">
+                        <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span th:text="${#temporals.format(interview.interviewTime, 'dd MMM yyyy, HH:mm')}">Date Time</span>
+                    </span>
+                    <span class="text-sm font-semibold text-white/80 mt-1 flex items-center gap-2 justify-start md:justify-end">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span th:text="${interview.location}">Meeting Room</span>
+                    </span>
+                </div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <!-- Left: Scorecard Entry Form (7 cols) -->
-            <div class="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-100 shadow-md">
-                <div class="flex items-center space-x-3 mb-6 pb-4 border-b border-slate-100">
-                    <div class="p-2.5 bg-teal-50 text-teal-600 rounded-2xl">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-bold text-slate-800">Interviewer Rubrics</h4>
-                        <p class="text-xs text-slate-400">Score applicant capabilities between 1 and 5</p>
+            <div class="lg:col-span-7 bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/40 relative">
+                
+                <!-- Real-time Average Floating Badge -->
+                <div class="absolute top-8 right-8 flex flex-col items-end">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Average Score</span>
+                    <div id="liveAvgBadge" class="px-4 py-2 bg-slate-100 text-slate-500 rounded-2xl font-black text-xl border-2 border-slate-200 transition-all duration-300">
+                        0.0
                     </div>
                 </div>
 
-                <form th:action="@{'/interviews/' + ${interview.id} + '/scorecard'}" method="POST" class="space-y-6">
-                    <!-- Technical Score -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-baseline">
-                            <label class="text-sm font-bold text-slate-700">1. Technical Competency</label>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Coding, engineering depth</span>
-                        </div>
-                        <div class="grid grid-cols-5 gap-2">
-                            <label th:each="i : ${#numbers.sequence(1, 5)}" class="cursor-pointer">
-                                <input type="radio" name="technicalScore" th:value="${i}" class="peer sr-only" th:checked="${i == 3}">
-                                <div class="py-2.5 text-center rounded-xl border-2 border-slate-100 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 hover:bg-slate-50 transition-all text-xs font-black text-slate-700">
-                                    <span class="block text-[10px] text-slate-400 font-semibold mb-0.5">Lvl</span>
-                                    <span th:text="${i}">3</span>
-                                </div>
-                            </label>
-                        </div>
+                <div class="flex items-center space-x-4 mb-8">
+                    <div class="p-3 bg-indigo-50 text-indigo-600 rounded-2xl shadow-inner border border-indigo-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
                     </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-slate-800">Interviewer Rubrics</h4>
+                        <p class="text-sm text-slate-400 font-medium">Evaluate the applicant across 4 core areas</p>
+                    </div>
+                </div>
 
-                    <!-- Problem Solving -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-baseline">
-                            <label class="text-sm font-bold text-slate-700">2. Problem Solving & Analytical Aptitude</label>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Logic, scale design</span>
+                <form th:action="@{'/interviews/' + ${interview.id} + '/scorecard'}" method="POST" class="space-y-8">
+                    <!-- Rubric Template Block -->
+                    <th:block th:each="rubric, iterStat : ${
+                        {{'technicalScore', 'Technical Competency', 'Coding, architecture, engineering depth'},
+                         {'problemSolvingScore', 'Problem Solving Aptitude', 'Logic, scalability, edge-case handling'},
+                         {'communicationScore', 'Communication & Influence', 'Clarity, articulation, stakeholder alignment'},
+                         {'cultureScore', 'Culture & Values Fit', 'Teamwork, adaptability, collaboration'}}
+                    }">
+                        <div class="space-y-3 relative group">
+                            <!-- Background highlight on hover -->
+                            <div class="absolute -inset-4 bg-slate-50/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity -z-10 pointer-events-none"></div>
+                            
+                            <div class="flex justify-between items-baseline">
+                                <label class="text-base font-bold text-slate-700" th:text="${iterStat.count + '. ' + rubric[1]}">Rubric Title</label>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide" th:text="${rubric[2]}">Subtitle</span>
+                            </div>
+                            <div class="grid grid-cols-5 gap-3" th:data-rubric="${rubric[0]}">
+                                <label th:each="i : ${#numbers.sequence(1, 5)}" class="cursor-pointer rubric-label block relative">
+                                    <input type="radio" th:name="${rubric[0]}" th:value="${i}" class="peer sr-only" required>
+                                    <!-- Dynamic styling applied via JS -->
+                                    <div class="rubric-box py-3.5 text-center rounded-xl border-2 border-slate-100 bg-white hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-sm font-black text-slate-400 peer-checked:shadow-inner peer-checked:text-white">
+                                        <span class="block text-[10px] font-bold uppercase tracking-wider mb-0.5 opacity-70">Level</span>
+                                        <span class="text-lg" th:text="${i}">3</span>
+                                    </div>
+                                    <!-- Selection ring animation -->
+                                    <div class="absolute inset-0 rounded-xl ring-4 ring-transparent peer-checked:animate-ping opacity-20 pointer-events-none rubric-ring"></div>
+                                </label>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-5 gap-2">
-                            <label th:each="i : ${#numbers.sequence(1, 5)}" class="cursor-pointer">
-                                <input type="radio" name="problemSolvingScore" th:value="${i}" class="peer sr-only" th:checked="${i == 3}">
-                                <div class="py-2.5 text-center rounded-xl border-2 border-slate-100 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 hover:bg-slate-50 transition-all text-xs font-black text-slate-700">
-                                    <span class="block text-[10px] text-slate-400 font-semibold mb-0.5">Lvl</span>
-                                    <span th:text="${i}">3</span>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Communication -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-baseline">
-                            <label class="text-sm font-bold text-slate-700">3. Communication & Influence</label>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Clarity, articulation, alignment</span>
-                        </div>
-                        <div class="grid grid-cols-5 gap-2">
-                            <label th:each="i : ${#numbers.sequence(1, 5)}" class="cursor-pointer">
-                                <input type="radio" name="communicationScore" th:value="${i}" class="peer sr-only" th:checked="${i == 3}">
-                                <div class="py-2.5 text-center rounded-xl border-2 border-slate-100 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 hover:bg-slate-50 transition-all text-xs font-black text-slate-700">
-                                    <span class="block text-[10px] text-slate-400 font-semibold mb-0.5">Lvl</span>
-                                    <span th:text="${i}">3</span>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Culture Fit -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-baseline">
-                            <label class="text-sm font-bold text-slate-700">4. Culture & Values Alignment</label>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Teamwork, collaborative fit</span>
-                        </div>
-                        <div class="grid grid-cols-5 gap-2">
-                            <label th:each="i : ${#numbers.sequence(1, 5)}" class="cursor-pointer">
-                                <input type="radio" name="cultureScore" th:value="${i}" class="peer sr-only" th:checked="${i == 3}">
-                                <div class="py-2.5 text-center rounded-xl border-2 border-slate-100 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 hover:bg-slate-50 transition-all text-xs font-black text-slate-700">
-                                    <span class="block text-[10px] text-slate-400 font-semibold mb-0.5">Lvl</span>
-                                    <span th:text="${i}">3</span>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
+                    </th:block>
 
                     <!-- Evaluation Comments -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2" for="comments">Detailed Feedback & Notes</label>
-                        <textarea id="comments" name="comments" rows="5" required placeholder="Outline technical strengths, opportunities, and overall interview feedback..."
-                                  class="w-full bg-slate-50 border-none rounded-2xl px-4 py-3.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all resize-none"></textarea>
+                    <div class="pt-4">
+                        <label class="block text-sm font-bold text-slate-700 mb-2" for="comments">Detailed Feedback &amp; Notes</label>
+                        <p class="text-xs text-slate-400 mb-3 font-medium">Please outline specific strengths, areas for growth, and your overall recommendation rationale.</p>
+                        <textarea id="comments" name="comments" rows="5" required 
+                                  class="w-full bg-slate-50/50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all resize-none shadow-inner"></textarea>
                     </div>
 
-                    <!-- Advance candidate status? -->
-                    <div class="pt-4 border-t border-slate-100">
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2" for="candidateStatus">Set Next Applicant Stage (Optional)</label>
+                    <!-- Advance candidate status -->
+                    <div class="p-6 bg-indigo-50/50 border-2 border-indigo-100 rounded-2xl">
+                        <label class="block text-sm font-bold text-indigo-900 mb-2" for="candidateStatus">HR Action Recommendation (Optional)</label>
                         <select id="candidateStatus" name="candidateStatus"
-                                class="w-full bg-slate-50 border-none rounded-2xl px-4 py-3.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all">
+                                class="w-full bg-white border-2 border-indigo-100 rounded-xl px-4 py-3.5 text-sm font-bold text-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-sm transition-all appearance-none cursor-pointer">
                             <option value="">Keep current pipeline stage</option>
-                            <option value="SHORTLISTED">Shortlisted</option>
-                            <option value="OFFERED">Offer (Initiate process)</option>
-                            <option value="REJECTED">Reject (Decline application)</option>
-                            <option value="KIV">KIV (Keep in View)</option>
+                            <option value="SHORTLISTED">Return to Shortlisted Pool</option>
+                            <option value="OFFERED">Initiate Offer Process</option>
+                            <option value="KIV">Keep In View (KIV Pool)</option>
+                            <option value="REJECTED">Reject Application</option>
                         </select>
                     </div>
 
                     <button type="submit"
-                            class="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-teal-100 transition-all duration-300 flex items-center justify-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                            class="w-full relative overflow-hidden group bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-2xl shadow-xl shadow-slate-900/20 transition-all duration-300 flex items-center justify-center space-x-2 active:scale-[0.98]">
+                        <!-- Shine effect -->
+                        <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                        <svg class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <span>Submit Rubric Evaluation</span>
+                        <span class="relative z-10 text-lg">Submit Final Evaluation</span>
                     </button>
                 </form>
             </div>
 
             <!-- Right: Panel Stream / Existing Reviews (5 cols) -->
             <div class="lg:col-span-5 space-y-6">
-                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-md">
-                    <h4 class="text-md font-extrabold text-slate-800 mb-4 tracking-tight">Interviewer Evaluations</h4>
+                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-lg shadow-slate-200/30">
+                    <div class="flex items-center justify-between mb-6">
+                        <h4 class="text-lg font-extrabold text-slate-800 tracking-tight">Panel Evaluations</h4>
+                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold" th:text="${#lists.size(existingScorecards)} + ' Submitted'">0 Submitted</span>
+                    </div>
+                    
                     <div class="space-y-4">
                         <!-- Loop over existing scorecards -->
                         <div th:each="sc : ${existingScorecards}" 
-                             class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col space-y-3">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <span class="block text-xs font-black text-slate-700" th:text="${sc.submitter}">interviewer@stie.com</span>
-                                    <span class="text-[9px] text-slate-400 font-bold uppercase" th:text="${#temporals.format(sc.createdAt, 'yyyy-MM-dd HH:mm')}">Date</span>
+                             class="p-5 bg-slate-50/80 rounded-2xl border border-slate-200 hover:border-indigo-200 hover:shadow-md transition-all flex flex-col space-y-4 group">
+                            
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
+                                        <span th:text="${#strings.substring(sc.submitter,0,1).toUpperCase()}">U</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-sm font-black text-slate-800" th:text="${sc.submitter}">interviewer@stie.com</span>
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wide" th:text="${#temporals.format(sc.createdAt, 'dd MMM • HH:mm')}">Date</span>
+                                    </div>
                                 </div>
-                                <div class="bg-teal-50 border border-teal-100 text-teal-600 px-2.5 py-1 rounded-xl text-xs font-black flex items-center">
-                                    <span class="text-[10px] opacity-75 mr-1 font-semibold">Avg</span>
-                                    <span th:text="${#numbers.formatDecimal(sc.getAverageScore(), 1, 1)}">4.0</span>
+                                
+                                <!-- Avg Score Badge -->
+                                <div class="flex flex-col items-end">
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Average</span>
+                                    <div class="px-2.5 py-1 rounded-xl font-black text-sm border-2"
+                                         th:classappend="${sc.getAverageScore() >= 4 ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 
+                                                          (sc.getAverageScore() >= 3 ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-red-50 text-red-600 border-red-200')}">
+                                        <span th:text="${#numbers.formatDecimal(sc.getAverageScore(), 1, 1)}">4.0</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <p class="text-xs text-slate-550 italic leading-relaxed break-words" th:text="${sc.comments}">Feedback comments go here.</p>
+                            <p class="text-sm text-slate-600 leading-relaxed font-medium break-words bg-white p-3 rounded-xl border border-slate-100" th:text="${sc.comments}">Feedback comments go here.</p>
                             
                             <!-- Detailed scores visual breakdown -->
-                            <div class="grid grid-cols-4 gap-2 pt-2 border-t border-slate-200/50 text-center">
+                            <div class="grid grid-cols-4 gap-2 pt-2 text-center opacity-70 group-hover:opacity-100 transition-opacity">
                                 <div>
-                                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Tech</span>
-                                    <span class="text-xs font-black text-slate-700" th:text="${sc.technicalScore} + '/5'">3/5</span>
+                                    <span class="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Tech</span>
+                                    <span class="text-sm font-black text-slate-700" th:text="${sc.technicalScore}">3</span>
                                 </div>
                                 <div>
-                                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Analyt</span>
-                                    <span class="text-xs font-black text-slate-700" th:text="${sc.problemSolvingScore} + '/5'">3/5</span>
+                                    <span class="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Analyt</span>
+                                    <span class="text-sm font-black text-slate-700" th:text="${sc.problemSolvingScore}">3</span>
                                 </div>
                                 <div>
-                                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Comm</span>
-                                    <span class="text-xs font-black text-slate-700" th:text="${sc.communicationScore} + '/5'">3/5</span>
+                                    <span class="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Comm</span>
+                                    <span class="text-sm font-black text-slate-700" th:text="${sc.communicationScore}">3</span>
                                 </div>
                                 <div>
-                                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Cult</span>
-                                    <span class="text-xs font-black text-slate-700" th:text="${sc.cultureScore} + '/5'">3/5</span>
+                                    <span class="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Cult</span>
+                                    <span class="text-sm font-black text-slate-700" th:text="${sc.cultureScore}">3</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Fallback empty panel state -->
-                        <div th:if="${#lists.isEmpty(existingScorecards)}" class="p-8 text-center border-2 border-dashed border-slate-200 rounded-2xl">
-                            <svg class="w-8 h-8 mx-auto text-slate-350 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                            </svg>
-                            <p class="text-xs text-slate-400 font-bold">No Evaluations Submitted Yet</p>
-                            <p class="text-[10px] text-slate-400 mt-1">Be the first to submit a structured evaluation for this applicant.</p>
+                        <div th:if="${#lists.isEmpty(existingScorecards)}" class="p-10 text-center bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200">
+                            <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <h5 class="text-sm font-bold text-slate-700 mb-1">No Evaluations Yet</h5>
+                            <p class="text-xs text-slate-500">Be the first to submit a structured rubric evaluation for this applicant.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Custom JS for dynamic rubric coloring and live average -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const colorMap = {
+                    1: { bg: 'bg-red-500', border: 'border-red-600', ring: 'ring-red-500' },
+                    2: { bg: 'bg-orange-500', border: 'border-orange-600', ring: 'ring-orange-500' },
+                    3: { bg: 'bg-amber-500', border: 'border-amber-600', ring: 'ring-amber-500' },
+                    4: { bg: 'bg-emerald-500', border: 'border-emerald-600', ring: 'ring-emerald-500' },
+                    5: { bg: 'bg-teal-600', border: 'border-teal-700', ring: 'ring-teal-600' }
+                };
+
+                const avgBadge = document.getElementById('liveAvgBadge');
+                
+                function updateLiveAverage() {
+                    let sum = 0;
+                    let count = 0;
+                    document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                        sum += parseInt(radio.value);
+                        count++;
+                    });
+                    
+                    if (count > 0) {
+                        const avg = (sum / count).toFixed(1);
+                        avgBadge.innerText = avg;
+                        
+                        // Update badge color
+                        avgBadge.className = 'px-4 py-2 rounded-2xl font-black text-xl border-2 transition-all duration-300 ';
+                        if (avg >= 4) avgBadge.className += 'bg-emerald-50 text-emerald-600 border-emerald-200 shadow-lg shadow-emerald-100';
+                        else if (avg >= 3) avgBadge.className += 'bg-amber-50 text-amber-600 border-amber-200 shadow-lg shadow-amber-100';
+                        else avgBadge.className += 'bg-red-50 text-red-600 border-red-200 shadow-lg shadow-red-100';
+                    }
+                }
+
+                // Attach change listeners to radios
+                document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const groupName = this.name;
+                        // Reset all boxes in this group
+                        document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+                            const box = r.nextElementSibling;
+                            const ring = box.nextElementSibling;
+                            box.className = 'rubric-box py-3.5 text-center rounded-xl border-2 border-slate-100 bg-white hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-sm font-black text-slate-400 peer-checked:shadow-inner peer-checked:text-white';
+                            ring.className = 'absolute inset-0 rounded-xl ring-4 ring-transparent peer-checked:animate-ping opacity-20 pointer-events-none rubric-ring';
+                        });
+
+                        // Apply color to selected
+                        if (this.checked) {
+                            const val = this.value;
+                            const box = this.nextElementSibling;
+                            const ring = box.nextElementSibling;
+                            const colors = colorMap[val];
+                            
+                            // Re-apply classes with the specific colors
+                            box.className = `rubric-box py-3.5 text-center rounded-xl border-2 transition-all duration-300 text-sm font-black text-white shadow-inner scale-105 ${colors.bg} ${colors.border}`;
+                            ring.className = `absolute inset-0 rounded-xl ring-4 opacity-30 pointer-events-none rubric-ring animate-ping ${colors.ring}`;
+                            
+                            // Remove ping after 500ms
+                            setTimeout(() => {
+                                ring.classList.remove('animate-ping');
+                            }, 500);
+                        }
+                        
+                        updateLiveAverage();
+                    });
+                });
+            });
+        </script>
+        
+        <style>
+            @keyframes shimmer {
+                100% { transform: translateX(100%); }
+            }
+        </style>
     </div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
 <head></head>
 <body>
@@ -317,63 +317,7 @@
             </div>
         </div>
 
-        <!-- ════════════════════════════════════════════════════════════════════
-             MODAL: Leave Feedback (legacy — for interviewers)
-             ════════════════════════════════════════════════════════════════════ -->
-        <div id="feedbackModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-3xl w-full max-w-lg p-8 shadow-2xl">
-                <h3 class="text-xl font-bold text-slate-800 mb-6">Interviewer Scorecard</h3>
-                <form id="feedbackForm" method="POST" class="space-y-6">
-                    <div class="space-y-4">
-                        <div>
-                            <div class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2">
-                                <span>Technical Ability</span><span id="techVal">3</span>
-                            </div>
-                            <input type="range" name="technicalScore" min="1" max="5" value="3"
-                                   oninput="document.getElementById('techVal').innerText = this.value"
-                                   class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-teal-600">
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2">
-                                <span>Culture Fit</span><span id="cultVal">3</span>
-                            </div>
-                            <input type="range" name="cultureScore" min="1" max="5" value="3"
-                                   oninput="document.getElementById('cultVal').innerText = this.value"
-                                   class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-600">
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2">
-                                <span>Communication</span><span id="commVal">3</span>
-                            </div>
-                            <input type="range" name="communicationScore" min="1" max="5" value="3"
-                                   oninput="document.getElementById('commVal').innerText = this.value"
-                                   class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-600">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Applicant Status</label>
-                        <select name="candidateStatus" required
-                                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
-                            <option value="OFFERED">Extend Offer (OFFERED)</option>
-                            <option value="KIV">Retain Applicant (KIV)</option>
-                            <option value="REJECTED">Reject Applicant (REJECTED)</option>
-                            <option value="SHORTLISTED">Return to Shortlisted Pool</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Qualitative Feedback</label>
-                        <textarea name="feedback" rows="3" required
-                                  class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm resize-none"></textarea>
-                    </div>
-                    <div class="flex gap-3">
-                        <button type="button" onclick="document.getElementById('feedbackModal').classList.add('hidden')"
-                                class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors text-sm">Cancel</button>
-                        <button type="submit"
-                                class="flex-1 px-4 py-2.5 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors text-sm">Submit</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+
 
         <script>
             function openOutcomeModal(interviewId, candidateName) {

@@ -23,5 +23,6 @@ public interface CandidateRepository extends JpaRepository<Candidate, Long> {
 
     long countByJobVacancy(com.stie.model.JobVacancy jobVacancy);
     long countByJobVacancyAndStatusIn(com.stie.model.JobVacancy jobVacancy, java.util.Collection<Candidate.CandidateStatus> statuses);
+    java.util.List<Candidate> findByJobVacancy(com.stie.model.JobVacancy jobVacancy);
 }
 

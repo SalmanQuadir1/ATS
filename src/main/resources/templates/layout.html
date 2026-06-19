@@ -91,7 +91,8 @@
                 </svg>
                 Dashboard
             </a>
-            <a th:href="@{/jobs}" sec:authorize="hasAnyAuthority('MANAGE_JOBS', 'CREATE_JOBS', 'APPROVE_JOBS', 'MANAGE_APPLICANTS')"
+            <a th:href="@{/jobs}"
+                sec:authorize="hasAnyAuthority('MANAGE_JOBS', 'CREATE_JOBS', 'APPROVE_JOBS', 'MANAGE_APPLICANTS')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI == '/jobs' ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,31 +132,34 @@
                 </svg>
                 Interviews
             </a>
-            <a th:href="@{/reports}" sec:authorize="hasAuthority('VIEW_REPORTS')"
+
+            <a th:href="@{/reports}" sec:authorize="hasAnyAuthority('MANAGE_JOBS', 'MANAGE_APPLICANTS', 'MANAGE_INTERVIEWS')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI == '/reports' ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
-                Analytics
+                Reports
             </a>
 
             <a th:href="@{/super-admin}" sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI != null and #strings.startsWith(#httpServletRequest.requestURI, '/super-admin') ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                    </path>
                 </svg>
                 Sites (Tenants)
             </a>
-            
+
             <a th:href="@{/super-admin/roles}" sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI != null and #strings.startsWith(#httpServletRequest.requestURI, '/super-admin/roles') ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                    </path>
                 </svg>
                 Roles & Permissions
             </a>
@@ -225,7 +229,8 @@
                         Categories & Skills</a>
                     <a th:href="@{/settings/roles}"
                         class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
-                        th:classappend="${#httpServletRequest.requestURI == '/settings/roles' ? 'text-emerald-600 font-semibold' : ''}">Custom Roles</a>
+                        th:classappend="${#httpServletRequest.requestURI == '/settings/roles' ? 'text-emerald-600 font-semibold' : ''}">Custom
+                        Roles</a>
                     <a th:href="@{/locations}"
                         class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
                         th:classappend="${#httpServletRequest.requestURI == '/locations' ? 'text-emerald-600 font-semibold' : ''}">Locations</a>
@@ -240,7 +245,9 @@
                 <div class="ml-3">
                     <p class="text-sm font-semibold text-slate-700" sec:authentication="name">User</p>
                     <p class="text-xs text-slate-400">
-                        <span th:each="auth : ${#authentication.authorities}" th:if="${#strings.startsWith(auth.authority, 'ROLE_')}" th:text="${#strings.replace(auth.authority, 'ROLE_', '')} + ' '"></span>
+                        <span th:each="auth : ${#authentication.authorities}"
+                            th:if="${#strings.startsWith(auth.authority, 'ROLE_')}"
+                            th:text="${#strings.replace(auth.authority, 'ROLE_', '')} + ' '"></span>
                     </p>
                 </div>
             </a>
@@ -420,7 +427,7 @@
             <div th:insert="this :: content"></div>
         </div>
     </main>
-    <script>
+    <script th:inline="javascript">
         function toggleUserMenu() {
             const menu = document.getElementById('userSubMenu');
             const arrow = document.getElementById('userMenuArrow');
@@ -455,7 +462,8 @@
             }
         });
         function copyWalkinLink(btn) {
-            navigator.clipboard.writeText(window.location.origin + '/walkin').then(() => {
+            const tenantPrefix = /*[[${user != null and user.tenant != null ? '/' + user.tenant.subdomain : ''}]]*/ '';
+            navigator.clipboard.writeText(window.location.origin + tenantPrefix + '/walkin').then(() => {
                 const label = document.getElementById('walkinBtnText');
                 if (label) {
                     label.textContent = 'Copied! ✓';
@@ -486,7 +494,55 @@
                 if (arrow) arrow.classList.add('rotate-180');
             }
         });
-    </script>
-</body>
 
+        let activeFormId = null;
+        let activeInputId = null;
+
+        function openRemarksModal(title, instruction, formId, inputId) {
+            document.getElementById('remarksModalTitle').textContent = title;
+            document.getElementById('remarksModalInstruction').textContent = instruction;
+            document.getElementById('remarksModalTextarea').value = "";
+            activeFormId = formId;
+            activeInputId = inputId;
+            document.getElementById('remarksModal').classList.remove('hidden');
+        }
+
+        function closeRemarksModal() {
+            document.getElementById('remarksModal').classList.add('hidden');
+            activeFormId = null;
+            activeInputId = null;
+        }
+
+        function submitRemarks() {
+            if (activeFormId && activeInputId) {
+                const remarks = document.getElementById('remarksModalTextarea').value.trim();
+                document.getElementById(activeInputId).value = remarks;
+                document.getElementById(activeFormId).submit();
+            }
+            closeRemarksModal();
+        }
+    </script>
+
+    <!-- Reusable Remarks Modal -->
+    <div id="remarksModal" class="hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"></div>
+
+        <!-- Modal Card -->
+        <div class="relative bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 transform scale-95 transition-all z-10">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="remarksModalTitle" class="text-lg font-bold text-slate-800 syne">Remarks Required</h3>
+                <button onclick="closeRemarksModal()" class="text-slate-400 hover:text-slate-600 transition text-2xl font-bold leading-none">&times;</button>
+            </div>
+            <p id="remarksModalInstruction" class="text-xs text-slate-400 mb-4">Please enter your remarks for this action below.</p>
+            <div class="space-y-4">
+                <textarea id="remarksModalTextarea" rows="4" placeholder="Enter notes here..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 transition"></textarea>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button onclick="closeRemarksModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all">Cancel</button>
+                    <button id="remarksModalSubmitBtn" onclick="submitRemarks()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-100">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
 </html>

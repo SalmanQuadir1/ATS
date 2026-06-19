@@ -28,9 +28,9 @@ public class SecurityConfig {
             .csrf().disable()
             .authorizeRequests()
                 // Public access
-                .antMatchers("/", "/landing", "/walkin", "/walkin/**",
-                             "/apply/**",
-                             "/api/webhooks/**", "/css/**", "/js/**").permitAll()
+                .antMatchers("/", "/landing", "/*/landing", "/walkin", "/walkin/**", "/*/walkin", "/*/walkin/**",
+                             "/apply/**", "/*/apply/**",
+                             "/api/webhooks/**", "/css/**", "/js/**", "/debug/**").permitAll()
 
                 // SuperAdmin only
                 .antMatchers("/super-admin", "/super-admin/**", "/api/tenants/**").hasAuthority("ROLE_SUPER_ADMIN")

@@ -41,11 +41,14 @@ public class WalkInController {
     @Autowired
     private com.stie.service.TenantService tenantService;
 
-    @GetMapping("/{tenantName}/walkin")
-    public String showForm(@org.springframework.web.bind.annotation.PathVariable("tenantName") String tenantName, @RequestParam(required = false) Long jobId, Model model) {
-        com.stie.model.Tenant tenant = tenantService.getSiteBySubdomain(tenantName);
-        if (tenant == null) {
-            return "redirect:/login";
+    @GetMapping({"/walkin", "/{tenantName}/walkin"})
+    public String showForm(@org.springframework.web.bind.annotation.PathVariable(value = "tenantName", required = false) String tenantName, @RequestParam(required = false) Long jobId, Model model) {
+        com.stie.model.Tenant tenant = null;
+        if (tenantName != null) {
+            tenant = tenantService.getSiteBySubdomain(tenantName);
+            if (tenant == null) {
+                return "redirect:/login";
+            }
         }
         model.addAttribute("tenant", tenant);
         model.addAttribute("candidate", new Candidate());
@@ -60,21 +63,29 @@ public class WalkInController {
         return "walkin";
     }
 
-    @PostMapping("/{tenantName}/walkin/submit")
-    public String submitApplication(@org.springframework.web.bind.annotation.PathVariable("tenantName") String tenantName,
+    @PostMapping({"/walkin/submit", "/{tenantName}/walkin/submit"})
+    public String submitApplication(@org.springframework.web.bind.annotation.PathVariable(value = "tenantName", required = false) String tenantName,
                                     @RequestParam(value = "resume", required = false) MultipartFile resume,
                                     @RequestParam(value = "photo", required = false) MultipartFile photo,
                                     @RequestParam(value = "jobId", required = false) Long jobId,
                                     Candidate candidate, Model model) {
-        com.stie.model.Tenant tenant = tenantService.getSiteBySubdomain(tenantName);
-        if (tenant == null) return "redirect:/login";
+        com.stie.model.Tenant tenant = null;
+        if (tenantName != null) {
+            tenant = tenantService.getSiteBySubdomain(tenantName);
+            if (tenant == null) return "redirect:/login";
+        }
+
+        if (jobId != null) {
+            com.stie.model.JobVacancy job = jobService.getJobById(jobId);
+            candidate.setJobVacancy(job);
+            if (tenant == null && job != null) {
+                tenant = job.getTenant();
+            }
+        }
 
         model.addAttribute("tenant", tenant);
         model.addAttribute("branding", brandingService.getBranding(tenant));
         candidate.setTenant(tenant);
-        if (jobId != null) {
-            candidate.setJobVacancy(jobService.getJobById(jobId));
-        }
         
         String uploadDir = "uploads/";
         Path uploadPath = Paths.get(uploadDir);
@@ -132,8 +143,10 @@ public class WalkInController {
             // Check if email already exists
             if (candidate.getEmail() != null && !candidate.getEmail().trim().isEmpty()) {
                 String email = candidate.getEmail().trim().toLowerCase();
+                com.stie.model.Tenant finalTenant = tenant;
                 boolean emailExists = candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 1000)).getContent().stream()
-                        .anyMatch(c -> email.equals(c.getEmail().trim().toLowerCase()));
+                        .anyMatch(c -> email.equals(c.getEmail().trim().toLowerCase()) && 
+                                       (finalTenant == null ? c.getTenant() == null : (c.getTenant() != null && finalTenant.getId().equals(c.getTenant().getId()))));
                 if (emailExists) {
                     model.addAttribute("error", "An application with this email address ('" + candidate.getEmail() + "') already exists.");
                     model.addAttribute("candidate", candidate);

@@ -8,86 +8,66 @@
             <p class="text-slate-500">Key metrics and analytics for the current quarter</p>
         </div>
 
-        <!-- Metrics Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Avg. Time to Fill</p>
-                <h4 class="text-3xl font-black text-emerald-600" th:text="${avgTimeToFill + ' Days'}">18 Days</h4>
-                <p class="text-[10px] text-emerald-500 font-medium mt-2">↓ 12% from last month</p>
-            </div>
-            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Offer Acceptance</p>
-                <h4 class="text-3xl font-black text-teal-600" th:text="${offerAcceptanceRate + '%'}">85%</h4>
-                <p class="text-[10px] text-emerald-500 font-medium mt-2">↑ 5% from last month</p>
-            </div>
-            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Hired</p>
-                <h4 class="text-3xl font-black text-slate-800" th:text="${totalHires}">24</h4>
-                <p class="text-[10px] text-slate-400 font-medium mt-2">FY 2026 Target: 50</p>
-            </div>
-            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Avg. Hiring Cost</p>
-                <h4 class="text-3xl font-black text-emerald-600" th:text="${'S$' + avgHiringCost}">S$1,250</h4>
-                <p class="text-[10px] text-slate-400 font-medium mt-2">Spent: <span class="font-bold text-slate-600" th:text="${'S$' + totalCostSpent}">S$30,000</span></p>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Source Analysis -->
-            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                <h5 class="text-lg font-bold text-slate-800 mb-6">Source of Applicants</h5>
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-slate-600 font-medium">LinkedIn</span>
-                            <span class="text-slate-400">45%</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div class="bg-emerald-500 h-full w-[45%]"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-slate-600 font-medium">JobStreet</span>
-                            <span class="text-slate-400">30%</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div class="bg-teal-500 h-full w-[30%]"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-slate-600 font-medium">Direct/Walk-in</span>
-                            <span class="text-slate-400">25%</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div class="bg-emerald-500 h-full w-[25%]"></div>
-                        </div>
-                    </div>
+        <!-- Jasper Data & Reports -->
+        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h5 class="text-lg font-bold text-slate-800">Export Data & Reports</h5>
+                    <p class="text-xs text-slate-500 font-medium mt-1">Download comprehensive reports in PDF or Excel formats.</p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
                 </div>
             </div>
-
-            <!-- Recruiter Performance -->
-            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                <h5 class="text-lg font-bold text-slate-800 mb-6">Recruiter Load</h5>
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">AS</div>
-                            <span class="ml-3 text-sm font-semibold text-slate-700">Alice Smith</span>
-                        </div>
-                        <span class="text-xs font-bold text-slate-500">12 Active Roles</span>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-xs">BJ</div>
-                            <span class="ml-3 text-sm font-semibold text-slate-700">Bob Johnson</span>
-                        </div>
-                        <span class="text-xs font-bold text-slate-500">8 Active Roles</span>
-                    </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="group relative overflow-hidden flex flex-col p-5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200/60 transition-all duration-300 hover:shadow-md">
+                   <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-indigo-100 to-transparent rounded-full -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                   <h6 class="text-sm font-bold text-slate-800 relative z-10">Candidates List</h6>
+                   <p class="text-xs text-slate-500 mt-1 mb-4 relative z-10">Full roster of applicants</p>
+                   <div class="mt-auto flex items-center gap-4 relative z-10">
+                       <a href="/reports/candidates/pdf" target="_blank" class="flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                           PDF <span class="ml-1">↓</span>
+                       </a>
+                       <a href="/reports/candidates/excel" target="_blank" class="flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+                           Excel <span class="ml-1">↓</span>
+                       </a>
+                   </div>
+                </div>
+                
+                <div class="group relative overflow-hidden flex flex-col p-5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200/60 transition-all duration-300 hover:shadow-md">
+                   <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-100 to-transparent rounded-full -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                   <h6 class="text-sm font-bold text-slate-800 relative z-10">Job Vacancies</h6>
+                   <p class="text-xs text-slate-500 mt-1 mb-4 relative z-10">Open and closed roles</p>
+                   <div class="mt-auto flex items-center gap-4 relative z-10">
+                       <a href="/reports/jobs/pdf" target="_blank" class="flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                           PDF <span class="ml-1">↓</span>
+                       </a>
+                       <a href="/reports/jobs/excel" target="_blank" class="flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+                           Excel <span class="ml-1">↓</span>
+                       </a>
+                   </div>
+                </div>
+                
+                <div class="group relative overflow-hidden flex flex-col p-5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200/60 transition-all duration-300 hover:shadow-md">
+                   <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-100 to-transparent rounded-full -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                   <h6 class="text-sm font-bold text-slate-800 relative z-10">Interview Schedule</h6>
+                   <p class="text-xs text-slate-500 mt-1 mb-4 relative z-10">Upcoming meeting times</p>
+                   <div class="mt-auto flex items-center gap-4 relative z-10">
+                       <a href="/reports/interviews/pdf" target="_blank" class="flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                           PDF <span class="ml-1">↓</span>
+                       </a>
+                       <a href="/reports/interviews/excel" target="_blank" class="flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+                           Excel <span class="ml-1">↓</span>
+                       </a>
+                   </div>
                 </div>
             </div>
         </div>
+
+
     </div>
 </body>
 </html>

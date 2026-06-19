@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" 
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" 
+              name="JobsReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e8f9a3d4-2b7e-4b71-9c8a-7d1f6a2b9e3d">
+    
+    <field name="title" class="java.lang.String"/>
+    <field name="department" class="java.lang.String"/>
+    <field name="location" class="java.lang.String"/>
+    <field name="status" class="java.lang.String"/>
+    <field name="openings" class="java.lang.Integer"/>
+    
+    <title>
+        <band height="50">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="30" uuid="f712f898-d107-4e6f-b1b7-7e62a8c3d78c"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Job Vacancies Report]]></text>
+            </staticText>
+        </band>
+    </title>
+    
+    <columnHeader>
+        <band height="30">
+            <staticText>
+                <reportElement x="0" y="0" width="165" height="30" uuid="a441b312-d023-4589-a292-6f296313361e"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Job Title]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="165" y="0" width="120" height="30" uuid="b58e5f90-1c32-47dc-a843-16f393847e9a"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Department]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="285" y="0" width="120" height="30" uuid="c2f0f4a8-6b2c-4ec7-9f60-d2cf7d7f7632"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Location]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="405" y="0" width="80" height="30" uuid="d18a1c97-6a77-4cf3-a612-421712a67bc4"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Status]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="485" y="0" width="70" height="30" uuid="e608129e-21ea-42ec-a06f-12c8b74c2d33"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Openings]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+    
+    <detail>
+        <band height="20">
+            <textField>
+                <reportElement x="0" y="0" width="165" height="20" uuid="ef19f5a1-77e8-4ec8-b64d-587291a1df28"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{title}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="165" y="0" width="120" height="20" uuid="ff8a7c2e-4b2a-4467-8854-c9f28a2cf3df"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{department}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="285" y="0" width="120" height="20" uuid="a7f8b9e8-4621-4f93-b472-e1d87e35bdfb"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{location}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="405" y="0" width="80" height="20" uuid="b98d4d8c-79e4-4d1e-876e-5f448c3b999c"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{status}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="485" y="0" width="70" height="20" uuid="c91f2c3d-6b5a-4e8c-9a4f-8b212f38d39f"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{openings}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+    
+</jasperReport>

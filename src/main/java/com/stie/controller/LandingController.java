@@ -19,6 +19,15 @@ public class LandingController {
     @Autowired
     private com.stie.service.TenantService tenantService;
 
+    @GetMapping("/landing")
+    public String genericLanding() {
+        java.util.List<com.stie.model.Tenant> tenants = tenantService.getAllSites();
+        if (!tenants.isEmpty()) {
+            return "redirect:/" + tenants.get(0).getSubdomain() + "/landing";
+        }
+        return "redirect:/login";
+    }
+
     @GetMapping("/{tenantName}/landing")
     public String landing(@org.springframework.web.bind.annotation.PathVariable("tenantName") String tenantName, Model model) {
         com.stie.model.Tenant tenant = tenantService.getSiteBySubdomain(tenantName);
@@ -27,7 +36,7 @@ public class LandingController {
         }
         model.addAttribute("tenant", tenant);
         model.addAttribute("branding", brandingService.getBranding(tenant));
-        model.addAttribute("openJobs", jobService.getOpenJobsForTenant(tenant));
+        model.addAttribute("openJobs", jobService.getAllApprovedJobsForTenant(tenant));
         return "landing";
     }
 }

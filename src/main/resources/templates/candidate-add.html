@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+
+        <!-- Page Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <a th:href="@{/candidates}" class="p-2 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-emerald-600 hover:border-emerald-300 transition-all shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                </a>
+                <div>
+                    <h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Add New Candidate</h3>
+                    <p class="text-slate-500 text-sm mt-0.5">Manually register a candidate into the database</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        <div th:if="${error}" class="mb-6 px-5 py-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold flex items-center gap-3">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span th:text="${error}">Error message</span>
+        </div>
+
+        <form th:action="@{/candidates/add}" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- ============================================================ -->
+            <!-- LEFT / MAIN COLUMN                                           -->
+            <!-- ============================================================ -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Personal Information -->
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+                    <div class="flex items-center gap-3 mb-7 pb-5 border-b border-slate-50">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        </div>
+                        <h4 class="text-base font-bold text-slate-800">Personal Information</h4>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="md:col-span-2">
+                            <label for="fullName" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Full Name <span class="text-rose-500">*</span></label>
+                            <input type="text" id="fullName" name="fullName" required placeholder="e.g. Ahmad bin Rashid"
+                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder-slate-300">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Email Address <span class="text-rose-500">*</span></label>
+                            <input type="email" id="email" name="email" required placeholder="candidate@email.com"
+                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder-slate-300">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Phone Number</label>
+                            <input type="text" id="phone" name="phone" placeholder="+65 9xxx xxxx"
+                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder-slate-300">
+                        </div>
+                        <div>
+                            <label for="nationality" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nationality</label>
+                            <select id="nationality" name="nationality"
+                                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                                <option value="">Select Nationality</option>
+                                <option value="Singaporean">Singaporean</option>
+                                <option value="PR">Singapore PR</option>
+                                <option value="Foreigner">Foreigner</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="experienceYears" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Years of Experience</label>
+                            <input type="number" id="experienceYears" name="experienceYears" min="0" max="50" placeholder="0"
+                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder-slate-300">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professional Details -->
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+                    <div class="flex items-center gap-3 mb-7 pb-5 border-b border-slate-50">
+                        <div class="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </div>
+                        <h4 class="text-base font-bold text-slate-800">Professional Details</h4>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label for="skills" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Professional Skills <span class="text-slate-300 font-medium normal-case tracking-normal">(comma separated)</span></label>
+                            <input type="text" id="skills" name="skills" placeholder="e.g. Security Operations, CCTV, First Aid, MS Office"
+                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder-slate-300">
+                            <!-- Live skill preview -->
+                            <div id="skillPreview" class="flex flex-wrap gap-1.5 mt-2 min-h-[24px]"></div>
+                        </div>
+                        <div>
+                            <label for="education" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Education</label>
+                            <input type="text" id="education" name="education" placeholder="e.g. Diploma in Security Management, ITE"
+                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder-slate-300">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label for="expectedSalary" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Expected Salary (S$/mo)</label>
+                                <input type="number" id="expectedSalary" name="expectedSalary" min="0" placeholder="e.g. 2800"
+                                       class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder-slate-300">
+                            </div>
+                            <div>
+                                <label for="securityLicense" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Security License (PLRD)</label>
+                                <input type="text" id="securityLicense" name="securityLicense" placeholder="PLRD number or None"
+                                       class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder-slate-300">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="certifications" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Certifications <span class="text-slate-300 font-medium normal-case tracking-normal">(comma separated)</span></label>
+                            <input type="text" id="certifications" name="certifications" placeholder="e.g. PLRD, First Aid, AWS Certified"
+                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder-slate-300">
+                        </div>
+                        <div>
+                            <label for="taggedRoles" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Tagged Roles <span class="text-slate-300 font-medium normal-case tracking-normal">(for future matching)</span></label>
+                            <input type="text" id="taggedRoles" name="taggedRoles" placeholder="e.g. Security Officer, Senior Guard, Team Leader"
+                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder-slate-300">
+                        </div>
+                        <div class="pt-1">
+                            <label class="inline-flex items-center cursor-pointer group">
+                                <input type="checkbox" name="workPermitEligible" value="true" id="workPermitEligible"
+                                       class="rounded text-emerald-600 border-slate-300 focus:ring-emerald-500 mr-3 h-4 w-4">
+                                <span class="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">Eligible for S-Pass / Work Permit</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- RIGHT / SIDEBAR                                              -->
+            <!-- ============================================================ -->
+            <div class="space-y-6">
+
+                <!-- Application Details -->
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+                    <div class="flex items-center gap-3 mb-7 pb-5 border-b border-slate-50">
+                        <div class="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <h4 class="text-base font-bold text-slate-800">Application Details</h4>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label for="jobVacancyId" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Applying For Job</label>
+                            <select id="jobVacancyId" name="jobVacancyId"
+                                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                                <option value="">No specific job (General Pool)</option>
+                                <option th:each="job : ${jobs}" th:value="${job.id}" th:text="${job.title}">Job Title</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="source" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Application Source</label>
+                            <select id="source" name="source"
+                                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                                <option th:each="src : ${sources}" th:value="${src}" th:text="${src.name().replace('_',' ')}">SOURCE</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="appLocation" class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Branch / Location</label>
+                            <input type="text" id="appLocation" name="appLocation" placeholder="e.g. HQ, Jurong Branch"
+                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder-slate-300">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Card -->
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 text-white shadow-lg">
+                    <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4">What happens next?</h4>
+                    <ul class="space-y-3 text-sm text-slate-400">
+                        <li class="flex items-start gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">1</span>
+                            Candidate is added to the master database
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">2</span>
+                            If a job is selected, an application record is created
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">3</span>
+                            You can link them to additional jobs later from their profile
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">4</span>
+                            HR can update status, add notes, and share with HM
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Submit -->
+                <div class="space-y-3">
+                    <button type="submit"
+                            class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white rounded-2xl font-bold text-sm shadow-lg shadow-emerald-100 transition-all duration-150 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                        Add to Database
+                    </button>
+                    <a th:href="@{/candidates}"
+                       class="w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold text-sm transition-all flex items-center justify-center">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+
+        </form>
+
+        <script>
+            // Live skill tag preview
+            const skillsInput = document.getElementById('skills');
+            const skillPreview = document.getElementById('skillPreview');
+            function updateSkillPreview() {
+                const raw = skillsInput.value;
+                const parts = raw.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                skillPreview.innerHTML = parts.map(p =>
+                    `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-100">${p}</span>`
+                ).join('');
+            }
+            skillsInput.addEventListener('input', updateSkillPreview);
+        </script>
+
+    </div>
+</body>
+</html>

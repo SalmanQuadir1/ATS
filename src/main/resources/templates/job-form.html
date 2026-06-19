@@ -19,13 +19,13 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Title</label>
-                            <input type="text" th:field="*{title}" required 
+                            <input type="text" th:field="*{title}" required
                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder-slate-400"
                                    placeholder="e.g. Senior Software Engineer">
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Department</label>
-                            <select th:field="*{department}" required 
+                            <select th:field="*{department}" required
                                     class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
                                 <option value="" disabled selected>Select Department</option>
                                 <option th:each="dept : ${departments}" th:value="${dept}" th:text="${dept}"></option>
@@ -34,12 +34,12 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Expiry Date</label>
-                            <input type="datetime-local" th:field="*{expiryDate}" required 
+                            <input type="datetime-local" th:field="*{expiryDate}" required
                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Location / Work Site</label>
-                            <select name="location" required 
+                            <select name="location" required
                                     class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
                                 <option value="" disabled selected>Select Location</option>
                                 <option th:each="loc : ${locations}" th:value="${loc}" th:text="${loc}" th:selected="${vacancy.location == loc}"></option>
@@ -48,17 +48,33 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">No. of Posts / Headcount</label>
-                            <input type="number" th:field="*{noOfPosts}" min="1" required 
+                            <input type="number" th:field="*{noOfPosts}" min="1" required
                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                                    placeholder="e.g. 5">
                         </div>
                         <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Experience Required</label>
+                            <select th:field="*{experienceRequired}"
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                                <option value="">No experience required (Fresh)</option>
+                                <option value="Less than 1 year">Less than 1 year</option>
+                                <option value="1 year">1 year</option>
+                                <option value="2 years">2 years</option>
+                                <option value="3 years">3 years</option>
+                                <option value="4 years">4 years</option>
+                                <option value="5 years">5 years</option>
+                                <option value="6-8 years">6–8 years</option>
+                                <option value="8+ years">8+ years</option>
+                                <option value="10+ years">10+ years</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Category</label>
-                                <select name="categoryId" id="categorySelect" required 
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
-                                    <option value="" disabled selected>Select Category</option>
-                                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:selected="${vacancy.category != null and vacancy.category.id == cat.id}"></option>
-                                </select>
+                            <select name="categoryId" id="categorySelect" required
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                                <option value="" disabled selected>Select Category</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:selected="${vacancy.category != null and vacancy.category.id == cat.id}"></option>
+                            </select>
                         </div>
                         <div class="space-y-2 md:col-span-2 hidden" id="skillsWrapper">
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Required Skills</label>
@@ -70,7 +86,7 @@
 
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Description</label>
-                        <textarea th:field="*{description}" rows="6" required 
+                        <textarea th:field="*{description}" rows="6" required
                                   class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder-slate-400"
                                   placeholder="Describe the roles, responsibilities and requirements..."></textarea>
                     </div>
@@ -81,11 +97,11 @@
                             <p class="text-xs">Your request will be sent to HR/Admin for approval.</p>
                         </div>
                         <div class="flex space-x-4">
-                            <button type="button" onclick="window.history.back()" 
+                            <button type="button" onclick="window.history.back()"
                                     class="px-8 py-4 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors">
                                 Cancel
                             </button>
-                            <button type="submit" 
+                            <button type="submit"
                                     class="bg-emerald-600 text-white font-bold px-10 py-4 rounded-2xl shadow-lg shadow-emerald-500/30 hover:bg-emerald-700 hover:scale-[1.02] transition-all">
                                 <span th:text="${vacancy.id != null} ? 'Update Vacancy' : 'Submit Request'">Submit Request</span>
                             </button>

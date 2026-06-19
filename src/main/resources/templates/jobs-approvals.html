@@ -103,16 +103,18 @@
                             <div class="flex items-center justify-end gap-2">
                                 
                                 <!-- Reject -->
-                                <form th:action="@{/jobs/{id}/reject(id=${job.id})}" method="POST" class="inline">
-                                    <button type="submit"
+                                <form th:action="@{/jobs/{id}/reject(id=${job.id})}" method="POST" class="inline" th:id="'reject-form-' + ${job.id}">
+                                    <input type="hidden" name="note" th:id="'reject-note-' + ${job.id}">
+                                    <button type="button" th:onclick="'openRemarksModal(\'Reject Job Vacancy\', \'Provide rejection remarks for this job vacancy:\', \'reject-form-\' + ' + ${job.id} + ', \'reject-note-\' + ' + ${job.id} + ')'"
                                             class="inline-flex items-center gap-1 px-3 py-1.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-lg hover:bg-rose-100 transition border border-rose-100">
                                         Reject
                                     </button>
                                 </form>
 
                                 <!-- Approve -->
-                                <form th:action="@{/jobs/{id}/approve(id=${job.id})}" method="POST" class="inline">
-                                    <button type="submit"
+                                <form th:action="@{/jobs/{id}/approve(id=${job.id})}" method="POST" class="inline" th:id="'approve-form-' + ${job.id}">
+                                    <input type="hidden" name="note" th:id="'approve-note-' + ${job.id}">
+                                    <button type="button" th:onclick="'openRemarksModal(\'Approve Job Vacancy\', \'Provide approval remarks for this job vacancy:\', \'approve-form-\' + ' + ${job.id} + ', \'approve-note-\' + ' + ${job.id} + ')'"
                                             class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition shadow-sm shadow-emerald-200">
                                         Approve
                                     </button>
@@ -135,7 +137,6 @@
             </table>
         </div>
     </div>
-
 </div>
 </body>
 </html>

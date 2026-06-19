@@ -13,7 +13,6 @@ import java.util.List;
 public interface JobCategoryRepository extends JpaRepository<JobCategory, Long> {
     List<JobCategory> findByTenantOrderByNameAsc(Tenant tenant);
 
-    @Query("SELECT c FROM JobCategory c LEFT JOIN FETCH c.skills WHERE c.tenant = :tenant ORDER BY c.name ASC")
+    @Query("SELECT DISTINCT c FROM JobCategory c LEFT JOIN FETCH c.skills WHERE c.tenant = :tenant ORDER BY c.name ASC")
     List<JobCategory> findByTenantWithSkills(@Param("tenant") Tenant tenant);
 }
-

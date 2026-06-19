@@ -126,6 +126,9 @@ public class DataSeeder implements CommandLineRunner {
             
             emailTemplateService.seedTemplatesForTenant(alpha);
             brandingService.getBranding(alpha);
+        } else if (alpha.getSubdomain() == null) {
+            alpha.setSubdomain("alpha");
+            alpha = tenantRepo.save(alpha);
         }
 
         com.stie.model.Tenant beta = tenantRepo.findByName("Beta Logistics Centre").orElse(null);
@@ -137,6 +140,25 @@ public class DataSeeder implements CommandLineRunner {
             
             emailTemplateService.seedTemplatesForTenant(beta);
             brandingService.getBranding(beta);
+        } else if (beta.getSubdomain() == null) {
+            beta.setSubdomain("beta");
+            beta = tenantRepo.save(beta);
+        }
+
+        // Auto-fix any other tenants that might have a null subdomain
+        for (com.stie.model.Tenant t : tenantRepo.findAll()) {
+            if (t.getSubdomain() == null) {
+                String slug = t.getName().toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+                if (tenantRepo.findBySubdomain(slug).isPresent()) {
+                    int counter = 1;
+                    while (tenantRepo.findBySubdomain(slug + "-" + counter).isPresent()) {
+                        counter++;
+                    }
+                    slug = slug + "-" + counter;
+                }
+                t.setSubdomain(slug);
+                tenantRepo.save(t);
+            }
         }
 
         // ── 2b. Seed Departments & Locations ────────────────────────────────

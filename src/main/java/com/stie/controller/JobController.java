@@ -30,6 +30,9 @@ public class JobController {
     private CandidateRepository candidateRepository;
 
     @Autowired
+    private com.stie.repository.CandidateApplicationRepository applicationRepository;
+
+    @Autowired
     private com.stie.service.AuditService auditService;
 
     @Autowired
@@ -186,6 +189,7 @@ public class JobController {
         existing.setLocation(location);
         existing.setExpiryDate(vacancy.getExpiryDate());
         existing.setNoOfPosts(vacancy.getNoOfPosts());
+        existing.setExperienceRequired(vacancy.getExperienceRequired());
 
         if (categoryId != null) {
             categoryService.getCategoryById(categoryId).ifPresent(existing::setCategory);
@@ -222,8 +226,125 @@ public class JobController {
         model.addAttribute("shortlistedCount", candidateRepository.countByJobVacancyAndStatusIn(job, java.util.Arrays.asList(
                 com.stie.model.Candidate.CandidateStatus.SHORTLISTED
         )));
+
+        // ---------------------------------------------------------------
+        // Build ranked applicant list — merge BOTH sources:
+        //   1. Legacy: Candidate.jobVacancy FK (walk-ins, old imports)
+        //   2. New:    CandidateApplication.jobVacancy (new tracking table)
+        // ---------------------------------------------------------------
+        java.util.Map<Long, com.stie.model.Candidate> candidateMap = new java.util.LinkedHashMap<>();
+
+        // Source 1 — legacy FK
+        candidateRepository.findByJobVacancy(job)
+                .forEach(c -> candidateMap.put(c.getId(), c));
+
+        // Source 2 — CandidateApplication table
+        applicationRepository.findByJobVacancy(job)
+                .forEach(app -> candidateMap.put(app.getCandidate().getId(), app.getCandidate()));
+
+        java.util.List<com.stie.model.Candidate> applicants = new java.util.ArrayList<>(candidateMap.values());
+
+        // Build a unified set of required skill keywords from:
+        //   1. JobVacancy.skills (Skill entities)
+        //   2. JobVacancy.category.skills (Skill entities)
+        //   3. JobVacancy.description (free-text, tokenised)
+        java.util.Set<String> requiredSkillKeywords = new java.util.LinkedHashSet<>();
+        if (job.getSkills() != null) {
+            job.getSkills().forEach(s -> requiredSkillKeywords.add(s.getName().trim().toLowerCase()));
+        }
+        if (job.getCategory() != null && job.getCategory().getSkills() != null) {
+            job.getCategory().getSkills().forEach(s -> requiredSkillKeywords.add(s.getName().trim().toLowerCase()));
+        }
+
+        // Parse required experience (e.g. "2 years", "3+", "5") → integer
+        int requiredExp = parseRequiredExperience(job.getExperienceRequired());
+
+        java.util.List<com.stie.model.JobApplicantMatch> ranked = applicants.stream()
+                .map(c -> computeMatch(c, requiredSkillKeywords, requiredExp))
+                .sorted((a, b) -> Integer.compare(b.getMatchScore(), a.getMatchScore()))
+                .collect(java.util.stream.Collectors.toList());
+
+        model.addAttribute("rankedApplicants", ranked);
+        model.addAttribute("requiredSkills", requiredSkillKeywords);
+        model.addAttribute("requiredExp", requiredExp);
+
+        // Load interviewers for the dropdown (scoped to current site)
+        com.stie.model.Tenant currentSite = userService.getCurrentSite();
+        model.addAttribute("interviewers", currentSite != null
+                ? userService.getUsersBySite(currentSite).stream()
+                    .filter(u -> u.getRole() != null && u.getRole().contains("INTERVIEWER"))
+                    .collect(java.util.stream.Collectors.toList())
+                : java.util.Collections.emptyList());
+
         return "job-detail";
     }
+
+    /**
+     * Compute a 0-100 match score for a candidate against a job's requirements.
+     * Scoring breakdown:
+     *   - Skills  : up to 70 points  (each matched skill = 70 / total required skills)
+     *   - Experience : up to 30 points (proportional, capped at required exp)
+     */
+    private com.stie.model.JobApplicantMatch computeMatch(
+            com.stie.model.Candidate candidate,
+            java.util.Set<String> requiredSkillKeywords,
+            int requiredExp) {
+
+        // --- Skill matching ---
+        int matchedSkillCount = 0;
+        int totalRequired = requiredSkillKeywords.size();
+
+        if (candidate.getSkills() != null && !candidate.getSkills().isEmpty() && totalRequired > 0) {
+            String candidateSkillsLower = candidate.getSkills().toLowerCase();
+            // Also check certifications and tagged roles for bonus matches
+            String bonus = "";
+            if (candidate.getCertifications() != null) bonus += " " + candidate.getCertifications().toLowerCase();
+            if (candidate.getTaggedRoles() != null) bonus += " " + candidate.getTaggedRoles().toLowerCase();
+            String combined = candidateSkillsLower + bonus;
+
+            for (String kw : requiredSkillKeywords) {
+                if (combined.contains(kw)) matchedSkillCount++;
+            }
+        }
+
+        int skillPoints = totalRequired > 0
+                ? (int) Math.round((matchedSkillCount * 70.0) / totalRequired)
+                : 35; // no skills defined → neutral 35/70
+
+        // --- Experience matching ---
+        int candidateExp = candidate.getExperienceYears() != null ? candidate.getExperienceYears() : 0;
+        boolean experienceMet = (requiredExp == 0) || (candidateExp >= requiredExp);
+
+        int expPoints;
+        if (requiredExp == 0) {
+            // No experience requirement defined → proportional based on what they have (max 30)
+            expPoints = Math.min(candidateExp * 5, 30);
+        } else {
+            // Scale: 0 exp = 0pts, at requiredExp = 30pts, beyond = 30pts (capped)
+            expPoints = (int) Math.min(Math.round((candidateExp * 30.0) / requiredExp), 30);
+        }
+
+        int totalScore = Math.min(skillPoints + expPoints, 100);
+
+        return new com.stie.model.JobApplicantMatch(
+                candidate, totalScore, matchedSkillCount, totalRequired,
+                experienceMet, skillPoints, expPoints);
+    }
+
+    /**
+     * Parse a human-readable experience string into an integer year value.
+     * Handles: "2 years", "3+", "5-7", "At least 3", "2", null, ""
+     */
+    private int parseRequiredExperience(String expStr) {
+        if (expStr == null || expStr.trim().isEmpty()) return 0;
+        try {
+            // Extract first number found
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\d+").matcher(expStr);
+            if (m.find()) return Integer.parseInt(m.group());
+        } catch (Exception ignored) {}
+        return 0;
+    }
+
 
     @GetMapping("/jobs/pending")
     public String listPending(Model model) {
@@ -261,18 +382,26 @@ public class JobController {
     @PostMapping("/jobs/{id}/approve")
     public String approve(@PathVariable Long id, 
                            @RequestParam(value = "note", required = false, defaultValue = "Approved") String note,
+                           @org.springframework.web.bind.annotation.RequestHeader(value = "referer", required = false) String referer,
                            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         jobService.approveVacancy(id, note, getCurrentUser());
         redirectAttributes.addFlashAttribute("success", "Job vacancy approved successfully!");
+        if (referer != null && !referer.isEmpty()) {
+            return "redirect:" + referer;
+        }
         return "redirect:/jobs";
     }
 
     @PostMapping("/jobs/{id}/reject")
     public String reject(@PathVariable Long id, 
                           @RequestParam(value = "note", required = false, defaultValue = "Rejected") String note,
+                          @org.springframework.web.bind.annotation.RequestHeader(value = "referer", required = false) String referer,
                           org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         jobService.rejectVacancy(id, note, getCurrentUser());
         redirectAttributes.addFlashAttribute("success", "Job vacancy rejected successfully.");
+        if (referer != null && !referer.isEmpty()) {
+            return "redirect:" + referer;
+        }
         return "redirect:/jobs";
     }
     @PostMapping("/jobs/{id}/distribute")

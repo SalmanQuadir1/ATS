@@ -1,6 +1,8 @@
 package com.stie.controller;
 
 import com.stie.model.Candidate;
+import com.stie.model.CandidateApplication;
+import com.stie.service.CandidateApplicationService;
 import com.stie.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,12 +12,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/candidates")
 public class CandidateController {
 
     @Autowired
     private CandidateService candidateService;
+
+    @Autowired
+    private CandidateApplicationService applicationService;
 
     @Autowired
     private com.stie.service.AuditService auditService;
@@ -32,10 +39,17 @@ public class CandidateController {
     @Autowired
     private com.stie.service.ScorecardService scorecardService;
 
+    @Autowired
+    private com.stie.service.UserService userService;
+
     private String getCurrentUser() {
         return org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication()
                 .getName();
     }
+
+    // =========================================================================
+    // LIST
+    // =========================================================================
 
     @GetMapping
     public String listCandidates(@RequestParam(value = "search", required = false) String search,
@@ -52,6 +66,7 @@ public class CandidateController {
             Model model) {
         model.addAttribute("pageTitle", "Candidate Database");
         model.addAttribute("jobs", jobService.getAllVacancies());
+        model.addAttribute("statuses", Candidate.CandidateStatus.values());
 
         boolean hasFilters = (search != null && !search.isEmpty()) ||
                 (nationality != null && !nationality.isEmpty()) ||
@@ -78,6 +93,192 @@ public class CandidateController {
         return "candidates";
     }
 
+    // =========================================================================
+    // ADD CANDIDATE (Manual)
+    // =========================================================================
+
+    @GetMapping("/add")
+    public String showAddForm(Model model) {
+        model.addAttribute("pageTitle", "Add Candidate");
+        model.addAttribute("jobs", jobService.getAllVacancies());
+        model.addAttribute("sources", CandidateApplication.ApplicationSource.values());
+        return "candidate-add";
+    }
+
+    @PostMapping("/add")
+    public String addCandidate(
+            @RequestParam String fullName,
+            @RequestParam String email,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String nationality,
+            @RequestParam(required = false) Integer experienceYears,
+            @RequestParam(required = false) String education,
+            @RequestParam(required = false) String skills,
+            @RequestParam(required = false) Integer expectedSalary,
+            @RequestParam(required = false) String certifications,
+            @RequestParam(required = false) String securityLicense,
+            @RequestParam(required = false) String taggedRoles,
+            @RequestParam(value = "workPermitEligible", defaultValue = "false") boolean workPermitEligible,
+            @RequestParam(required = false) Long jobVacancyId,
+            @RequestParam(required = false) String source,
+            @RequestParam(required = false) String appLocation,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+
+        // Duplicate email check
+        if (email != null && !email.trim().isEmpty()) {
+            String cleanEmail = email.trim().toLowerCase();
+            boolean emailExists = candidateService.getAllCandidates(PageRequest.of(0, 10000)).getContent().stream()
+                    .anyMatch(c -> cleanEmail.equals(c.getEmail().trim().toLowerCase()));
+            if (emailExists) {
+                redirectAttributes.addFlashAttribute("error",
+                        "A candidate with email '" + email + "' already exists in the database.");
+                return "redirect:/candidates/add";
+            }
+        }
+
+        Candidate candidate = new Candidate();
+        candidate.setFullName(fullName.trim());
+        candidate.setEmail(email.trim());
+        candidate.setPhone(phone);
+        candidate.setNationality(nationality);
+        candidate.setExperienceYears(experienceYears);
+        candidate.setEducation(education);
+        candidate.setSkills(skills);
+        candidate.setExpectedSalary(expectedSalary);
+        candidate.setCertifications(certifications);
+        candidate.setSecurityLicense(securityLicense);
+        candidate.setTaggedRoles(taggedRoles);
+        candidate.setWorkPermitEligible(workPermitEligible);
+        candidate.setTenant(userService.getCurrentTenant());
+
+        // Link job vacancy if provided
+        if (jobVacancyId != null) {
+            com.stie.model.JobVacancy job = jobService.getJobById(jobVacancyId);
+            candidate.setJobVacancy(job);
+        }
+
+        try {
+            Candidate saved = candidateService.saveCandidate(candidate);
+            auditService.log("CANDIDATE_ADDED_MANUALLY", getCurrentUser(), "Candidate", saved.getId(),
+                    "Manually added candidate: " + fullName);
+
+            // Create initial application record if a job was selected
+            if (jobVacancyId != null) {
+                CandidateApplication.ApplicationSource appSource = CandidateApplication.ApplicationSource.DIRECT;
+                if (source != null && !source.isEmpty()) {
+                    try {
+                        appSource = CandidateApplication.ApplicationSource.valueOf(source.toUpperCase());
+                    } catch (Exception ignored) {}
+                }
+                applicationService.createApplication(saved.getId(), jobVacancyId, appSource, appLocation, null, getCurrentUser());
+            }
+
+            notificationService.addNotification(
+                    "New candidate added manually: " + fullName, "/candidates/" + saved.getId());
+            redirectAttributes.addFlashAttribute("success",
+                    "Candidate '" + fullName + "' has been successfully added to the database.");
+            return "redirect:/candidates/" + saved.getId();
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to add candidate: " + e.getMessage());
+            return "redirect:/candidates/add";
+        }
+    }
+
+    // =========================================================================
+    // VIEW CANDIDATE DETAIL
+    // =========================================================================
+
+    @GetMapping("/{id}")
+    public String viewCandidate(@PathVariable Long id, Model model,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        Candidate candidate = candidateService.findById(id).orElse(null);
+
+        if (candidate == null) {
+            redirectAttributes.addFlashAttribute("error", "Candidate not found.");
+            return "redirect:/candidates";
+        }
+
+        // Backward-compat: seed legacy application record if none exist yet
+        applicationService.seedLegacyApplicationIfAbsent(candidate);
+
+        List<com.stie.model.AuditLog> allHistory = auditService.getLogsForEntity("Candidate", id);
+
+        List<com.stie.model.AuditLog> history = allHistory.stream()
+                .filter(log -> !log.getAction().equals("CANDIDATE_NOTE"))
+                .collect(java.util.stream.Collectors.toList());
+
+        List<com.stie.model.AuditLog> notes = allHistory.stream()
+                .filter(log -> log.getAction().equals("CANDIDATE_NOTE"))
+                .collect(java.util.stream.Collectors.toList());
+
+        List<CandidateApplication> applications = applicationService.getApplicationsForCandidate(id);
+
+        model.addAttribute("candidate", candidate);
+        model.addAttribute("history", history);
+        model.addAttribute("notes", notes);
+        model.addAttribute("scorecards", scorecardService.getScorecardsByCandidate(id));
+        model.addAttribute("applications", applications);
+        model.addAttribute("jobs", jobService.getAllVacancies());
+        model.addAttribute("appSources", CandidateApplication.ApplicationSource.values());
+        model.addAttribute("appStatuses", CandidateApplication.AppStatus.values());
+        return "candidate-detail";
+    }
+
+    // =========================================================================
+    // ADD APPLICATION (for existing candidate)
+    // =========================================================================
+
+    @PostMapping("/{id}/applications")
+    public String addApplication(@PathVariable Long id,
+            @RequestParam(required = false) Long jobVacancyId,
+            @RequestParam(required = false) String source,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String notes,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+
+        CandidateApplication.ApplicationSource appSource = CandidateApplication.ApplicationSource.DIRECT;
+        if (source != null && !source.isEmpty()) {
+            try {
+                appSource = CandidateApplication.ApplicationSource.valueOf(source.toUpperCase());
+            } catch (Exception ignored) {}
+        }
+
+        java.util.Optional<CandidateApplication> result =
+                applicationService.createApplication(id, jobVacancyId, appSource, location, notes, getCurrentUser());
+
+        if (result.isPresent()) {
+            redirectAttributes.addFlashAttribute("success", "Application record added successfully.");
+        } else {
+            redirectAttributes.addFlashAttribute("error",
+                    "Could not add application. The candidate may have already applied to this job.");
+        }
+        return "redirect:/candidates/" + id;
+    }
+
+    // =========================================================================
+    // UPDATE APPLICATION STATUS
+    // =========================================================================
+
+    @PostMapping("/{id}/applications/{appId}/status")
+    public String updateApplicationStatus(
+            @PathVariable Long id,
+            @PathVariable Long appId,
+            @RequestParam CandidateApplication.AppStatus status,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+
+        boolean updated = applicationService.updateApplicationStatus(appId, status, getCurrentUser());
+        if (updated) {
+            redirectAttributes.addFlashAttribute("success", "Application status updated to " + status + ".");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Application not found.");
+        }
+        return "redirect:/candidates/" + id;
+    }
+
+    // =========================================================================
+    // SHARE WITH HIRING MANAGER
+    // =========================================================================
+
     @PostMapping("/{id}/share")
     public String shareWithHM(@PathVariable Long id,
             @RequestParam("hmEmail") String hmEmail,
@@ -92,7 +293,6 @@ public class CandidateController {
             return "redirect:/candidates";
         }
 
-        // Share via Notification Service
         String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath());
         String candidateUrl = baseUrl + "/candidates/" + candidate.getId();
 
@@ -103,28 +303,46 @@ public class CandidateController {
                 + hmName + " (" + hmEmail + ") for review.", "/candidates/" + candidate.getId());
 
         auditService.log("CANDIDATE_SHARED_WITH_HM", getCurrentUser(), "Candidate", id,
-                "Shared candidate: " + candidate.getFullName() + " with Hiring Manager: " + hmName + " (" + hmEmail
-                        + ")");
+                "Shared candidate: " + candidate.getFullName() + " with Hiring Manager: " + hmName + " (" + hmEmail + ")");
 
         redirectAttributes.addFlashAttribute("success",
                 "Candidate profile shared successfully with HM " + hmName + "!");
         return "redirect:/candidates/" + id;
     }
 
+    // =========================================================================
+    // STATUS UPDATE (top-level candidate status, legacy)
+    // =========================================================================
+
     @PostMapping("/{id}/status")
     public String updateStatus(@PathVariable Long id, @RequestParam Candidate.CandidateStatus status,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        candidateService.updateStatus(id, status);
-        auditService.log("CANDIDATE_STATUS_CHANGE", getCurrentUser(), "Candidate", id, "New Status: " + status);
-        redirectAttributes.addFlashAttribute("success", "Candidate status updated to " + status);
+        Candidate candidate = candidateService.findById(id).orElse(null);
+        if (candidate != null) {
+            candidateService.updateStatus(id, status);
+            auditService.log("CANDIDATE_STATUS_CHANGE", getCurrentUser(), "Candidate", id, "New Status: " + status);
+            // Notify candidate by email
+            try {
+                CandidateApplication.AppStatus appStatus = CandidateApplication.AppStatus.valueOf(status.name());
+                String jobTitle = candidate.getJobVacancy() != null ? candidate.getJobVacancy().getTitle() : null;
+                notificationService.sendApplicationStatusUpdateEmail(
+                        candidate.getEmail(), candidate.getFullName(), jobTitle, appStatus);
+            } catch (Exception ignored) {}
+            redirectAttributes.addFlashAttribute("success", "Candidate status updated to " + status);
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Candidate not found.");
+        }
         return "redirect:/candidates/" + id;
     }
+
+    // =========================================================================
+    // NOTES
+    // =========================================================================
 
     @PostMapping("/{id}/notes")
     public String addNote(@PathVariable Long id, @RequestParam String note,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        Candidate candidate = candidateService.getAllCandidates(PageRequest.of(0, 1000)).getContent().stream()
-                .filter(c -> c.getId().equals(id)).findFirst().orElse(null);
+        Candidate candidate = candidateService.findById(id).orElse(null);
         if (candidate != null && note != null && !note.trim().isEmpty()) {
             auditService.log("CANDIDATE_NOTE", getCurrentUser(), "Candidate", id, note.trim());
             redirectAttributes.addFlashAttribute("success", "Recruitment note added successfully.");
@@ -132,33 +350,9 @@ public class CandidateController {
         return "redirect:/candidates/" + id;
     }
 
-    @GetMapping("/{id}")
-    public String viewCandidate(@PathVariable Long id, Model model,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        Candidate candidate = candidateService.getAllCandidates(PageRequest.of(0, 1000)).getContent().stream()
-                .filter(c -> c.getId().equals(id)).findFirst().orElse(null);
-
-        if (candidate == null) {
-            redirectAttributes.addFlashAttribute("error", "Candidate not found.");
-            return "redirect:/candidates";
-        }
-
-        java.util.List<com.stie.model.AuditLog> allHistory = auditService.getLogsForEntity("Candidate", id);
-
-        java.util.List<com.stie.model.AuditLog> history = allHistory.stream()
-                .filter(log -> !log.getAction().equals("CANDIDATE_NOTE"))
-                .collect(java.util.stream.Collectors.toList());
-
-        java.util.List<com.stie.model.AuditLog> notes = allHistory.stream()
-                .filter(log -> log.getAction().equals("CANDIDATE_NOTE"))
-                .collect(java.util.stream.Collectors.toList());
-
-        model.addAttribute("candidate", candidate);
-        model.addAttribute("history", history);
-        model.addAttribute("notes", notes);
-        model.addAttribute("scorecards", scorecardService.getScorecardsByCandidate(id));
-        return "candidate-detail";
-    }
+    // =========================================================================
+    // DOCUMENT UPLOAD
+    // =========================================================================
 
     @Autowired
     private com.stie.service.ParserService parserService;
@@ -170,16 +364,14 @@ public class CandidateController {
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
 
         if ("Resume".equalsIgnoreCase(type) && !file.isEmpty()) {
-            Candidate existing = candidateService.getAllCandidates(PageRequest.of(0, 1000)).getContent().stream()
-                    .filter(c -> c.getId().equals(id)).findFirst().orElse(null);
+            Candidate existing = candidateService.findById(id).orElse(null);
 
             if (existing != null) {
                 Candidate parsed = parserService.parseResume(file);
 
-                // Pre-check for duplicate email prior to saving
                 if (parsed.getEmail() != null && !parsed.getEmail().trim().isEmpty()) {
                     String parsedEmail = parsed.getEmail().trim().toLowerCase();
-                    boolean emailExists = candidateService.getAllCandidates(PageRequest.of(0, 1000)).getContent()
+                    boolean emailExists = candidateService.getAllCandidates(PageRequest.of(0, 10000)).getContent()
                             .stream()
                             .anyMatch(c -> !c.getId().equals(id)
                                     && parsedEmail.equals(c.getEmail().trim().toLowerCase()));
@@ -191,8 +383,6 @@ public class CandidateController {
                     existing.setEmail(parsed.getEmail());
                 }
 
-                // Overwrite candidate fields with successfully parsed details from the newly
-                // uploaded PDF
                 if (parsed.getFullName() != null && !parsed.getFullName().isEmpty())
                     existing.setFullName(parsed.getFullName());
                 if (parsed.getPhone() != null && !parsed.getPhone().isEmpty())
@@ -224,12 +414,15 @@ public class CandidateController {
             return "redirect:/candidates/" + id;
         }
 
-        // In a real app, save file to storage and update candidate.documents list
         System.out.println("Uploaded " + type + " for candidate " + id + ": " + file.getOriginalFilename());
         auditService.log("DOCUMENT_UPLOAD", getCurrentUser(), "Candidate", id,
                 "Type: " + type + ", File: " + file.getOriginalFilename());
         return "redirect:/candidates/" + id;
     }
+
+    // =========================================================================
+    // EDIT CANDIDATE DETAILS
+    // =========================================================================
 
     @PostMapping("/{id}/edit")
     public String editCandidate(@PathVariable Long id,
@@ -249,8 +442,7 @@ public class CandidateController {
             @RequestParam(value = "workPermitEligible", defaultValue = "false") boolean workPermitEligible,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
 
-        Candidate existing = candidateService.getAllCandidates(PageRequest.of(0, 1000)).getContent().stream()
-                .filter(c -> c.getId().equals(id)).findFirst().orElse(null);
+        Candidate existing = candidateService.findById(id).orElse(null);
 
         if (existing == null) {
             redirectAttributes.addFlashAttribute("error", "Candidate not found.");
@@ -259,7 +451,7 @@ public class CandidateController {
 
         if (email != null && !email.trim().isEmpty()) {
             String cleanEmail = email.trim().toLowerCase();
-            boolean emailExists = candidateService.getAllCandidates(PageRequest.of(0, 1000)).getContent().stream()
+            boolean emailExists = candidateService.getAllCandidates(PageRequest.of(0, 10000)).getContent().stream()
                     .anyMatch(c -> !c.getId().equals(id) && cleanEmail.equals(c.getEmail().trim().toLowerCase()));
             if (emailExists) {
                 redirectAttributes.addFlashAttribute("error", "Failed to update profile: The email '" + email
@@ -293,20 +485,39 @@ public class CandidateController {
         return "redirect:/candidates/" + id;
     }
 
+    // =========================================================================
+    // EXPORT CSV
+    // =========================================================================
+
     @GetMapping("/export")
     public void exportCandidates(javax.servlet.http.HttpServletResponse response) throws java.io.IOException {
         response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; file=candidates_export.csv");
+        response.setHeader("Content-Disposition", "attachment; filename=candidates_export.csv");
 
         java.io.PrintWriter writer = response.getWriter();
-        writer.println("ID,Name,Email,Nationality,Experience,Status");
+        writer.println("ID,Name,Email,Phone,Nationality,Experience,Skills,Education,ExpectedSalary,Status,AppliedAt,TotalApplications");
 
         for (Candidate c : candidateService.getAllCandidates(PageRequest.of(0, 10000)).getContent()) {
-            writer.println(String.format("%d,%s,%s,%s,%d,%s",
-                    c.getId(), c.getFullName(), c.getEmail(), c.getNationality(), c.getExperienceYears(),
-                    c.getStatus()));
+            long appCount = applicationService.countApplicationsForCandidate(c.getId());
+            writer.println(String.format("%d,\"%s\",%s,%s,%s,%d,\"%s\",\"%s\",%s,%s,%s,%d",
+                    c.getId(),
+                    c.getFullName(),
+                    c.getEmail() != null ? c.getEmail() : "",
+                    c.getPhone() != null ? c.getPhone() : "",
+                    c.getNationality() != null ? c.getNationality() : "",
+                    c.getExperienceYears() != null ? c.getExperienceYears() : 0,
+                    c.getSkills() != null ? c.getSkills() : "",
+                    c.getEducation() != null ? c.getEducation() : "",
+                    c.getExpectedSalary() != null ? c.getExpectedSalary() : "",
+                    c.getStatus(),
+                    c.getAppliedAt() != null ? c.getAppliedAt() : "",
+                    appCount));
         }
     }
+
+    // =========================================================================
+    // KANBAN
+    // =========================================================================
 
     @GetMapping("/kanban")
     public String showKanban(Model model) {
@@ -325,6 +536,16 @@ public class CandidateController {
             candidateService.updateStatus(id, status);
             auditService.log("CANDIDATE_STAGE_SHIFT", getCurrentUser(), "Candidate", id,
                     "Moved to pipeline stage: " + status);
+            // Notify candidate by email
+            Candidate candidate = candidateService.findById(id).orElse(null);
+            if (candidate != null) {
+                try {
+                    CandidateApplication.AppStatus appStatus = CandidateApplication.AppStatus.valueOf(status.name());
+                    String jobTitle = candidate.getJobVacancy() != null ? candidate.getJobVacancy().getTitle() : null;
+                    notificationService.sendApplicationStatusUpdateEmail(
+                            candidate.getEmail(), candidate.getFullName(), jobTitle, appStatus);
+                } catch (Exception ignored) {}
+            }
             redirectAttributes.addFlashAttribute("success", "Candidate shifted to " + status + " stage successfully.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Failed to shift stage: " + e.getMessage());
@@ -332,4 +553,3 @@ public class CandidateController {
         return "redirect:/candidates/kanban";
     }
 }
-

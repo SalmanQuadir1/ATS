@@ -63,9 +63,11 @@
 
     <div class="max-w-md w-full login-card rounded-[2.5rem] p-10 relative z-10">
         <div class="text-center mb-10">
-            <div class="w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-500 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-emerald-200 mb-6 transform rotate-3">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            </div>
+            <a th:href="@{/landing}" class="block w-max mx-auto transition-transform hover:scale-105">
+                <div class="w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-500 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-emerald-200 mb-6 transform rotate-3 hover:rotate-6 transition-all duration-300">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </div>
+            </a>
             <h1 class="syne text-3xl font-black text-stone-900 mb-2 tracking-tight">Welcome Back</h1>
             <p class="text-stone-500 text-sm font-medium">Enterprise Applicant Tracking System</p>
         </div>

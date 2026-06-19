@@ -170,15 +170,17 @@
                                 <!-- Quick approve if pending -->
                                 <form th:if="${job.approvalStatus != null and job.approvalStatus.name() == 'PENDING'}"
                                       th:action="@{/jobs/{id}/approve(id=${job.id})}" method="POST"
-                                      sec:authorize="hasAuthority('APPROVE_JOBS')">
-                                    <button type="submit"
+                                      sec:authorize="hasAuthority('APPROVE_JOBS')"
+                                      class="inline" th:id="'approve-form-' + ${job.id}">
+                                    <input type="hidden" name="note" th:id="'approve-note-' + ${job.id}">
+                                    <button type="button" th:onclick="'openRemarksModal(\'Approve Job Vacancy\', \'Provide approval remarks for this job vacancy:\', \'approve-form-\' + ' + ${job.id} + ', \'approve-note-\' + ' + ${job.id} + ')'"
                                             class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-lg hover:bg-emerald-100 transition border border-emerald-100">
                                         ✓ Approve
                                     </button>
                                 </form>
 
                                 <!-- Public apply link -->
-                                <a th:href="@{/apply/{id}(id=${job.id})}" target="_blank"
+                                <a th:href="@{'/' + ${job.tenant.subdomain} + '/apply/' + ${job.id}}" target="_blank"
                                    title="Public Apply Link"
                                    class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

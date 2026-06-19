@@ -1,12 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
 <head></head>
 <body>
     <div th:fragment="content">
         <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-                <h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Applicant Pool</h3>
-                <p class="text-slate-500 font-medium mt-1">Screen, filter, and rank applicants for active vacancies</p>
+                <h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Candidate Database</h3>
+                <p class="text-slate-500 font-medium mt-1">Screen, filter, and rank candidates for active vacancies</p>
             </div>
             
             <div class="w-full md:w-auto flex-1 max-w-4xl">
@@ -20,6 +20,12 @@
                                 <svg class="w-4 h-4 absolute left-4 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             </div>
                             
+                            <!-- Status filter -->
+                            <select name="status" class="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">All Statuses</option>
+                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${param.status != null && #strings.equals(param.status, s.name())}"></option>
+                            </select>
+
                             <!-- Rank by Job -->
                             <select name="rankJobId" class="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
                                 <option value="">Rank by Job Relevance...</option>
@@ -98,8 +104,8 @@
                         <th class="px-6 py-4 w-10" sec:authorize="hasAnyRole('ADMIN', 'HR')">
                             <input type="checkbox" id="selectAll" class="rounded text-emerald-600 border-slate-300">
                         </th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Applicant Details</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Applied For</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Candidate Details</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Latest Application</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Experience & Salary</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Skills & Credentials</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nationality</th>
@@ -117,14 +123,15 @@
                                 <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold" 
                                      th:text="${#strings.substring(candidate.fullName, 0, 1)}">J</div>
                                 <div class="ml-4">
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-2 flex-wrap">
                                         <p class="text-sm font-bold text-slate-800" th:text="${candidate.fullName}">John Doe</p>
                                         <span th:if="${candidate.matchScore > 0}" 
-                                              th:classappend="${applicant.matchScore >= 80 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : applicant.matchScore >= 50 ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-slate-50 text-slate-700 border-slate-100'}"
+                                              th:classappend="${candidate.matchScore >= 80 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : candidate.matchScore >= 50 ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-slate-50 text-slate-700 border-slate-100'}"
                                               class="px-2 py-0.5 text-[9px] font-extrabold rounded-full border" 
-                                              th:text="${applicant.matchScore + '% Match'}">85% Match</span>
+                                              th:text="${candidate.matchScore + '% Match'}">85% Match</span>
                                     </div>
                                     <p class="text-xs text-slate-400 font-medium" th:text="${candidate.email}">john@example.com</p>
+                                    <p class="text-[10px] text-slate-300 font-medium mt-0.5" th:text="${'Joined: ' + (candidate.appliedAt != null ? #temporals.format(candidate.appliedAt, 'dd MMM yyyy') : 'N/A')}">Joined: 01 Jan 2026</p>
                                 </div>
                             </div>
                         </td>
@@ -154,9 +161,15 @@
                         </td>
                         <td class="px-6 py-4 text-sm text-slate-600 font-semibold" th:text="${candidate.nationality}">Singaporean</td>
                         <td class="px-6 py-4">
-                            <span th:classappend="${candidate.status == T(com.stie.model.Candidate.CandidateStatus).SHORTLISTED ? 'bg-emerald-50 text-emerald-600' : 
-                                                 candidate.status == T(com.stie.model.Candidate.CandidateStatus).REJECTED ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 text-slate-600'}" 
-                                  class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-current" 
+                            <span th:classappend="${
+                                candidate.status == T(com.stie.model.Candidate.CandidateStatus).SHORTLISTED ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                candidate.status == T(com.stie.model.Candidate.CandidateStatus).HIRED ? 'bg-teal-50 text-teal-700 border-teal-200' :
+                                candidate.status == T(com.stie.model.Candidate.CandidateStatus).OFFERED ? 'bg-violet-50 text-violet-700 border-violet-200' :
+                                candidate.status == T(com.stie.model.Candidate.CandidateStatus).INTERVIEW ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                candidate.status == T(com.stie.model.Candidate.CandidateStatus).REJECTED ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                                candidate.status == T(com.stie.model.Candidate.CandidateStatus).KIV ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                'bg-slate-100 text-slate-600 border-slate-200'}"
+                                  class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border" 
                                   th:text="${candidate.status}">APPLIED</span>
                             <div class="mt-1.5" th:if="${candidate.sharedWithHM}">
                                 <span class="px-2 py-0.5 bg-teal-50 text-teal-600 text-[9px] font-extrabold rounded-md border border-teal-100 uppercase tracking-wider">Shared with HM</span>
@@ -164,13 +177,13 @@
                         </td>
                         <td class="px-6 py-4" sec:authorize="hasAnyRole('ADMIN', 'HR', 'MANAGER')">
                             <div class="flex space-x-1">
-                                <form th:action="@{/candidates/{id}/status(id=${candidate.id})}" method="POST" class="inline" sec:authorize="hasAnyRole('ADMIN', 'HR')">
+                                <form th:action="@{/candidates/{id}/status(id=${candidate.id})}" method="POST" class="inline" th:if="${candidate.status == T(com.stie.model.Candidate.CandidateStatus).APPLIED or candidate.status == T(com.stie.model.Candidate.CandidateStatus).KIV}" sec:authorize="hasAnyRole('ADMIN', 'HR')">
                                     <input type="hidden" name="status" value="SHORTLISTED">
                                     <button type="submit" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Shortlist">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     </button>
                                 </form>
-                                <form th:action="@{/candidates/{id}/status(id=${candidate.id})}" method="POST" class="inline" sec:authorize="hasAnyRole('ADMIN', 'HR')">
+                                <form th:action="@{/candidates/{id}/status(id=${candidate.id})}" method="POST" class="inline" th:if="${candidate.status != T(com.stie.model.Candidate.CandidateStatus).REJECTED and candidate.status != T(com.stie.model.Candidate.CandidateStatus).HIRED}" sec:authorize="hasAnyRole('ADMIN', 'HR')">
                                     <input type="hidden" name="status" value="REJECTED">
                                     <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Reject">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -195,7 +208,7 @@
             <div th:if="${!isSearch && totalPages > 1}" class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
                 <p class="text-xs text-slate-500" th:text="${'Page ' + (currentPage + 1) + ' of ' + totalPages}">Page 1 of 5</p>
                 <div class="flex space-x-2">
-                    <a th:if="${currentPage > 0}" th:href="@{/applicants(page=${currentPage - 1})}" 
+                    <a th:if="${currentPage > 0}" th:href="@{/candidates(page=${currentPage - 1})}" 
                        class="px-3 py-1 bg-white border border-slate-200 rounded text-xs font-semibold hover:bg-slate-50">Previous</a>
                     <a th:if="${currentPage < totalPages - 1}" th:href="@{/candidates(page=${currentPage + 1})}" 
                        class="px-3 py-1 bg-white border border-slate-200 rounded text-xs font-semibold hover:bg-slate-50">Next</a>

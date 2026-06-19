@@ -212,6 +212,9 @@ public class InterviewController {
 
         auditService.log("INTERVIEW_SCORECARD_SUBMIT", getCurrentUser(), "Interview", id,
                 "Scorecard by " + getCurrentUser() + ", avg: " + scorecard.getAverageScore());
+                
+        notificationService.notifyHrFeedbackSubmitted(scorecard);        
+                
         redirectAttributes.addFlashAttribute("success", "Panel scorecard saved successfully.");
         return "redirect:/interviews";
     }

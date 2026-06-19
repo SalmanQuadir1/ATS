@@ -49,6 +49,7 @@ public class JobService {
             v.setStatus(JobVacancy.JobStatus.OPEN);
             v.setApprovedByManager(true);
             v.setApprovalNote(note);
+            v.setApprovedByUser(username);
             repository.save(v);
             auditService.log("JOB_APPROVED", username, "JobVacancy", id, "Approved job: " + v.getTitle() + " - Note: " + note);
         });
@@ -61,6 +62,7 @@ public class JobService {
             v.setStatus(JobVacancy.JobStatus.CLOSED);
             v.setApprovedByManager(false);
             v.setApprovalNote(note);
+            v.setApprovedByUser(username);
             repository.save(v);
             auditService.log("JOB_REJECTED", username, "JobVacancy", id, "Rejected job: " + v.getTitle() + " - Note: " + note);
         });
@@ -91,6 +93,13 @@ public class JobService {
         return repository.findByTenant(tenant).stream()
                 .filter(j -> j.getStatus() == JobVacancy.JobStatus.OPEN
                           && j.getApprovalStatus() == JobVacancy.ApprovalStatus.APPROVED)
+                .collect(Collectors.toList());
+    }
+
+    public List<JobVacancy> getAllApprovedJobsForTenant(Tenant tenant) {
+        if (tenant == null) return java.util.Collections.emptyList();
+        return repository.findByTenant(tenant).stream()
+                .filter(j -> j.getApprovalStatus() == JobVacancy.ApprovalStatus.APPROVED)
                 .collect(Collectors.toList());
     }
 

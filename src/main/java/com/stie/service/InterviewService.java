@@ -120,6 +120,8 @@ public class InterviewService {
         notificationService.addNotification(
                 "Interview scheduled for " + candidate.getFullName() + " — invite sent automatically.",
                 "/interviews");
+        
+        notificationService.notifyInterviewerAssigned(saved);
 
         auditService.log("INTERVIEW_SCHEDULED", "HR_User", "Interview", saved.getId(),
                 "Candidate: " + candidateId + ", Job: " + jobVacancyId + ", Time: " + time);
