@@ -44,8 +44,10 @@ public class InterviewController {
     @GetMapping
     public String listInterviews(Model model) {
         model.addAttribute("pageTitle", "Interview Calendar");
-        model.addAttribute("interviews", interviewService.getAllInterviews());
-        model.addAttribute("candidates", candidateService.getAllCandidates(PageRequest.of(0, 1000)).getContent());
+        java.util.List<com.stie.model.Interview> interviews = interviewService.getAllInterviews();
+        interviews.sort((a, b) -> Long.compare(b.getId(), a.getId()));
+        model.addAttribute("interviews", interviews);
+        model.addAttribute("candidates", candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 1000)).getContent());
         model.addAttribute("jobs", jobService.getAllVacancies());
         // Load interviewers for the dropdown (scoped to current site)
         com.stie.model.Tenant currentSite = userService.getCurrentSite();
@@ -66,10 +68,18 @@ public class InterviewController {
                            @RequestParam Long jobVacancyId,
                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime time,
                            @RequestParam String location,
+                           @RequestParam(required = false, defaultValue = "") String interviewMode,
                            @RequestParam(required = false) Long interviewerId,
+                           @RequestParam(required = false) String returnUrl,
                            RedirectAttributes redirectAttributes) {
+        
+        String finalLocation = location;
+        if (interviewMode != null && !interviewMode.isEmpty()) {
+            finalLocation = "[" + interviewMode + "] " + location;
+        }
+
         try {
-            interviewService.scheduleInterview(candidateId, jobVacancyId, time, location, interviewerId);
+            interviewService.scheduleInterview(candidateId, jobVacancyId, time, finalLocation, interviewerId);
             auditService.log("INTERVIEW_SCHEDULE", getCurrentUser(), "Interview", candidateId,
                     "Job: " + jobVacancyId + ", Time: " + time);
             redirectAttributes.addFlashAttribute("success",
@@ -77,6 +87,10 @@ public class InterviewController {
                     (interviewerId != null ? " and interviewer" : "") + " with calendar attachment.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Failed to schedule interview: " + e.getMessage());
+        }
+
+        if (returnUrl != null && !returnUrl.isEmpty()) {
+            return "redirect:" + returnUrl;
         }
         return "redirect:/interviews";
     }
@@ -171,7 +185,13 @@ public class InterviewController {
         }
         model.addAttribute("pageTitle", "Panel Evaluation Scorecard");
         model.addAttribute("interview", interview);
-        model.addAttribute("existingScorecards", scorecardService.getScorecardsByInterview(id));
+        
+        java.util.List<com.stie.model.InterviewScorecard> scorecards = scorecardService.getScorecardsByInterview(id);
+        String currentUser = getCurrentUser();
+        boolean hasSubmitted = scorecards.stream().anyMatch(sc -> sc.getSubmitter().equals(currentUser));
+        
+        model.addAttribute("existingScorecards", scorecards);
+        model.addAttribute("hasSubmitted", hasSubmitted);
         return "interview-scorecard";
     }
 

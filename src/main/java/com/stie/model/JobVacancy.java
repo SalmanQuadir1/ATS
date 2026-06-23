@@ -63,7 +63,10 @@ public class JobVacancy {
 
     private String approvedByUser;
 
-    private boolean approvedByManager = false;
+    private Boolean approvedByManager = false;
+
+    @Column(name = "is_active")
+    private Boolean active = true;
 
     public JobVacancy() {
         this.createdAt = LocalDateTime.now();
@@ -128,8 +131,18 @@ public class JobVacancy {
     public String getApprovedByUser() { return approvedByUser; }
     public void setApprovedByUser(String approvedByUser) { this.approvedByUser = approvedByUser; }
 
-    public boolean isApprovedByManager() { return approvedByManager; }
-    public void setApprovedByManager(boolean approvedByManager) { this.approvedByManager = approvedByManager; }
+    public Boolean isApprovedByManager() { return approvedByManager; }
+    public void setApprovedByManager(Boolean approvedByManager) { this.approvedByManager = approvedByManager; }
+
+    public boolean isExpired() {
+        return expiryDate != null && expiryDate.isBefore(LocalDateTime.now());
+    }
+
+    public Boolean isActive() { 
+        if (isExpired()) return false;
+        return active != null ? active : true; 
+    }
+    public void setActive(Boolean active) { this.active = active; }
 
     public enum JobStatus {
         DRAFT, OPEN, CLOSED

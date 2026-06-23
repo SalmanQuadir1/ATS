@@ -131,6 +131,10 @@ public class Candidate {
     @JoinColumn(name = "job_vacancy_id")
     private JobVacancy jobVacancy;
 
+    @ManyToOne
+    @JoinColumn(name = "assigned_interviewer_id")
+    private User assignedInterviewer;
+
     public Tenant getTenant() { return tenant; }
     public void setTenant(Tenant tenant) { this.tenant = tenant; }
 
@@ -139,6 +143,9 @@ public class Candidate {
 
     public JobVacancy getJobVacancy() { return jobVacancy; }
     public void setJobVacancy(JobVacancy jobVacancy) { this.jobVacancy = jobVacancy; }
+
+    public User getAssignedInterviewer() { return assignedInterviewer; }
+    public void setAssignedInterviewer(User assignedInterviewer) { this.assignedInterviewer = assignedInterviewer; }
 
     public enum CandidateStatus {
         APPLIED, SHORTLISTED, INTERVIEW, OFFERED, HIRED, REJECTED, KIV

@@ -98,7 +98,7 @@
                                     <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0 text-teal-700 font-bold text-xs"
                                          th:text="${interview.candidate.fullName != null ? #strings.substring(interview.candidate.fullName, 0, 1).toUpperCase() : '?'}">J</div>
                                     <div>
-                                        <p class="text-sm font-semibold text-slate-800" th:text="${interview.candidate.fullName}">John Doe</p>
+                                        <a th:href="@{/candidates/{id}(id=${interview.candidate.id})}" class="text-sm font-semibold text-emerald-600 hover:underline" th:text="${interview.candidate.fullName}">John Doe</a>
                                         <p class="text-xs text-slate-400" th:text="${interview.candidate.email}">john@email.com</p>
                                     </div>
                                 </div>

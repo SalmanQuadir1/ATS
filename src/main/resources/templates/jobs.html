@@ -24,6 +24,65 @@
         </a>
     </div>
 
+    <!-- ── Summary Tiles ──────────────────────────────────────────────── -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <!-- New Applications Tile -->
+        <a th:href="@{/candidates(status='APPLIED')}" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 hover:shadow-md hover:border-blue-200 hover:-translate-y-0.5 transition-all group flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">New</span>
+            </div>
+            <div>
+                <h4 class="text-2xl font-black text-slate-800" th:text="${globalApplied}">0</h4>
+                <p class="text-xs text-slate-500 mt-0.5 font-medium">Applications</p>
+            </div>
+        </a>
+
+        <!-- Shortlisted Tile -->
+        <a th:href="@{/candidates(status='SHORTLISTED')}" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 hover:shadow-md hover:border-amber-200 hover:-translate-y-0.5 transition-all group flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Shortlisted</span>
+            </div>
+            <div>
+                <h4 class="text-2xl font-black text-slate-800" th:text="${globalShortlisted}">0</h4>
+                <p class="text-xs text-slate-500 mt-0.5 font-medium">Candidates</p>
+            </div>
+        </a>
+
+        <!-- Interview Tile -->
+        <a th:href="@{/candidates(status='INTERVIEW')}" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 hover:shadow-md hover:border-indigo-200 hover:-translate-y-0.5 transition-all group flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Interviewing</span>
+            </div>
+            <div>
+                <h4 class="text-2xl font-black text-slate-800" th:text="${globalInterview}">0</h4>
+                <p class="text-xs text-slate-500 mt-0.5 font-medium">In Process</p>
+            </div>
+        </a>
+
+        <!-- Hired Tile -->
+        <a th:href="@{/candidates(status='HIRED')}" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 hover:shadow-md hover:border-emerald-200 hover:-translate-y-0.5 transition-all group flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hired</span>
+            </div>
+            <div>
+                <h4 class="text-2xl font-black text-slate-800" th:text="${globalHired}">0</h4>
+                <p class="text-xs text-slate-500 mt-0.5 font-medium">Placements</p>
+            </div>
+        </a>
+    </div>
+
     <!-- ── Toolbar: Search + Filter + Tabs ───────────────────────────── -->
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-5">
         <form method="get" action="/jobs" class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
@@ -83,8 +142,9 @@
                         <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wider hidden sm:table-cell">Department</th>
                         <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wider hidden md:table-cell">Location</th>
                         <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wider hidden lg:table-cell">Openings</th>
+                        <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wider hidden lg:table-cell">Applications</th>
                         <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wider">Status</th>
-                        <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wider hidden lg:table-cell">Date</th>
+                        <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wider hidden xl:table-cell">Date</th>
                         <th class="text-right px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -133,6 +193,14 @@
                                   class="inline-block mt-0.5 px-1.5 py-0.5 bg-amber-50 text-amber-600 text-[10px] font-bold rounded border border-amber-100">
                                 Pending Approval
                             </span>
+                            <span th:if="${job.isExpired()}"
+                                  class="inline-block mt-0.5 px-1.5 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-bold rounded border border-rose-100">
+                                Expired
+                            </span>
+                            <span th:if="${!job.isExpired() and job.active != null and !job.active}"
+                                  class="inline-block mt-0.5 px-1.5 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-bold rounded border border-rose-100">
+                                Inactive
+                            </span>
                         </td>
 
                         <!-- Department -->
@@ -151,6 +219,30 @@
                                 </svg>
                                 <span th:text="${job.noOfPosts}">1</span>
                             </span>
+                        </td>
+
+                        <!-- Applications Stats -->
+                        <td class="px-5 py-4 hidden lg:table-cell min-w-[160px]">
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex items-center gap-1.5 text-slate-600">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                    <span class="text-xs font-bold"><span th:text="${totalAppsMap[job.id]}">0</span> Total</span>
+                                </div>
+                                <div class="flex flex-wrap gap-1 mt-0.5" th:if="${totalAppsMap[job.id] > 0}">
+                                    <span class="px-1.5 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-[9px] font-black tracking-wide" th:if="${statusAppsMap[job.id]['APPLIED'] != null}">
+                                        <span th:text="${statusAppsMap[job.id]['APPLIED']}"></span> NEW
+                                    </span>
+                                    <span class="px-1.5 py-0.5 bg-amber-50 text-amber-600 border border-amber-100 rounded text-[9px] font-black tracking-wide" th:if="${statusAppsMap[job.id]['SHORTLISTED'] != null}">
+                                        <span th:text="${statusAppsMap[job.id]['SHORTLISTED']}"></span> SL
+                                    </span>
+                                    <span class="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded text-[9px] font-black tracking-wide" th:if="${statusAppsMap[job.id]['INTERVIEW'] != null}">
+                                        <span th:text="${statusAppsMap[job.id]['INTERVIEW']}"></span> INT
+                                    </span>
+                                    <span class="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded text-[9px] font-black tracking-wide" th:if="${statusAppsMap[job.id]['HIRED'] != null}">
+                                        <span th:text="${statusAppsMap[job.id]['HIRED']}"></span> HRD
+                                    </span>
+                                </div>
+                            </div>
                         </td>
 
                         <!-- Status badge -->
@@ -176,6 +268,23 @@
                                     <button type="button" th:onclick="'openRemarksModal(\'Approve Job Vacancy\', \'Provide approval remarks for this job vacancy:\', \'approve-form-\' + ' + ${job.id} + ', \'approve-note-\' + ' + ${job.id} + ')'"
                                             class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-lg hover:bg-emerald-100 transition border border-emerald-100">
                                         ✓ Approve
+                                    </button>
+                                </form>
+
+                                <!-- Toggle Active Status -->
+                                <form th:if="${!job.isExpired()}" th:action="@{/jobs/{id}/toggle-active(id=${job.id})}" method="POST"
+                                      sec:authorize="hasAuthority('MANAGE_JOBS') or hasAuthority('CREATE_JOBS')"
+                                      class="inline">
+                                    <button type="submit"
+                                            th:title="${job.active != null and job.active ? 'Deactivate Job' : 'Activate Job'}"
+                                            class="p-1.5 rounded-lg text-slate-400 transition"
+                                            th:classappend="${job.active != null and job.active ? 'hover:text-amber-600 hover:bg-amber-50' : 'hover:text-emerald-600 hover:bg-emerald-50'}">
+                                        <svg th:if="${job.active != null and job.active}" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                        </svg>
+                                        <svg th:unless="${job.active != null and job.active}" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
                                     </button>
                                 </form>
 

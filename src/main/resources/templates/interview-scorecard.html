@@ -72,7 +72,7 @@
                     </div>
                 </div>
 
-                <form th:action="@{'/interviews/' + ${interview.id} + '/scorecard'}" method="POST" class="space-y-8">
+                <form th:if="${!hasSubmitted}" th:action="@{'/interviews/' + ${interview.id} + '/scorecard'}" method="POST" class="space-y-8">
                     <!-- Rubric Template Block -->
                     <th:block th:each="rubric, iterStat : ${
                         {{'technicalScore', 'Technical Competency', 'Coding, architecture, engineering depth'},
@@ -134,6 +134,14 @@
                         <span class="relative z-10 text-lg">Submit Final Evaluation</span>
                     </button>
                 </form>
+
+                <div th:if="${hasSubmitted}" class="p-10 bg-emerald-50/50 rounded-[2rem] border-2 border-emerald-100 text-center">
+                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h4 class="text-2xl font-black text-emerald-800 mb-3 tracking-tight">Evaluation Submitted</h4>
+                    <p class="text-sm text-emerald-600 font-medium">Thank you! Your scorecard rubric for this applicant has been recorded.</p>
+                </div>
             </div>
 
             <!-- Right: Panel Stream / Existing Reviews (5 cols) -->

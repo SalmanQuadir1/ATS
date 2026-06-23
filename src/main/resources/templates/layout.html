@@ -544,5 +544,52 @@
             </div>
         </div>
     </div>
+
+    <!-- Global Page Loader -->
+    <div id="globalLoader" class="hidden fixed inset-0 z-[9999] bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity duration-200">
+        <svg class="animate-spin w-12 h-12 text-emerald-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-sm font-bold text-emerald-800 tracking-widest uppercase">Processing...</span>
+    </div>
+
+    <script th:inline="javascript">
+        window.addEventListener('DOMContentLoaded', () => {
+            const loader = document.getElementById('globalLoader');
+            
+            // Handle form submissions
+            document.body.addEventListener('submit', (e) => {
+                const form = e.target;
+                // Only show loader if form is valid
+                if (!form.checkValidity || form.checkValidity()) {
+                    loader.classList.remove('hidden');
+                }
+            });
+
+            // Handle link clicks
+            document.body.addEventListener('click', (e) => {
+                if (e.defaultPrevented) return;
+                const link = e.target.closest('a');
+                if (link) {
+                    // Ignore clicks inside FullCalendar or any element with a 'no-loader' class
+                    if (link.closest('.fc') || link.closest('.no-loader')) return;
+                    
+                    const href = link.getAttribute('href');
+                    const target = link.getAttribute('target');
+                    if (href && !href.startsWith('#') && !href.startsWith('javascript:') && !href.startsWith('mailto:') && !href.startsWith('tel:') && target !== '_blank' && !e.ctrlKey && !e.metaKey) {
+                        loader.classList.remove('hidden');
+                    }
+                }
+            });
+            
+            // Hide loader if page is loaded from bfcache (back/forward navigation)
+            window.addEventListener('pageshow', (e) => {
+                if (e.persisted) {
+                    loader.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

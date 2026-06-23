@@ -84,7 +84,8 @@ public class JobService {
         }
         return repository.findAll().stream()
                 .filter(j -> j.getStatus() == JobVacancy.JobStatus.OPEN
-                          && j.getApprovalStatus() == JobVacancy.ApprovalStatus.APPROVED)
+                          && j.getApprovalStatus() == JobVacancy.ApprovalStatus.APPROVED
+                          && j.isActive() != null && j.isActive())
                 .collect(Collectors.toList());
     }
 
@@ -92,7 +93,8 @@ public class JobService {
         if (tenant == null) return getOpenJobs();
         return repository.findByTenant(tenant).stream()
                 .filter(j -> j.getStatus() == JobVacancy.JobStatus.OPEN
-                          && j.getApprovalStatus() == JobVacancy.ApprovalStatus.APPROVED)
+                          && j.getApprovalStatus() == JobVacancy.ApprovalStatus.APPROVED
+                          && j.isActive() != null && j.isActive())
                 .collect(Collectors.toList());
     }
 

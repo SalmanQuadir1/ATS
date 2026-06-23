@@ -142,14 +142,20 @@ public class DashboardController {
 
     @PostMapping("/notifications/read-all")
     public String readAllNotifications(javax.servlet.http.HttpServletRequest request) {
-        notificationService.markAllAsRead();
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            notificationService.markAllAsReadForUser(auth.getName());
+        }
         String referer = request.getHeader("Referer");
         return "redirect:" + (referer != null ? referer : "/");
     }
 
     @PostMapping("/notifications/clear-all")
     public String clearAllNotifications(javax.servlet.http.HttpServletRequest request) {
-        notificationService.clearAll();
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            notificationService.clearAllForUser(auth.getName());
+        }
         String referer = request.getHeader("Referer");
         return "redirect:" + (referer != null ? referer : "/");
     }

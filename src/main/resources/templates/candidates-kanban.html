@@ -63,43 +63,82 @@
                              th:data-job-id="${c.taggedRoles}"
                              th:data-skills="${#strings.toLowerCase(c.skills)}"
                              th:data-name="${#strings.toLowerCase(c.fullName)}"
-                             class="candidate-card bg-white p-4.5 rounded-2xl border border-slate-200/70 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 flex flex-col space-y-3 relative group">
+                             class="candidate-card bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow hover:border-slate-300 transition-all duration-200 flex flex-col relative group">
                             
-                            <!-- Full name link and dynamic HM shared visual tag -->
-                            <div class="flex items-start justify-between gap-1">
-                                <a th:href="@{'/candidates/' + ${c.id}}" 
-                                   class="text-sm font-black text-slate-800 hover:text-teal-600 transition-colors tracking-tight leading-snug break-words pr-2"
-                                   th:text="${c.fullName}">John Doe</a>
-                                <span th:if="${c.sharedWithHM}" 
-                                      title="Profile Shared with Hiring Manager"
-                                      class="bg-teal-50 border border-teal-100 text-teal-600 text-[8px] font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider whitespace-nowrap">HM</span>
+                            <div class="flex items-start gap-3">
+                                <!-- Avatar -->
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-inner">
+                                    <span th:text="${#strings.substring(c.fullName,0,1)}">J</span>
+                                </div>
+                                
+                                <div class="flex-1 min-w-0">
+                                    <!-- Full name & HM tag -->
+                                    <div class="flex items-start justify-between gap-1 mb-0.5">
+                                        <a th:href="@{'/candidates/' + ${c.id}}" 
+                                           class="text-[15px] font-bold text-slate-800 hover:text-teal-600 transition-colors truncate block"
+                                           th:text="${c.fullName}">John Doe</a>
+                                        <span th:if="${c.sharedWithHM}" 
+                                              title="Profile Shared with Hiring Manager"
+                                              class="bg-orange-50 border border-orange-100 text-orange-600 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">HM</span>
+                                    </div>
+                                    
+                                    <!-- Applied Job -->
+                                    <div class="text-xs text-slate-500 truncate font-medium mb-2" th:text="${c.jobVacancy != null ? c.jobVacancy.title : 'General Application'}">Software Engineer</div>
+                                </div>
                             </div>
 
                             <!-- Experience & Expected Salary -->
-                            <div class="flex items-center justify-between text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
-                                <span th:text="${c.experienceYears} + ' Yrs Exp'">3 Yrs Exp</span>
-                                <span th:text="${c.expectedSalary != null ? '$' + #numbers.formatInteger(c.expectedSalary, 0, 'COMMA') : 'Salary N/A'}">$5,000</span>
+                            <div class="flex items-center gap-4 text-[11px] text-slate-500 font-medium mb-3 bg-slate-50 px-2.5 py-2 rounded-lg border border-slate-100">
+                                <div class="flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    <span th:text="${c.experienceYears} + ' Yrs'">3 Yrs</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span th:text="${c.expectedSalary != null ? '$' + #numbers.formatInteger(c.expectedSalary, 0, 'COMMA') : 'N/A'}">$5,000</span>
+                                </div>
                             </div>
 
-                            <!-- Core Skills pills display -->
-                            <div class="flex flex-wrap gap-1 mt-1">
-                                <span th:each="skill : ${#strings.arraySplit(c.skills, ',')}" 
+                            <!-- Assigned Interviewer -->
+                            <div th:if="${st.toString() == 'INTERVIEW' and c.assignedInterviewer != null}" class="bg-indigo-50 border border-indigo-100 rounded-lg px-2.5 py-2 flex items-center gap-2 mb-3">
+                                <div class="w-5 h-5 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-[10px] shrink-0" th:text="${#strings.substring(c.assignedInterviewer.displayName != null ? c.assignedInterviewer.displayName : c.assignedInterviewer.username, 0, 1)}">U</div>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-wider leading-none mb-0.5">Interviewer</span>
+                                    <span class="text-[11px] font-semibold text-indigo-700 truncate leading-none" th:text="${c.assignedInterviewer.displayName != null ? c.assignedInterviewer.displayName : c.assignedInterviewer.username}">User</span>
+                                </div>
+                            </div>
+
+                            <!-- Core Skills -->
+                            <div class="flex flex-wrap gap-1.5 mb-3" th:if="${!#strings.isEmpty(c.skills)}">
+                                <span th:each="skill, iterStat : ${#strings.arraySplit(c.skills, ',')}" 
+                                      th:if="${iterStat.index < 3}"
                                       th:text="${#strings.trim(skill)}"
-                                      class="bg-slate-100 text-slate-600 text-[9px] font-semibold px-2 py-0.5 rounded-lg whitespace-nowrap">Skill</span>
+                                      class="bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-medium px-2 py-0.5 rounded-md truncate max-w-[80px]">Skill</span>
+                                <span th:if="${#strings.arraySplit(c.skills, ',') != null and #strings.arraySplit(c.skills, ',').length > 3}"
+                                      class="bg-slate-50 text-slate-400 border border-slate-200 text-[10px] font-medium px-1.5 py-0.5 rounded-md"
+                                      th:text="'+' + (${#strings.arraySplit(c.skills, ',').length} - 3)">+2</span>
                             </div>
 
                             <!-- Controls for moving candidate status instantly -->
-                            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Shift Phase</span>
-                                <form th:action="@{'/candidates/' + ${c.id} + '/move'}" method="POST" class="inline">
-                                    <select name="status" onchange="this.form.submit()" 
-                                            class="text-[10px] bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-teal-500 font-bold text-slate-600 transition-all cursor-pointer">
+                            <div class="mt-auto pt-3 border-t border-slate-100 flex flex-col items-center justify-between">
+                                <form th:action="@{'/candidates/' + ${c.id} + '/move'}" method="POST" class="w-full">
+                                    <select name="status" onchange="handleStatusChange(this)" 
+                                            th:data-candidate-id="${c.id}"
+                                            th:data-candidate-name="${c.fullName}"
+                                            th:data-current-status="${c.status}"
+                                            th:data-job-vacancy-id="${c.jobVacancy != null ? c.jobVacancy.id : ''}"
+                                            th:disabled="${c.status.name() == 'INTERVIEW' && !completedInterviewCandidateIds.contains(c.id)}"
+                                            class="w-full text-xs bg-white border border-slate-200 hover:border-teal-400 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500/20 font-semibold text-slate-600 transition-colors cursor-pointer appearance-none disabled:opacity-50 disabled:cursor-not-allowed">
                                         <option th:each="opt : ${statuses}" 
                                                 th:value="${opt}" 
-                                                th:text="${opt.toString() == 'KIV' ? 'KIV' : opt.toString()}"
+                                                th:text="'Move to: ' + (${opt.toString() == 'KIV' ? 'KIV' : opt.toString()})"
                                                 th:selected="${c.status == opt}"></option>
                                     </select>
                                 </form>
+                                <p th:if="${c.status.name() == 'INTERVIEW' && !completedInterviewCandidateIds.contains(c.id)}" class="text-[9px] text-amber-600 w-full mt-1.5 font-bold leading-tight flex items-start gap-1">
+                                    <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span>Waiting for interviewer remarks/scorecard to proceed</span>
+                                </p>
                             </div>
                         </div>
 
@@ -112,7 +151,98 @@
             </div>
         </div>
 
+        <!-- Forward to Interviewer Modal -->
+        <div id="forwardModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden">
+                <div class="bg-gradient-to-r from-teal-600 to-teal-500 px-8 py-6">
+                    <h3 class="text-xl font-bold text-white">Schedule Interview</h3>
+                    <p id="forwardCandidateName" class="text-teal-100 text-sm mt-1 font-medium"></p>
+                </div>
+                <form id="forwardForm" method="POST" action="/interviews/schedule" class="p-8 space-y-5">
+                    <input type="hidden" name="candidateId" id="forwardCandidateId">
+                    <input type="hidden" name="jobVacancyId" id="forwardJobVacancyId">
+                    <input type="hidden" name="returnUrl" value="/candidates/kanban">
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Interview Mode <span class="text-red-500">*</span></label>
+                        <select name="interviewMode" required
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+                            <option value="Online">Online</option>
+                            <option value="Onsite">Onsite</option>
+                            <option value="Phone">Phone</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-600 mb-1.5">Date &amp; Time <span class="text-red-500">*</span></label>
+                            <input type="datetime-local" name="time" required
+                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-600 mb-1.5">Location/Link <span class="text-red-500">*</span></label>
+                            <input type="text" name="location" placeholder="e.g. Zoom, Room 101" required
+                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Assign Interviewer</label>
+                        <select name="interviewerId"
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+                            <option value="">None (send to applicant only)</option>
+                            <option th:each="iv : ${interviewers}" th:value="${iv.id}" th:text="${iv.displayName != null ? iv.displayName : iv.username}"></option>
+                        </select>
+                        <p class="text-xs text-slate-400 mt-1">They will be notified and sent a calendar invite.</p>
+                    </div>
+                    
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="document.getElementById('forwardModal').classList.add('hidden')"
+                                class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors text-sm">Cancel</button>
+                        <button type="submit"
+                                class="flex-1 px-4 py-2.5 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors text-sm">
+                            Confirm &amp; Schedule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <script>
+            function handleStatusChange(selectEl) {
+                const newStatus = selectEl.value;
+                const currentStatus = selectEl.getAttribute('data-current-status');
+                
+                if (newStatus === 'INTERVIEW') {
+                    const candidateId = selectEl.getAttribute('data-candidate-id');
+                    const candidateName = selectEl.getAttribute('data-candidate-name');
+                    const jobId = selectEl.getAttribute('data-job-vacancy-id');
+                    
+                    if (!jobId || jobId === '') {
+                        alert("Candidate must have a job vacancy to schedule an interview.");
+                        selectEl.value = currentStatus;
+                        return;
+                    }
+
+                    // Setup modal
+                    document.getElementById('forwardCandidateName').textContent = 'Applicant: ' + candidateName;
+                    document.getElementById('forwardCandidateId').value = candidateId;
+                    document.getElementById('forwardJobVacancyId').value = jobId;
+                    
+                    // Show modal
+                    document.getElementById('forwardModal').classList.remove('hidden');
+                    
+                    // Reset the select back to current status so it doesn't look changed if they cancel
+                    selectEl.value = currentStatus;
+                } else {
+                    // Just submit the form for other statuses
+                    selectEl.closest('form').submit();
+                }
+            }
+
+            function submitForwardForm() {
+                // Now handled natively by the standard form submit to /interviews/schedule
+            }
             function filterKanban() {
                 const searchVal = document.getElementById('kanbanSearch').value.toLowerCase().trim();
                 const jobVal = document.getElementById('jobFilter').value;

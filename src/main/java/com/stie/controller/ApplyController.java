@@ -59,6 +59,10 @@ public class ApplyController {
             ra.addFlashAttribute("error", "Job vacancy not found with ID: " + id);
             return "redirect:/" + tenantName + "/landing";
         }
+        if (job.isExpired() || (job.isActive() != null && !job.isActive())) {
+            ra.addFlashAttribute("error", "This job vacancy is no longer active or has expired.");
+            return "redirect:/" + tenantName + "/landing";
+        }
         model.addAttribute("tenant", tenant);
         model.addAttribute("branding", brandingService.getBranding(tenant));
         model.addAttribute("job", job);
@@ -83,6 +87,12 @@ public class ApplyController {
 
         if (job == null || job.getTenant() == null || !job.getTenant().getId().equals(tenant.getId())) {
             model.addAttribute("error", "Job vacancy not found with ID: " + id);
+            model.addAttribute("tenant", tenant);
+            model.addAttribute("branding", brandingService.getBranding(tenant));
+            return "apply";
+        }
+        if (job.isExpired() || (job.isActive() != null && !job.isActive())) {
+            model.addAttribute("error", "This job vacancy is no longer accepting applications.");
             model.addAttribute("tenant", tenant);
             model.addAttribute("branding", brandingService.getBranding(tenant));
             return "apply";

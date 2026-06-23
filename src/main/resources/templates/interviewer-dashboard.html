@@ -39,46 +39,49 @@
             <button onclick="this.parentElement.style.display='none'" class="text-rose-500 hover:text-rose-700">&times;</button>
         </div>
 
-        <!-- Metric dials -->
+        <!-- Category tiles -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <!-- Assigned -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
-                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all"></div>
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest">Assigned Schedules</h3>
-                    <div class="p-2 bg-amber-50 text-amber-500 rounded-xl">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <button type="button" data-interview-tab="scheduled" class="interview-tab bg-white rounded-[2rem] p-6 border-2 border-indigo-200 shadow-xl shadow-slate-200/40 relative overflow-hidden group text-left transition-all hover:-translate-y-1">
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all"></div>
+                <div class="relative z-10 flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="text-slate-500 text-xs font-black uppercase tracking-widest">Scheduled Interviews</h3>
+                        <p class="text-4xl font-black text-slate-800 mt-3" th:text="${#lists.size(scheduledInterviews)}">0</p>
+                        <p class="text-xs text-indigo-600 mt-3 font-bold">Upcoming assigned slots</p>
+                    </div>
+                    <div class="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                 </div>
-                <p class="text-4xl font-black text-slate-800" th:text="${#lists.size(interviews)}">0</p>
-                <div class="text-xs text-amber-600 mt-2 font-bold bg-amber-50 inline-block px-2 py-1 rounded-lg">Pending evaluations</div>
-            </div>
-            
-            <!-- Time -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
-                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl group-hover:bg-teal-500/20 transition-all"></div>
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest">System Time</h3>
-                    <div class="p-2 bg-teal-50 text-teal-600 rounded-xl">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                </div>
-                <p class="text-4xl font-black text-slate-800" th:text="${#temporals.format(#temporals.createNow(), 'HH:mm')}">12:00</p>
-                <div class="text-xs text-slate-500 mt-2 font-bold bg-slate-50 inline-block px-2 py-1 rounded-lg" th:text="${#temporals.format(#temporals.createNow(), 'EEEE, MMMM dd')}">Wednesday, May 20</div>
-            </div>
+            </button>
 
-            <!-- Completed -->
-            <div class="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
-                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest">Completed Panel Audits</h3>
-                    <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <button type="button" data-interview-tab="today" class="interview-tab bg-white rounded-[2rem] p-6 border-2 border-teal-200 shadow-xl shadow-slate-200/40 relative overflow-hidden group text-left transition-all hover:-translate-y-1">
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl group-hover:bg-teal-500/20 transition-all"></div>
+                <div class="relative z-10 flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="text-slate-500 text-xs font-black uppercase tracking-widest">Today's Interviews</h3>
+                        <p class="text-4xl font-black text-slate-800 mt-3" th:text="${#lists.size(todayInterviews)}">0</p>
+                        <p class="text-xs text-teal-600 mt-3 font-bold">Scheduled for today</p>
+                    </div>
+                    <div class="p-3 bg-teal-50 text-teal-600 rounded-2xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                 </div>
-                <p class="text-4xl font-black text-slate-800" th:text="${#lists.size(interviews.?[status.name() == 'COMPLETED'])}">0</p>
-                <div class="text-xs text-emerald-600 mt-2 font-bold bg-emerald-50 inline-block px-2 py-1 rounded-lg">Outcomes logged successfully</div>
-            </div>
+            </button>
+
+            <button type="button" data-interview-tab="completed" class="interview-tab bg-white rounded-[2rem] p-6 border-2 border-emerald-200 shadow-xl shadow-slate-200/40 relative overflow-hidden group text-left transition-all hover:-translate-y-1">
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
+                <div class="relative z-10 flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="text-slate-500 text-xs font-black uppercase tracking-widest">Interviews Done</h3>
+                        <p class="text-4xl font-black text-slate-800 mt-3" th:text="${#lists.size(completedInterviews)}">0</p>
+                        <p class="text-xs text-emerald-600 mt-3 font-bold">Completed scorecards</p>
+                    </div>
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                </div>
+            </button>
         </section>
 
         <!-- Main Body -->
@@ -99,9 +102,22 @@
                 <p class="text-slate-500 text-sm mt-1">You are currently all caught up. New interview slots scheduled by HR will appear here.</p>
             </div>
 
-            <!-- List Grid -->
             <div th:if="${!#lists.isEmpty(interviews)}" class="space-y-5">
-                <div th:each="interview : ${interviews}" class="p-6 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-indigo-200 rounded-[1.5rem] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group">
+                <!-- Empty Filter State -->
+                <div id="emptyFilterState" style="display: none;" class="text-center py-16 bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl">
+                    <div class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+                        <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-700">No matching interviews</h3>
+                    <p class="text-slate-500 text-sm mt-1">Try selecting a different filter or viewing all assigned interviews.</p>
+                </div>
+
+                <div th:each="interview : ${interviews}" 
+                     class="interview-card p-6 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-indigo-200 rounded-[1.5rem] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group"
+                     th:data-status="${interview.status.name()}"
+                     th:data-date="${interview.interviewTime != null ? #temporals.format(interview.interviewTime, 'yyyy-MM-dd') : ''}">
                     
                     <div class="flex items-start gap-5">
                         <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-black text-lg shadow-sm border border-indigo-200/50 shrink-0"
@@ -161,6 +177,70 @@
             </div>
         </main>
         
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                const tabs = document.querySelectorAll('.interview-tab');
+                const cards = document.querySelectorAll('.interview-card');
+                
+                // Get today's date in YYYY-MM-DD local timezone format
+                const today = new Date();
+                const offset = today.getTimezoneOffset();
+                const todayStr = new Date(today.getTime() - (offset*60*1000)).toISOString().split('T')[0];
+
+                let currentFilter = null;
+
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const filter = tab.getAttribute('data-interview-tab');
+                        
+                        if (currentFilter === filter) {
+                            // toggle off
+                            currentFilter = null;
+                            tabs.forEach(t => {
+                                t.classList.remove('ring-4', 'ring-indigo-300', 'scale-105');
+                            });
+                        } else {
+                            currentFilter = filter;
+                            tabs.forEach(t => {
+                                t.classList.remove('ring-4', 'ring-indigo-300', 'scale-105');
+                            });
+                            tab.classList.add('ring-4', 'ring-indigo-300', 'scale-105');
+                        }
+                        
+                        let visibleCount = 0;
+                        cards.forEach(card => {
+                            const status = card.getAttribute('data-status');
+                            const date = card.getAttribute('data-date');
+                            
+                            let show = true;
+                            if (currentFilter) {
+                                show = false;
+                                if (currentFilter === 'scheduled' && status === 'SCHEDULED') show = true;
+                                if (currentFilter === 'completed' && status === 'COMPLETED') show = true;
+                                if (currentFilter === 'today' && date === todayStr) show = true;
+                            }
+                            
+                            if (show) {
+                                card.style.display = 'flex';
+                                visibleCount++;
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                        
+                        // Handle empty state message if needed
+                        const emptyState = document.getElementById('emptyFilterState');
+                        if (emptyState) {
+                            if (visibleCount === 0 && cards.length > 0) {
+                                emptyState.style.display = 'block';
+                            } else {
+                                emptyState.style.display = 'none';
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
     </div>
 </body>
 </html>

@@ -50,6 +50,12 @@ public class JobController {
     @Autowired
     private JobCategoryService categoryService;
 
+    @Autowired
+    private com.stie.service.CandidateApplicationService applicationService;
+
+    @Autowired
+    private com.stie.service.CandidateService candidateService;
+
     private String getCurrentUser() {
         return org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
     }
@@ -62,6 +68,8 @@ public class JobController {
                            Model model) {
         model.addAttribute("pageTitle", "Jobs");
         java.util.List<JobVacancy> all = jobService.getAllVacancies();
+        // Sort newest on top
+        all.sort((a, b) -> Long.compare(b.getId(), a.getId()));
         // Filter by search
         if (search != null && !search.trim().isEmpty()) {
             String q = search.trim().toLowerCase();
@@ -81,6 +89,30 @@ public class JobController {
         int start = page * size;
         int end = Math.min(start + size, total);
         java.util.List<JobVacancy> paged = start < total ? all.subList(start, end) : java.util.Collections.emptyList();
+        
+        java.util.Map<Long, Long> totalAppsMap = new java.util.HashMap<>();
+        java.util.Map<Long, java.util.Map<String, Long>> statusAppsMap = new java.util.HashMap<>();
+        for (JobVacancy job : paged) {
+            java.util.List<com.stie.model.CandidateApplication> apps = applicationService.getApplicationsForJob(job.getId());
+            totalAppsMap.put(job.getId(), (long) apps.size());
+            java.util.Map<String, Long> statusCounts = apps.stream()
+                .collect(java.util.stream.Collectors.groupingBy(a -> a.getStatus().name(), java.util.stream.Collectors.counting()));
+            statusAppsMap.put(job.getId(), statusCounts);
+        }
+
+        // Global status counts for the tiles
+        java.util.List<com.stie.model.Candidate> allCandidates = candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 10000)).getContent();
+        long countApplied = allCandidates.stream().filter(c -> c.getStatus() == com.stie.model.Candidate.CandidateStatus.APPLIED).count();
+        long countShortlisted = allCandidates.stream().filter(c -> c.getStatus() == com.stie.model.Candidate.CandidateStatus.SHORTLISTED).count();
+        long countInterview = allCandidates.stream().filter(c -> c.getStatus() == com.stie.model.Candidate.CandidateStatus.INTERVIEW).count();
+        long countHired = allCandidates.stream().filter(c -> c.getStatus() == com.stie.model.Candidate.CandidateStatus.HIRED).count();
+        model.addAttribute("globalApplied", countApplied);
+        model.addAttribute("globalShortlisted", countShortlisted);
+        model.addAttribute("globalInterview", countInterview);
+        model.addAttribute("globalHired", countHired);
+
+        model.addAttribute("totalAppsMap", totalAppsMap);
+        model.addAttribute("statusAppsMap", statusAppsMap);
         model.addAttribute("jobs", paged);
         model.addAttribute("totalJobs", total);
         model.addAttribute("currentPage", page);
@@ -399,6 +431,27 @@ public class JobController {
                           org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         jobService.rejectVacancy(id, note, getCurrentUser());
         redirectAttributes.addFlashAttribute("success", "Job vacancy rejected successfully.");
+        if (referer != null && !referer.isEmpty()) {
+            return "redirect:" + referer;
+        }
+        return "redirect:/jobs";
+    }
+
+    @PostMapping("/jobs/{id}/toggle-active")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('MANAGE_JOBS') or hasAuthority('CREATE_JOBS')")
+    public String toggleActive(@PathVariable Long id, 
+                               @org.springframework.web.bind.annotation.RequestHeader(value = "referer", required = false) String referer,
+                               org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        JobVacancy job = jobService.getAllVacancies().stream()
+                .filter(j -> j.getId().equals(id)).findFirst().orElse(null);
+        if (job != null) {
+            boolean currentActive = job.isActive() != null ? job.isActive() : true;
+            job.setActive(!currentActive);
+            jobService.saveVacancy(job);
+            redirectAttributes.addFlashAttribute("success", "Job vacancy marked as " + (!currentActive ? "Active" : "Inactive") + ".");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Job not found.");
+        }
         if (referer != null && !referer.isEmpty()) {
             return "redirect:" + referer;
         }

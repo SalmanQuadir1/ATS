@@ -58,6 +58,10 @@ public class InterviewService {
         return repository.findAll();
     }
 
+    public List<Interview> getInterviewsByCandidate(Long candidateId) {
+        return repository.findByCandidateId(candidateId);
+    }
+
     public Optional<Interview> findById(Long id) {
         com.stie.model.Tenant tenant = userService.getCurrentTenant();
         return repository.findById(id)

@@ -27,13 +27,19 @@ public class NotificationService {
         private String time;
         private boolean read;
         private String targetUrl;
+        private String targetUsername;
 
         public AppNotification(Long id, String message, String time, String targetUrl) {
+            this(id, message, time, targetUrl, null);
+        }
+
+        public AppNotification(Long id, String message, String time, String targetUrl, String targetUsername) {
             this.id = id;
             this.message = message;
             this.time = time;
             this.read = false;
             this.targetUrl = targetUrl;
+            this.targetUsername = targetUsername;
         }
 
         public Long getId() { return id; }
@@ -42,6 +48,7 @@ public class NotificationService {
         public boolean isRead() { return read; }
         public void setRead(boolean read) { this.read = read; }
         public String getTargetUrl() { return targetUrl; }
+        public String getTargetUsername() { return targetUsername; }
     }
 
     private static final java.util.List<AppNotification> notifications =
@@ -50,8 +57,8 @@ public class NotificationService {
             new java.util.concurrent.atomic.AtomicLong(3);
 
     static {
-        notifications.add(new AppNotification(1L, "New S-Pass candidate registered: John Tan", "10m ago", "/candidates/1"));
-        notifications.add(new AppNotification(2L, "Manpower request approval needed: Senior Java Developer", "1h ago", "/jobs"));
+        notifications.add(new AppNotification(1L, "New S-Pass candidate registered: John Tan", "10m ago", "/candidates/1", null));
+        notifications.add(new AppNotification(2L, "Manpower request approval needed: Senior Java Developer", "1h ago", "/jobs", null));
     }
 
     public java.util.List<AppNotification> getNotifications() { return notifications; }
@@ -60,16 +67,44 @@ public class NotificationService {
         return notifications.stream().filter(n -> !n.isRead()).count();
     }
 
+    public java.util.List<AppNotification> getNotificationsForUser(String username) {
+        return notifications.stream()
+                .filter(n -> n.getTargetUsername() == null || n.getTargetUsername().equals(username))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public long getUnreadCountForUser(String username) {
+        return notifications.stream()
+                .filter(n -> n.getTargetUsername() == null || n.getTargetUsername().equals(username))
+                .filter(n -> !n.isRead())
+                .count();
+    }
+
     public void addNotification(String message, String targetUrl) {
         long id = idGenerator.getAndIncrement();
-        notifications.add(0, new AppNotification(id, message, "Just now", targetUrl));
+        notifications.add(0, new AppNotification(id, message, "Just now", targetUrl, null));
+    }
+
+    public void addNotification(String message, String targetUrl, String targetUsername) {
+        long id = idGenerator.getAndIncrement();
+        notifications.add(0, new AppNotification(id, message, "Just now", targetUrl, targetUsername));
     }
 
     public void markAllAsRead() { notifications.forEach(n -> n.setRead(true)); }
 
+    public void markAllAsReadForUser(String username) {
+        notifications.stream()
+                .filter(n -> n.getTargetUsername() == null || n.getTargetUsername().equals(username))
+                .forEach(n -> n.setRead(true));
+    }
+
     public void dismissNotification(Long id) { notifications.removeIf(n -> n.getId().equals(id)); }
 
     public void clearAll() { notifications.clear(); }
+
+    public void clearAllForUser(String username) {
+        notifications.removeIf(n -> n.getTargetUsername() == null || n.getTargetUsername().equals(username));
+    }
 
     public void notifyInterviewerAssigned(Interview interview) {
         if (interview.getInterviewer() != null) {
@@ -102,7 +137,8 @@ public class NotificationService {
         String candidateEmail = interview.getCandidate().getEmail();
         String jobTitle = interview.getJobVacancy() != null ? interview.getJobVacancy().getTitle() : "the position";
         String timeStr = formatTime(interview);
-        String location = interview.getLocation();
+        String mode = extractMode(interview.getLocation());
+        String location = cleanLocation(interview.getLocation());
         String ics = buildIcsContent(interview, "Interview Invitation: " + jobTitle + " — " + candidateName);
 
         // Email to candidate
@@ -110,6 +146,7 @@ public class NotificationService {
         String candidateBody = "Dear " + candidateName + ",\n\n"
                 + "We are pleased to invite you for an interview for the role of " + jobTitle + ".\n\n"
                 + "📅 Date & Time : " + timeStr + "\n"
+                + "💻 Mode        : " + mode + "\n"
                 + "📍 Location    : " + location + "\n\n"
                 + "A calendar invite is attached to this email. Please accept it to add the interview to your calendar.\n\n"
                 + "Please reply to confirm your attendance. If you are unable to make it, contact us as soon as possible.\n\n"
@@ -125,6 +162,7 @@ public class NotificationService {
             String interviewerBody = "Dear " + interviewerName + ",\n\n"
                     + "You have been assigned to interview " + candidateName + " for the role of " + jobTitle + ".\n\n"
                     + "📅 Date & Time : " + timeStr + "\n"
+                    + "💻 Mode        : " + mode + "\n"
                     + "📍 Location    : " + location + "\n\n"
                     + "A calendar invite is attached. Please review the candidate's profile in the STIE system before the interview.\n\n"
                     + "Best Regards,\nHR Department";
@@ -157,7 +195,8 @@ public class NotificationService {
         String candidateEmail = interview.getCandidate().getEmail();
         String jobTitle = interview.getJobVacancy() != null ? interview.getJobVacancy().getTitle() : "the position";
         String timeStr = formatTime(interview);
-        String location = interview.getLocation();
+        String mode = extractMode(interview.getLocation());
+        String location = cleanLocation(interview.getLocation());
         String ics = buildIcsContent(interview, "REMINDER: Interview — " + jobTitle + " — " + candidateName);
 
         // Candidate reminder
@@ -165,6 +204,7 @@ public class NotificationService {
         String candidateBody = "Dear " + candidateName + ",\n\n"
                 + "This is a friendly reminder that your interview is scheduled for tomorrow.\n\n"
                 + "📅 Date & Time : " + timeStr + "\n"
+                + "💻 Mode        : " + mode + "\n"
                 + "📍 Location    : " + location + "\n\n"
                 + "Please ensure you are prepared. If you cannot attend, notify HR immediately.\n\n"
                 + "Best Regards,\nHR Department";
@@ -178,6 +218,7 @@ public class NotificationService {
             String interviewerBody = "Dear Interviewer,\n\n"
                     + "Reminder: You are interviewing " + candidateName + " for " + jobTitle + " tomorrow.\n\n"
                     + "📅 Date & Time : " + timeStr + "\n"
+                    + "💻 Mode        : " + mode + "\n"
                     + "📍 Location    : " + location + "\n\n"
                     + "Please review the candidate's profile in the STIE before the session.\n\n"
                     + "Best Regards,\nHR Department";
@@ -380,6 +421,26 @@ public class NotificationService {
         if (interview.getInterviewTime() == null) return "TBD";
         return interview.getInterviewTime()
                 .format(DateTimeFormatter.ofPattern("EEEE, dd MMM yyyy 'at' HH:mm"));
+    }
+
+    private String extractMode(String location) {
+        if (location != null && location.startsWith("[")) {
+            int endIndex = location.indexOf("]");
+            if (endIndex > 0) {
+                return location.substring(1, endIndex);
+            }
+        }
+        return "Not Specified";
+    }
+
+    private String cleanLocation(String location) {
+        if (location != null && location.startsWith("[")) {
+            int endIndex = location.indexOf("]");
+            if (endIndex > 0 && location.length() > endIndex + 1) {
+                return location.substring(endIndex + 1).trim();
+            }
+        }
+        return location != null ? location : "TBD";
     }
 
     // ─────────────────────────────────────────────────────────────────────────

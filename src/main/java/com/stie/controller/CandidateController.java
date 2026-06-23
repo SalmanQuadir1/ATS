@@ -40,6 +40,9 @@ public class CandidateController {
     private com.stie.service.ScorecardService scorecardService;
 
     @Autowired
+    private com.stie.service.InterviewService interviewService;
+
+    @Autowired
     private com.stie.service.UserService userService;
 
     private String getCurrentUser() {
@@ -84,7 +87,9 @@ public class CandidateController {
                     certifications, hasSecurityLicense, workPermitEligible, rankJobId, jobId, status));
             model.addAttribute("isSearch", true);
         } else {
-            Page<Candidate> candidatePage = candidateService.getAllCandidates(PageRequest.of(page, 10));
+            org.springframework.data.domain.Page<Candidate> candidatePage = candidateService.getAllCandidates(
+                org.springframework.data.domain.PageRequest.of(page, 10, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"))
+            );
             model.addAttribute("candidates", candidatePage.getContent());
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", candidatePage.getTotalPages());
@@ -266,11 +271,15 @@ public class CandidateController {
             @RequestParam CandidateApplication.AppStatus status,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
 
-        boolean updated = applicationService.updateApplicationStatus(appId, status, getCurrentUser());
-        if (updated) {
-            redirectAttributes.addFlashAttribute("success", "Application status updated to " + status + ".");
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Application not found.");
+        try {
+            boolean updated = applicationService.updateApplicationStatus(appId, status, getCurrentUser());
+            if (updated) {
+                redirectAttributes.addFlashAttribute("success", "Application status updated to " + status + ".");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Application not found.");
+            }
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/candidates/" + id;
     }
@@ -319,16 +328,20 @@ public class CandidateController {
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         Candidate candidate = candidateService.findById(id).orElse(null);
         if (candidate != null) {
-            candidateService.updateStatus(id, status);
-            auditService.log("CANDIDATE_STATUS_CHANGE", getCurrentUser(), "Candidate", id, "New Status: " + status);
-            // Notify candidate by email
             try {
-                CandidateApplication.AppStatus appStatus = CandidateApplication.AppStatus.valueOf(status.name());
-                String jobTitle = candidate.getJobVacancy() != null ? candidate.getJobVacancy().getTitle() : null;
-                notificationService.sendApplicationStatusUpdateEmail(
-                        candidate.getEmail(), candidate.getFullName(), jobTitle, appStatus);
-            } catch (Exception ignored) {}
-            redirectAttributes.addFlashAttribute("success", "Candidate status updated to " + status);
+                candidateService.updateStatus(id, status);
+                auditService.log("CANDIDATE_STATUS_CHANGE", getCurrentUser(), "Candidate", id, "New Status: " + status);
+                // Notify candidate by email
+                try {
+                    CandidateApplication.AppStatus appStatus = CandidateApplication.AppStatus.valueOf(status.name());
+                    String jobTitle = candidate.getJobVacancy() != null ? candidate.getJobVacancy().getTitle() : null;
+                    notificationService.sendApplicationStatusUpdateEmail(
+                            candidate.getEmail(), candidate.getFullName(), jobTitle, appStatus);
+                } catch (Exception ignored) {}
+                redirectAttributes.addFlashAttribute("success", "Candidate status updated to " + status);
+            } catch (IllegalArgumentException e) {
+                redirectAttributes.addFlashAttribute("error", e.getMessage());
+            }
         } else {
             redirectAttributes.addFlashAttribute("error", "Candidate not found.");
         }
@@ -522,20 +535,53 @@ public class CandidateController {
     @GetMapping("/kanban")
     public String showKanban(Model model) {
         model.addAttribute("pageTitle", "Pipeline Stage Kanban Board");
-        model.addAttribute("candidates", candidateService.getAllCandidates(PageRequest.of(0, 1000)).getContent());
+        
+        List<Candidate> candidates = candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 1000, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"))).getContent();
+        model.addAttribute("candidates", candidates);
         model.addAttribute("jobs", jobService.getAllVacancies());
         model.addAttribute("statuses", Candidate.CandidateStatus.values());
+        
+        java.util.Set<Long> completedInterviewCandidateIds = candidates.stream()
+            .filter(c -> c.getStatus() == Candidate.CandidateStatus.INTERVIEW)
+            .filter(c -> {
+                java.util.List<com.stie.model.InterviewScorecard> scorecards = scorecardService.getScorecardsByCandidate(c.getId());
+                if (!scorecards.isEmpty()) return true;
+                java.util.List<com.stie.model.Interview> interviews = interviewService.getInterviewsByCandidate(c.getId());
+                return interviews.stream().anyMatch(i -> i.getStatus() == com.stie.model.Interview.InterviewStatus.COMPLETED || (i.getFeedback() != null && !i.getFeedback().trim().isEmpty()));
+            })
+            .map(Candidate::getId)
+            .collect(java.util.stream.Collectors.toSet());
+        model.addAttribute("completedInterviewCandidateIds", completedInterviewCandidateIds);
+
+        com.stie.model.Tenant currentSite = userService.getCurrentSite();
+        model.addAttribute("interviewers", currentSite != null
+                ? userService.getUsersBySite(currentSite).stream()
+                    .filter(u -> u.getRole() != null && u.getRole().contains("INTERVIEWER"))
+                    .collect(java.util.stream.Collectors.toList())
+                : java.util.Collections.emptyList());
+                
         return "candidates-kanban";
     }
 
     @PostMapping("/{id}/move")
-    public String moveCandidate(@PathVariable Long id, @RequestParam("status") String statusStr,
+    public String moveCandidate(@PathVariable Long id, 
+            @RequestParam("status") String statusStr,
+            @RequestParam(value="interviewerId", required=false) Long interviewerId,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
             Candidate.CandidateStatus status = Candidate.CandidateStatus.valueOf(statusStr.toUpperCase());
             candidateService.updateStatus(id, status);
             auditService.log("CANDIDATE_STAGE_SHIFT", getCurrentUser(), "Candidate", id,
                     "Moved to pipeline stage: " + status);
+            
+            if (status == Candidate.CandidateStatus.INTERVIEW && interviewerId != null) {
+                com.stie.model.User interviewer = userService.findById(interviewerId);
+                if (interviewer != null) {
+                    candidateService.assignInterviewer(id, interviewer);
+                    auditService.log("CANDIDATE_FORWARDED", getCurrentUser(), "Candidate", id, "Forwarded to Interviewer: " + (interviewer.getDisplayName() != null ? interviewer.getDisplayName() : interviewer.getUsername()));
+                    notificationService.addNotification("You have been assigned to interview candidate " + candidateService.findById(id).get().getFullName(), "http://localhost:8080/candidates/" + id, interviewer.getUsername());
+                }
+            }
             // Notify candidate by email
             Candidate candidate = candidateService.findById(id).orElse(null);
             if (candidate != null) {

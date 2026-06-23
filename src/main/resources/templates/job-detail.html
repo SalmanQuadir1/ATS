@@ -15,9 +15,21 @@
                     <h3 class="text-3xl font-bold text-slate-800" th:text="${job.title}">Senior Java Developer</h3>
                     <p class="text-slate-500 mt-1" th:text="${job.department}">Engineering Department</p>
                 </div>
-                <div class="flex space-x-2">
+                <div class="flex items-center space-x-2">
+                    <span th:if="${job.isExpired()}" 
+                          class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold uppercase tracking-wider">EXPIRED</span>
+                    <span th:if="${!job.isExpired() and job.active != null and !job.active}" 
+                          class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold uppercase tracking-wider">INACTIVE</span>
                     <span th:classappend="${job.status == T(com.stie.model.JobVacancy.JobStatus).OPEN ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600'}" 
                           class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider" th:text="${job.status}">OPEN</span>
+                    <!-- Toggle Active Form -->
+                    <form th:if="${!job.isExpired()}" th:action="@{/jobs/{id}/toggle-active(id=${job.id})}" method="POST" sec:authorize="hasAuthority('MANAGE_JOBS') or hasAuthority('CREATE_JOBS')">
+                        <button type="submit" 
+                                th:classappend="${job.active != null and job.active ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'}"
+                                class="px-4 py-2 rounded-xl text-xs font-bold transition-colors">
+                            <span th:text="${job.active != null and job.active ? 'Deactivate' : 'Activate'}"></span>
+                        </button>
+                    </form>
                 </div>
             </div>
 

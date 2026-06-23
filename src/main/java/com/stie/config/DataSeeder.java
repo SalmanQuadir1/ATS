@@ -367,9 +367,6 @@ public class DataSeeder implements CommandLineRunner {
             return roleRepo.save(new Role(name, permissions, isSystemRole));
         }
         Role first = existing.get(0);
-        // Update permissions on system roles to ensure they're always current
-        first.setPermissions(permissions);
-        roleRepo.save(first);
         // Delete any duplicate roles (keep only first)
         for (int i = 1; i < existing.size(); i++) {
             roleRepo.delete(existing.get(i));

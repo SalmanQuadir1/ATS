@@ -109,6 +109,12 @@ public class CandidateApplicationService {
 
         CandidateApplication app = optApp.get();
         AppStatus oldStatus = app.getStatus();
+        
+        if (oldStatus == AppStatus.SHORTLISTED && 
+           (newStatus == AppStatus.OFFERED || newStatus == AppStatus.HIRED)) {
+            throw new IllegalArgumentException("Cannot transition directly from SHORTLISTED to OFFERED or HIRED without an INTERVIEW.");
+        }
+
         app.setStatus(newStatus);
         applicationRepository.save(app);
 

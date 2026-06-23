@@ -48,6 +48,10 @@ public class CandidateService {
     public void updateStatus(Long id, Candidate.CandidateStatus status) {
         Tenant tenant = userService.getCurrentTenant();
         repository.findById(id).filter(c -> tenant == null || c.getTenant() == null || (tenant.getId() != null && tenant.getId().equals(c.getTenant().getId()))).ifPresent(c -> {
+            if (c.getStatus() == Candidate.CandidateStatus.SHORTLISTED && 
+               (status == Candidate.CandidateStatus.OFFERED || status == Candidate.CandidateStatus.HIRED)) {
+                throw new IllegalArgumentException("Cannot transition directly from SHORTLISTED to OFFERED or HIRED without an INTERVIEW.");
+            }
             c.setStatus(status);
             repository.save(c);
             auditService.log("CANDIDATE_STATUS_UPDATED", "HR_User", "Candidate", id, "Status changed to: " + status);
@@ -62,6 +66,14 @@ public class CandidateService {
         Tenant tenant = userService.getCurrentTenant();
         repository.findById(id).filter(c -> tenant == null || c.getTenant() == null || (tenant.getId() != null && tenant.getId().equals(c.getTenant().getId()))).ifPresent(c -> {
             c.setSharedWithHM(shared);
+            repository.save(c);
+        });
+    }
+
+    public void assignInterviewer(Long id, com.stie.model.User interviewer) {
+        Tenant tenant = userService.getCurrentTenant();
+        repository.findById(id).filter(c -> tenant == null || c.getTenant() == null || (tenant.getId() != null && tenant.getId().equals(c.getTenant().getId()))).ifPresent(c -> {
+            c.setAssignedInterviewer(interviewer);
             repository.save(c);
         });
     }
