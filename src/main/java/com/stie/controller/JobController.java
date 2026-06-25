@@ -123,6 +123,31 @@ public class JobController {
         return "jobs";
     }
 
+    @GetMapping("/hired-records")
+    public String viewHiredRecords(Model model) {
+        model.addAttribute("pageTitle", "Hired Records Summary");
+        java.util.List<JobVacancy> allJobs = jobService.getAllVacancies();
+        java.util.List<com.stie.model.Candidate> allCandidates = candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 10000)).getContent();
+        
+        java.util.Map<JobVacancy, java.util.List<com.stie.model.Candidate>> hiredMap = new java.util.LinkedHashMap<>();
+        
+        for (JobVacancy job : allJobs) {
+            java.util.List<com.stie.model.Candidate> hiredForJob = allCandidates.stream()
+                .filter(c -> c.getStatus() == com.stie.model.Candidate.CandidateStatus.HIRED && c.getJobVacancy() != null && c.getJobVacancy().getId().equals(job.getId()))
+                .collect(Collectors.toList());
+            hiredMap.put(job, hiredForJob);
+        }
+        
+        java.util.List<com.stie.model.Candidate> generalHired = allCandidates.stream()
+            .filter(c -> c.getStatus() == com.stie.model.Candidate.CandidateStatus.HIRED && c.getJobVacancy() == null)
+            .collect(Collectors.toList());
+            
+        model.addAttribute("hiredMap", hiredMap);
+        model.addAttribute("generalHired", generalHired);
+        
+        return "hired-records";
+    }
+
     @GetMapping("/jobs/new")
     public String showCreateForm(Model model) {
         com.stie.model.User user = userService.getCurrentUser();

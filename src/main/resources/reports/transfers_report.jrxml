@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" 
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" 
+              name="TransfersReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e634b84d-176f-474c-83b6-cb82b3d11b35">
+    
+    <field name="candidateName" class="java.lang.String"/>
+    <field name="fromSite" class="java.lang.String"/>
+    <field name="toSite" class="java.lang.String"/>
+    <field name="requestedBy" class="java.lang.String"/>
+    <field name="status" class="java.lang.String"/>
+    
+    <title>
+        <band height="50">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="30" uuid="f613f898-d107-4e6f-b1b7-7e62a8c3d79c"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Candidate Transfers Report]]></text>
+            </staticText>
+        </band>
+    </title>
+    
+    <columnHeader>
+        <band height="30">
+            <staticText>
+                <reportElement x="0" y="0" width="130" height="30" uuid="dd41b312-d023-4589-a292-6f296313361f"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Candidate Name]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="130" y="0" width="120" height="30" uuid="4d8e5f90-1c32-47dc-a843-16f393847e9b"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[From Site]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="250" y="0" width="120" height="30" uuid="d2f0f4a8-6b2c-4ec7-9f60-d2cf7d7f7633"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[To Site]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="370" y="0" width="105" height="30" uuid="528a1c97-6a77-4cf3-a612-421712a67bc5"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Requested By]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="475" y="0" width="80" height="30" uuid="7f08129e-21ea-42ec-a06f-12c8b74c2d34"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <text><![CDATA[Status]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+    
+    <detail>
+        <band height="20">
+            <textField>
+                <reportElement x="0" y="0" width="130" height="20" uuid="ef19f5a1-77e8-4ec8-b64d-587291a1df29"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{candidateName}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="130" y="0" width="120" height="20" uuid="cf8a7c2e-4b2a-4467-8854-c9f28a2cf3e0"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{fromSite}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="250" y="0" width="120" height="20" uuid="b7f8b9e8-4621-4f93-b472-e1d87e35be0b"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{toSite}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="370" y="0" width="105" height="20" uuid="098d4d8c-79e4-4d1e-876e-5f448c3b99a1"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{requestedBy}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="475" y="0" width="80" height="20" uuid="aa1f2c3d-6b5a-4e8c-9a4f-8b212f38d39f"/>
+                <box leftPadding="5"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{status}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+    
+</jasperReport>

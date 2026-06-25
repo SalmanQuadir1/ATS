@@ -23,6 +23,10 @@ public class Candidate {
     private String education;
     private String nationality; // Singaporean, PR, Foreigner
     
+    @Column(name = "application_id", unique = true)
+    private String applicationId;
+    
+    
     @Enumerated(EnumType.STRING)
     private CandidateStatus status = CandidateStatus.APPLIED;
 
@@ -41,10 +45,43 @@ public class Candidate {
     private String projects;
     private String projectUrl;
 
+    @Column(name = "transfer_source")
+    private String transferSource;
+
+    private String offerLetterPath;
+
+    @Column(name = "signed_offer_letter_path")
+    private String signedOfferLetterPath;
+
+    @Column(name = "final_salary")
+    private Double finalSalary;
+
+    @Column(name = "joining_date")
+    private java.time.LocalDate joiningDate;
+
+    @Column(name = "hire_notes", length = 1000)
+    private String hireNotes;
+
     @Transient
     private Integer matchScore = 0; // Runtime transient field for skill matching rank
 
     private LocalDateTime appliedAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.appliedAt == null) {
+            this.appliedAt = LocalDateTime.now();
+        }
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     public Candidate() {
         this.appliedAt = LocalDateTime.now();
@@ -58,6 +95,9 @@ public class Candidate {
 
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
+
+    public String getApplicationId() { return applicationId; }
+    public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
@@ -104,6 +144,9 @@ public class Candidate {
     public LocalDateTime getAppliedAt() { return appliedAt; }
     public void setAppliedAt(LocalDateTime appliedAt) { this.appliedAt = appliedAt; }
 
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
     public String getTaggedRoles() { return taggedRoles; }
     public void setTaggedRoles(String taggedRoles) { this.taggedRoles = taggedRoles; }
 
@@ -118,6 +161,24 @@ public class Candidate {
 
     public String getProjectUrl() { return projectUrl; }
     public void setProjectUrl(String projectUrl) { this.projectUrl = projectUrl; }
+
+    public String getOfferLetterPath() { return offerLetterPath; }
+    public void setOfferLetterPath(String offerLetterPath) { this.offerLetterPath = offerLetterPath; }
+
+    public String getSignedOfferLetterPath() { return signedOfferLetterPath; }
+    public void setSignedOfferLetterPath(String signedOfferLetterPath) { this.signedOfferLetterPath = signedOfferLetterPath; }
+
+    public Double getFinalSalary() { return finalSalary; }
+    public void setFinalSalary(Double finalSalary) { this.finalSalary = finalSalary; }
+
+    public java.time.LocalDate getJoiningDate() { return joiningDate; }
+    public void setJoiningDate(java.time.LocalDate joiningDate) { this.joiningDate = joiningDate; }
+
+    public String getHireNotes() { return hireNotes; }
+    public void setHireNotes(String hireNotes) { this.hireNotes = hireNotes; }
+
+    public String getTransferSource() { return transferSource; }
+    public void setTransferSource(String transferSource) { this.transferSource = transferSource; }
 
     @ManyToOne
     @JoinColumn(name = "tenant_id")

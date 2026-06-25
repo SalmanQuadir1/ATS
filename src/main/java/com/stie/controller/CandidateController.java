@@ -95,6 +95,56 @@ public class CandidateController {
             model.addAttribute("totalPages", candidatePage.getTotalPages());
             model.addAttribute("isSearch", false);
         }
+        model.addAttribute("isCandidateDatabase", true);
+        return "candidates";
+    }
+
+    @GetMapping("/applications")
+    public String listApplications(@RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "nationality", required = false) String nationality,
+            @RequestParam(value = "minExp", required = false) Integer minExp,
+            @RequestParam(value = "maxSalary", required = false) Integer maxSalary,
+            @RequestParam(value = "certifications", required = false) String certifications,
+            @RequestParam(value = "hasSecurityLicense", required = false) Boolean hasSecurityLicense,
+            @RequestParam(value = "workPermitEligible", required = false) Boolean workPermitEligible,
+            @RequestParam(value = "rankJobId", required = false) Long rankJobId,
+            @RequestParam(value = "jobId", required = false) Long jobId,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+        model.addAttribute("pageTitle", "Job Applications");
+        model.addAttribute("jobs", jobService.getAllVacancies());
+        model.addAttribute("statuses", Candidate.CandidateStatus.values());
+
+        boolean hasFilters = (search != null && !search.isEmpty()) ||
+                (nationality != null && !nationality.isEmpty()) ||
+                (minExp != null && minExp > 0) ||
+                (maxSalary != null && maxSalary > 0) ||
+                (certifications != null && !certifications.isEmpty()) ||
+                (hasSecurityLicense != null && hasSecurityLicense) ||
+                (workPermitEligible != null && workPermitEligible) ||
+                (rankJobId != null && rankJobId > 0) ||
+                (jobId != null && jobId > 0) ||
+                (status != null && !status.isEmpty());
+
+        if (hasFilters) {
+            List<Candidate> filtered = candidateService.search(search, nationality, minExp, maxSalary,
+                    certifications, hasSecurityLicense, workPermitEligible, rankJobId, jobId, status)
+                    .stream()
+                    .filter(c -> c.getJobVacancy() != null)
+                    .collect(java.util.stream.Collectors.toList());
+            model.addAttribute("candidates", filtered);
+            model.addAttribute("isSearch", true);
+        } else {
+            org.springframework.data.domain.Page<Candidate> candidatePage = candidateService.getApplications(
+                org.springframework.data.domain.PageRequest.of(page, 10, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"))
+            );
+            model.addAttribute("candidates", candidatePage.getContent());
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", candidatePage.getTotalPages());
+            model.addAttribute("isSearch", false);
+        }
+        model.addAttribute("isCandidateDatabase", false);
         return "candidates";
     }
 
@@ -194,7 +244,9 @@ public class CandidateController {
     // =========================================================================
 
     @GetMapping("/{id}")
-    public String viewCandidate(@PathVariable Long id, Model model,
+    public String viewCandidate(@PathVariable Long id, 
+            @RequestParam(required = false, defaultValue = "false") boolean fromDb,
+            Model model,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         Candidate candidate = candidateService.findById(id).orElse(null);
 
@@ -223,9 +275,10 @@ public class CandidateController {
         model.addAttribute("notes", notes);
         model.addAttribute("scorecards", scorecardService.getScorecardsByCandidate(id));
         model.addAttribute("applications", applications);
-        model.addAttribute("jobs", jobService.getAllVacancies());
+        model.addAttribute("jobs", jobService.getAllVacanciesAcrossTenants());
         model.addAttribute("appSources", CandidateApplication.ApplicationSource.values());
         model.addAttribute("appStatuses", CandidateApplication.AppStatus.values());
+        model.addAttribute("fromDb", fromDb);
         return "candidate-detail";
     }
 
@@ -332,12 +385,14 @@ public class CandidateController {
                 candidateService.updateStatus(id, status);
                 auditService.log("CANDIDATE_STATUS_CHANGE", getCurrentUser(), "Candidate", id, "New Status: " + status);
                 // Notify candidate by email
-                try {
-                    CandidateApplication.AppStatus appStatus = CandidateApplication.AppStatus.valueOf(status.name());
-                    String jobTitle = candidate.getJobVacancy() != null ? candidate.getJobVacancy().getTitle() : null;
-                    notificationService.sendApplicationStatusUpdateEmail(
-                            candidate.getEmail(), candidate.getFullName(), jobTitle, appStatus);
-                } catch (Exception ignored) {}
+                if (status != Candidate.CandidateStatus.SHORTLISTED) {
+                    try {
+                        CandidateApplication.AppStatus appStatus = CandidateApplication.AppStatus.valueOf(status.name());
+                        String jobTitle = candidate.getJobVacancy() != null ? candidate.getJobVacancy().getTitle() : null;
+                        notificationService.sendApplicationStatusUpdateEmail(
+                                candidate.getEmail(), candidate.getFullName(), jobTitle, appStatus);
+                    } catch (Exception ignored) {}
+                }
                 redirectAttributes.addFlashAttribute("success", "Candidate status updated to " + status);
             } catch (IllegalArgumentException e) {
                 redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -536,7 +591,7 @@ public class CandidateController {
     public String showKanban(Model model) {
         model.addAttribute("pageTitle", "Pipeline Stage Kanban Board");
         
-        List<Candidate> candidates = candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 1000, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"))).getContent();
+        List<Candidate> candidates = candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 1000, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "updatedAt"))).getContent();
         model.addAttribute("candidates", candidates);
         model.addAttribute("jobs", jobService.getAllVacancies());
         model.addAttribute("statuses", Candidate.CandidateStatus.values());
@@ -584,7 +639,7 @@ public class CandidateController {
             }
             // Notify candidate by email
             Candidate candidate = candidateService.findById(id).orElse(null);
-            if (candidate != null) {
+            if (candidate != null && status != Candidate.CandidateStatus.SHORTLISTED) {
                 try {
                     CandidateApplication.AppStatus appStatus = CandidateApplication.AppStatus.valueOf(status.name());
                     String jobTitle = candidate.getJobVacancy() != null ? candidate.getJobVacancy().getTitle() : null;
@@ -597,5 +652,84 @@ public class CandidateController {
             redirectAttributes.addFlashAttribute("error", "Failed to shift stage: " + e.getMessage());
         }
         return "redirect:/candidates/kanban";
+    }
+
+    @GetMapping("/hire/{id}")
+    public String showHireForm(@PathVariable Long id, Model model) {
+        Candidate candidate = candidateService.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid candidate id: " + id));
+        model.addAttribute("candidate", candidate);
+        model.addAttribute("pageTitle", "Finalize Hire Details");
+        return "hire-form";
+    }
+
+    @PostMapping("/hire")
+    public String processHire(
+            @RequestParam Long candidateId,
+            @RequestParam Double finalSalary,
+            @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate joiningDate,
+            @RequestParam(required = false) String hireNotes,
+            @RequestParam(value = "signedOfferFile", required = false) MultipartFile signedOfferFile,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+
+        Candidate candidate = candidateService.findById(candidateId).orElseThrow(() -> new IllegalArgumentException("Invalid candidate id: " + candidateId));
+        
+        candidate.setFinalSalary(finalSalary);
+        candidate.setJoiningDate(joiningDate);
+        candidate.setHireNotes(hireNotes);
+        
+        if (signedOfferFile != null && !signedOfferFile.isEmpty()) {
+            try {
+                String uploadDir = "uploads/offers/signed/";
+                java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
+                if (!java.nio.file.Files.exists(uploadPath)) {
+                    java.nio.file.Files.createDirectories(uploadPath);
+                }
+                String filename = java.util.UUID.randomUUID().toString() + "_" + org.springframework.util.StringUtils.cleanPath(signedOfferFile.getOriginalFilename());
+                java.nio.file.Path filePath = uploadPath.resolve(filename);
+            try (java.io.InputStream is = signedOfferFile.getInputStream()) {
+                java.nio.file.Files.copy(is, filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }
+                candidate.setSignedOfferLetterPath("offers/signed/" + filename);
+            } catch (java.io.IOException e) {
+                redirectAttributes.addFlashAttribute("error", "Failed to upload signed offer letter.");
+                return "redirect:/candidates/hire/" + candidateId;
+            }
+        }
+
+        candidate.setStatus(Candidate.CandidateStatus.HIRED);
+        
+        candidateService.saveCandidate(candidate);
+
+        // Optionally send a notification here
+        
+        auditService.log("CANDIDATE_HIRED", getCurrentUser(), "Candidate", candidateId, 
+            "Candidate hired with final salary $" + finalSalary + ", joining " + joiningDate);
+
+        redirectAttributes.addFlashAttribute("success", "Candidate hired successfully with final details.");
+        return "redirect:/candidates/kanban";
+    }
+
+    @GetMapping("/view-offer/{id}")
+    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> viewOfferLetter(@PathVariable Long id) {
+        Candidate candidate = candidateService.findById(id).orElse(null);
+        if (candidate == null || candidate.getOfferLetterPath() == null) {
+            return org.springframework.http.ResponseEntity.notFound().build();
+        }
+
+        try {
+            java.nio.file.Path file = java.nio.file.Paths.get("uploads/offers/").resolve(candidate.getOfferLetterPath());
+            org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(file.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                return org.springframework.http.ResponseEntity.ok()
+                        .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                        .body(resource);
+            } else {
+                return org.springframework.http.ResponseEntity.notFound().build();
+            }
+        } catch (java.net.MalformedURLException e) {
+            return org.springframework.http.ResponseEntity.internalServerError().build();
+        }
     }
 }

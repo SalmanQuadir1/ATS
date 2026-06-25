@@ -54,8 +54,8 @@ public class WalkInController {
         model.addAttribute("candidate", new Candidate());
         model.addAttribute("branding", brandingService.getBranding(tenant));
         
-        // Pass all active jobs to the view for the dropdown
-        model.addAttribute("activeJobs", jobService.getOpenJobsForTenant(tenant));
+        // Pass all active jobs across all sites to the view for the dropdown
+        model.addAttribute("activeJobs", jobService.getAllOpenJobsAcrossTenants());
             
         if (jobId != null) {
             model.addAttribute("applyingJob", jobService.getJobById(jobId));
@@ -81,6 +81,11 @@ public class WalkInController {
             if (tenant == null && job != null) {
                 tenant = job.getTenant();
             }
+        } else {
+            model.addAttribute("error", "Please select a job vacancy.");
+            model.addAttribute("candidate", candidate);
+            model.addAttribute("activeJobs", jobService.getAllOpenJobsAcrossTenants());
+            return "walkin";
         }
 
         model.addAttribute("tenant", tenant);
@@ -98,10 +103,10 @@ public class WalkInController {
         }
 
         if (photo != null && !photo.isEmpty()) {
-            try {
+            try (java.io.InputStream is = photo.getInputStream()) {
                 String fileName = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
                 Path filePath = uploadPath.resolve(fileName);
-                Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
                 candidate.setPhotoPath(fileName);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -109,10 +114,10 @@ public class WalkInController {
         }
 
         if (resume != null && !resume.isEmpty()) {
-            try {
+            try (java.io.InputStream is = resume.getInputStream()) {
                 String fileName = UUID.randomUUID().toString() + "_" + resume.getOriginalFilename();
                 Path filePath = uploadPath.resolve(fileName);
-                Files.copy(resume.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
                 candidate.setResumePath(fileName);
             } catch (IOException e) {
                 e.printStackTrace();

@@ -57,8 +57,7 @@ public class NotificationService {
             new java.util.concurrent.atomic.AtomicLong(3);
 
     static {
-        notifications.add(new AppNotification(1L, "New S-Pass candidate registered: John Tan", "10m ago", "/candidates/1", null));
-        notifications.add(new AppNotification(2L, "Manpower request approval needed: Senior Java Developer", "1h ago", "/jobs", null));
+        // No default notifications
     }
 
     public java.util.List<AppNotification> getNotifications() { return notifications; }
@@ -156,8 +155,9 @@ public class NotificationService {
 
         // Email to interviewer (if assigned)
         if (interview.getInterviewer() != null) {
-            String interviewerEmail = interview.getInterviewer().getUsername(); // username = email
-            String interviewerName = interview.getInterviewer().getUsername();
+            String interviewerEmail = interview.getInterviewer().getEmail();
+            if (interviewerEmail == null || interviewerEmail.isEmpty()) interviewerEmail = interview.getInterviewer().getUsername();
+            String interviewerName = interview.getInterviewer().getDisplayName() != null ? interview.getInterviewer().getDisplayName() : interview.getInterviewer().getUsername();
             String interviewerSubject = "Interview Scheduled: " + candidateName + " — " + jobTitle;
             String interviewerBody = "Dear " + interviewerName + ",\n\n"
                     + "You have been assigned to interview " + candidateName + " for the role of " + jobTitle + ".\n\n"
@@ -213,7 +213,8 @@ public class NotificationService {
 
         // Interviewer reminder
         if (interview.getInterviewer() != null) {
-            String interviewerEmail = interview.getInterviewer().getUsername();
+            String interviewerEmail = interview.getInterviewer().getEmail();
+            if (interviewerEmail == null || interviewerEmail.isEmpty()) interviewerEmail = interview.getInterviewer().getUsername();
             String interviewerSubject = "⏰ Interview Reminder: " + candidateName + " — Tomorrow";
             String interviewerBody = "Dear Interviewer,\n\n"
                     + "Reminder: You are interviewing " + candidateName + " for " + jobTitle + " tomorrow.\n\n"

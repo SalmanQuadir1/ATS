@@ -21,16 +21,22 @@
                             </div>
                             <div class="ml-6">
                                 <h3 class="text-3xl font-bold text-slate-800" th:text="${candidate.fullName}">John Doe</h3>
-                                <p class="text-slate-500" th:text="${candidate.email}">john.doe@example.com</p>
+                                <p class="text-slate-500">
+                                    <span th:if="${candidate.applicationId != null}" class="font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-xs mr-2" th:text="${candidate.applicationId}">APP-X</span>
+                                    <span th:text="${candidate.email}">john.doe@example.com</span>
+                                </p>
                                 <div class="flex flex-wrap gap-2 mt-3">
                                     <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-full" th:text="${candidate.nationality}">Singaporean</span>
                                     <span class="px-3 py-1 bg-slate-50 text-slate-600 text-xs font-bold rounded-full" th:text="${candidate.experienceYears + ' Yrs Exp'}">5 Yrs Exp</span>
                                     <span th:if="${applications != null && !applications.isEmpty()}"
                                           class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full"
                                           th:text="${applications.size() + (applications.size() == 1 ? ' Application' : ' Applications')}">3 Applications</span>
-                                    <span th:if="${candidate.jobVacancy != null}" class="px-3 py-1 bg-teal-50 text-teal-600 text-xs font-bold rounded-full inline-flex items-center gap-1">
+                                     <span th:if="${candidate.jobVacancy != null}" class="px-3 py-1 bg-teal-50 text-teal-600 text-xs font-bold rounded-full inline-flex items-center gap-1">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                        <span th:text="${candidate.jobVacancy.title}">Job Title</span>
+                                        <span th:text="${candidate.jobVacancy.title} + ' (' + (${candidate.jobVacancy.department != null ? candidate.jobVacancy.department : 'General'}) + ')'">Job Title</span>
+                                    </span>
+                                    <span th:if="${candidate.transferSource != null}" class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full inline-flex items-center gap-1" th:text="${candidate.transferSource}">
+                                        Transferred from Site A
                                     </span>
                                     <span th:each="role : ${#strings.arraySplit(candidate.taggedRoles, ',')}" class="px-3 py-1 bg-teal-50 text-teal-600 text-xs font-bold rounded-full" th:text="${role.trim()}">Security Guard</span>
                                     <button onclick="document.getElementById('editModal').classList.remove('hidden')" 
@@ -38,10 +44,22 @@
                                             class="px-3 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-full hover:bg-amber-100 transition-colors">
                                         Edit Details
                                     </button>
+                                    <button onclick="document.getElementById('transferModal').classList.remove('hidden')" 
+                                            sec:authorize="hasAnyRole('ADMIN', 'HR')"
+                                            th:if="${candidate.status == T(com.stie.model.Candidate.CandidateStatus).HIRED}"
+                                            class="px-3 py-1 bg-fuchsia-50 text-fuchsia-600 text-xs font-bold rounded-full hover:bg-fuchsia-100 transition-colors inline-flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                        Transfer
+                                    </button>
                                     <a th:if="${candidate.resumePath != null}" th:href="@{'/uploads/' + ${candidate.resumePath}}" download target="_blank"
                                        class="px-3 py-1 bg-violet-50 text-violet-600 text-xs font-bold rounded-full hover:bg-violet-100 transition-colors inline-flex items-center gap-1">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                         Download Resume
+                                    </a>
+                                    <a th:if="${candidate.signedOfferLetterPath != null}" th:href="@{'/uploads/' + ${candidate.signedOfferLetterPath}}" target="_blank" download
+                                       class="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-full hover:bg-emerald-100 transition-colors inline-flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Signed Offer Letter
                                     </a>
                                 </div>
                             </div>
@@ -62,6 +80,14 @@
                         <div>
                             <h5 class="text-xs font-bold text-slate-400 uppercase mb-4">Expected Salary</h5>
                             <p class="text-slate-700 font-medium" th:text="${candidate.expectedSalary != null ? '$' + candidate.expectedSalary : '-'}">-</p>
+                        </div>
+                        <div th:if="${candidate.finalSalary != null}">
+                            <h5 class="text-xs font-bold text-teal-500 uppercase mb-4">Final Salary</h5>
+                            <p class="text-teal-700 font-bold" th:text="${'$' + candidate.finalSalary}">-</p>
+                        </div>
+                        <div th:if="${candidate.joiningDate != null}">
+                            <h5 class="text-xs font-bold text-teal-500 uppercase mb-4">Joining Date</h5>
+                            <p class="text-teal-700 font-bold" th:text="${#temporals.format(candidate.joiningDate, 'dd MMM yyyy')}">-</p>
                         </div>
                         <div>
                             <h5 class="text-xs font-bold text-slate-400 uppercase mb-4">Applied At</h5>
@@ -100,6 +126,10 @@
                             <h5 class="text-xs font-bold text-slate-400 uppercase mb-4">Project / Portfolio URL</h5>
                             <a th:if="${candidate.projectUrl != null && !#strings.isEmpty(candidate.projectUrl)}" th:href="${candidate.projectUrl}" target="_blank" class="text-emerald-600 font-medium hover:underline break-all" th:text="${candidate.projectUrl}">URL</a>
                             <p th:unless="${candidate.projectUrl != null && !#strings.isEmpty(candidate.projectUrl)}" class="text-slate-700 font-medium">-</p>
+                        </div>
+                        <div class="col-span-2 md:col-span-4" th:if="${candidate.hireNotes != null && !#strings.isEmpty(candidate.hireNotes)}">
+                            <h5 class="text-xs font-bold text-teal-500 uppercase mb-4">Hire Remarks</h5>
+                            <p class="text-slate-700 font-medium whitespace-pre-wrap" th:text="${candidate.hireNotes}">-</p>
                         </div>
                     </div>
                 </div>
@@ -172,6 +202,7 @@
                                   th:text="${applications.size() + ' Record(s)'}">3 Records</span>
                             <button onclick="document.getElementById('addAppModal').classList.remove('hidden')"
                                     sec:authorize="hasAnyRole('ADMIN', 'HR')"
+                                    th:if="${!fromDb}"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                 Add Application
@@ -228,7 +259,7 @@
 
                                         <!-- Quick status update -->
                                         <form th:action="@{/candidates/{cid}/applications/{aid}/status(cid=${candidate.id},aid=${app.id})}" method="POST" class="mt-2"
-                                              sec:authorize="hasAnyRole('ADMIN', 'HR')">
+                                              sec:authorize="hasAnyRole('ADMIN', 'HR')" th:if="${!fromDb}">
                                             <select name="status" onchange="this.form.submit()"
                                                     class="text-[10px] font-bold border border-slate-200 rounded-lg px-2 py-1 bg-white outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer">
                                                 <option th:each="s : ${appStatuses}" th:value="${s}" th:text="${s}" th:selected="${s == app.status}"></option>
@@ -338,7 +369,7 @@
                 </div>
 
                 <!-- Action Panel -->
-                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8" sec:authorize="hasAnyRole('ADMIN', 'HR')">
+                <div th:if="${!fromDb}" class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8" sec:authorize="hasAnyRole('ADMIN', 'HR')">
                     <h4 class="text-lg font-bold text-slate-800 mb-6">Pipeline Actions</h4>
                     <div class="space-y-3">
                         <form th:action="@{/candidates/{id}/status(id=${candidate.id})}" method="POST" class="w-full" th:if="${candidate.status == T(com.stie.model.Candidate.CandidateStatus).APPLIED or candidate.status == T(com.stie.model.Candidate.CandidateStatus).KIV}">
@@ -348,56 +379,13 @@
                         <button type="button" onclick="document.getElementById('shareModal').classList.remove('hidden')" class="w-full py-3 bg-teal-600 text-white text-center rounded-xl font-bold shadow-lg shadow-teal-100 hover:bg-teal-700 transition-colors">
                             Share with HM for Review
                         </button>
-                        <a th:if="${candidate.status != T(com.stie.model.Candidate.CandidateStatus).INTERVIEW and candidate.status != T(com.stie.model.Candidate.CandidateStatus).HIRED and candidate.status != T(com.stie.model.Candidate.CandidateStatus).REJECTED}" th:href="@{/interviews(candidateId=${candidate.id})}" class="block w-full py-3 bg-emerald-600 text-white text-center rounded-xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 transition-colors">Schedule Interview</a>
-                        <a th:if="${candidate.status != T(com.stie.model.Candidate.CandidateStatus).HIRED and candidate.status != T(com.stie.model.Candidate.CandidateStatus).REJECTED}" th:href="@{/offers/generate/{id}(id=${candidate.id})}" class="block w-full py-3 bg-teal-600 text-white text-center rounded-xl font-bold shadow-lg shadow-teal-100 hover:bg-teal-700 transition-colors">Generate Offer Letter</a>
-                        <button onclick="document.getElementById('addAppModal').classList.remove('hidden')"
-                                class="w-full py-3 bg-indigo-50 text-indigo-600 rounded-xl font-bold hover:bg-indigo-100 transition-colors">
-                            + Link to Another Job
-                        </button>
+
+
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Add Application Modal -->
-        <div id="addAppModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl">
-                <h3 class="text-xl font-bold text-slate-800 mb-2">Link to Another Job</h3>
-                <p class="text-xs text-slate-400 font-medium mb-6">Add an application record for this candidate to a different job opening.</p>
-                <form th:action="@{/candidates/{id}/applications(id=${candidate.id})}" method="POST" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Job Vacancy</label>
-                        <select name="jobVacancyId" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                            <option value="">General Pool (No Specific Job)</option>
-                            <option th:each="job : ${jobs}" th:value="${job.id}" th:text="${job.title}">Job Title</option>
-                        </select>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Source</label>
-                            <select name="source" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                                <option th:each="src : ${appSources}" th:value="${src}" th:text="${src.name().replace('_',' ')}">SOURCE</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Location / Branch</label>
-                            <input type="text" name="location" placeholder="e.g. HQ, Jurong"
-                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Notes (optional)</label>
-                        <textarea name="notes" rows="2" placeholder="Any relevant notes for this application..."
-                                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm resize-none"></textarea>
-                    </div>
-                    <div class="flex space-x-4 pt-2">
-                        <button type="button" onclick="document.getElementById('addAppModal').classList.add('hidden')"
-                                class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors">Cancel</button>
-                        <button type="submit" class="flex-1 px-4 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors">Add Application</button>
-                    </div>
-                </form>
-            </div>
-        </div>
 
         <!-- Upload Modal -->
 
@@ -526,6 +514,34 @@
                         <button type="button" onclick="document.getElementById('shareModal').classList.add('hidden')" 
                                 class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors">Cancel</button>
                         <button type="submit" class="flex-1 px-4 py-3 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors">Share Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Transfer Modal -->
+        <div id="transferModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl">
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Request Site Transfer</h3>
+                <p class="text-xs text-slate-400 font-medium mb-6">Transfer candidate to a different Job Vacancy/Site. Requires Admin approval.</p>
+                <form th:action="@{/transfers/request}" method="POST" class="space-y-4">
+                    <input type="hidden" name="candidateId" th:value="${candidate.id}" />
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Target Job Vacancy (Site)</label>
+                        <select name="targetJobId" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-fuchsia-500 text-sm">
+                            <option value="">-- Select Target Job --</option>
+                            <option th:each="job : ${jobs}" th:value="${job.id}" th:text="${job.title + ' [' + (job.tenant != null ? job.tenant.name : 'Unknown Site') + '] (' + (job.location != null ? job.location : 'General Site') + ')'}" th:if="${candidate.jobVacancy == null or job.id != candidate.jobVacancy.id}">Job Title</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Transfer Notes / Justification</label>
+                        <textarea name="notes" placeholder="Why are we transferring this candidate?" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-fuchsia-500 text-sm min-h-[80px]"></textarea>
+                    </div>
+                    <div class="flex space-x-4 pt-4">
+                        <button type="button" onclick="document.getElementById('transferModal').classList.add('hidden')" 
+                                class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors">Cancel</button>
+                        <button type="submit" class="flex-1 px-4 py-3 bg-fuchsia-600 text-white rounded-xl font-semibold hover:bg-fuchsia-700 transition-colors">Submit Request</button>
                     </div>
                 </form>
             </div>

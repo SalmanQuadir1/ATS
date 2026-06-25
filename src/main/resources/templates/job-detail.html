@@ -113,7 +113,7 @@
                         <div th:if="${job.approvalNote == null or job.approvalNote.isEmpty()}" class="text-xs text-slate-400 italic">No remarks provided yet.</div>
 
                         <!-- Action Buttons -->
-                        <div class="pt-4 border-t border-slate-200 flex flex-col gap-2" sec:authorize="hasAuthority('APPROVE_JOBS')">
+                        <div class="pt-4 border-t border-slate-200 flex flex-col gap-2" sec:authorize="hasAuthority('APPROVE_JOBS')" th:if="${job.approvalStatus.name() == 'PENDING'}">
                             <form th:action="@{/jobs/{id}/approve(id=${job.id})}" method="POST" class="w-full" id="approveForm">
                                 <input type="hidden" name="note" id="approveNote">
                                 <button type="button" onclick="openRemarksModal('Approve Job Vacancy', 'Provide approval remarks for this job vacancy:', 'approveForm', 'approveNote')"
@@ -299,85 +299,12 @@
                                 Shortlist
                             </button>
                         </form>
-                        <button th:if="${match.candidate.status == T(com.stie.model.Candidate.CandidateStatus).SHORTLISTED}"
-                                type="button" 
-                                th:onclick="openScheduleModal([[${match.candidate.id}]], [[${match.candidate.fullName}]])"
-                                class="w-full px-3 py-2 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-colors">
-                            Assign Interviewer
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Schedule Interview Modal -->
-        <div id="scheduleModal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden transform transition-all scale-95 opacity-0" id="scheduleModalContent">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="text-xl font-bold text-slate-800">Assign Interviewer</h3>
-                    <button type="button" onclick="closeScheduleModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-                <form th:action="@{/interviews/schedule}" method="POST" class="p-6">
-                    <input type="hidden" name="jobVacancyId" th:value="${job.id}">
-                    <input type="hidden" name="candidateId" id="scheduleCandidateId">
-                    
-                    <p class="text-sm text-slate-500 mb-6">Schedule an interview for <strong id="scheduleCandidateName" class="text-slate-800"></strong>.</p>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Interviewer</label>
-                            <select name="interviewerId" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm font-medium">
-                                <option value="" disabled selected>Select Interviewer</option>
-                                <option th:each="u : ${interviewers}" th:value="${u.id}" th:text="${u.displayName != null ? u.displayName : u.username}"></option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Date &amp; Time</label>
-                            <input type="datetime-local" name="time" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm font-medium">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Location / Link</label>
-                            <input type="text" name="location" placeholder="e.g. Room A or Zoom link" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm font-medium">
-                        </div>
-                    </div>
-                    
-                    <div class="mt-8 pt-6 border-t border-slate-100 flex gap-3 justify-end">
-                        <button type="button" onclick="closeScheduleModal()" class="px-5 py-2.5 text-slate-500 hover:bg-slate-50 font-bold rounded-xl transition-colors">Cancel</button>
-                        <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-100 transition-all active:scale-[0.97]">Send Invite</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <script>
-            function openScheduleModal(candidateId, candidateName) {
-                document.getElementById('scheduleCandidateId').value = candidateId;
-                document.getElementById('scheduleCandidateName').textContent = candidateName;
-                
-                const modal = document.getElementById('scheduleModal');
-                const content = document.getElementById('scheduleModalContent');
-                
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    content.classList.remove('scale-95', 'opacity-0');
-                    content.classList.add('scale-100', 'opacity-100');
-                }, 10);
-            }
-            
-            function closeScheduleModal() {
-                const modal = document.getElementById('scheduleModal');
-                const content = document.getElementById('scheduleModalContent');
-                
-                content.classList.remove('scale-100', 'opacity-100');
-                content.classList.add('scale-95', 'opacity-0');
-                
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                }, 200);
-            }
-        </script>
+
     </div>
 </body>
 </html>

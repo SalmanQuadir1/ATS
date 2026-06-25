@@ -20,6 +20,10 @@ public interface CandidateRepository extends JpaRepository<Candidate, Long> {
     List<Candidate> findByTenant(com.stie.model.Tenant tenant);
     org.springframework.data.domain.Page<Candidate> findByTenant(com.stie.model.Tenant tenant, org.springframework.data.domain.Pageable pageable);
     java.util.Optional<Candidate> findByCandidateUser(com.stie.model.User user);
+    
+    org.springframework.data.domain.Page<Candidate> findByTenantAndJobVacancyIsNotNull(com.stie.model.Tenant tenant, org.springframework.data.domain.Pageable pageable);
+    org.springframework.data.domain.Page<Candidate> findByJobVacancyIsNotNull(org.springframework.data.domain.Pageable pageable);
+    java.util.Optional<Candidate> findByApplicationId(String applicationId);
 
     long countByJobVacancy(com.stie.model.JobVacancy jobVacancy);
     long countByJobVacancyAndStatusIn(com.stie.model.JobVacancy jobVacancy, java.util.Collection<Candidate.CandidateStatus> statuses);

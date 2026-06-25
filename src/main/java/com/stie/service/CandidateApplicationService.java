@@ -92,6 +92,10 @@ public class CandidateApplicationService {
         app.setLocation(location);
         app.setNotes(notes);
         app.setStatus(AppStatus.APPLIED);
+        
+        String year = String.valueOf(java.time.Year.now().getValue());
+        String randomStr = java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        app.setApplicationId("APP-" + year + "-" + randomStr);
 
         CandidateApplication saved = applicationRepository.save(app);
         auditService.log("APPLICATION_CREATED", performedBy, "CandidateApplication", saved.getId(),

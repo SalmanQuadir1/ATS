@@ -74,12 +74,15 @@
                                 <div class="flex-1 min-w-0">
                                     <!-- Full name & HM tag -->
                                     <div class="flex items-start justify-between gap-1 mb-0.5">
-                                        <a th:href="@{'/candidates/' + ${c.id}}" 
-                                           class="text-[15px] font-bold text-slate-800 hover:text-teal-600 transition-colors truncate block"
-                                           th:text="${c.fullName}">John Doe</a>
+                                        <div class="flex flex-col">
+                                            <span th:if="${c.applicationId != null}" class="text-[9px] font-mono text-slate-400 mb-0.5" th:text="${c.applicationId}">APP-X</span>
+                                            <a th:href="@{'/candidates/' + ${c.id}}" 
+                                               class="text-[15px] font-bold text-slate-800 hover:text-teal-600 transition-colors truncate block leading-tight"
+                                               th:text="${c.fullName}">John Doe</a>
+                                        </div>
                                         <span th:if="${c.sharedWithHM}" 
                                               title="Profile Shared with Hiring Manager"
-                                              class="bg-orange-50 border border-orange-100 text-orange-600 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">HM</span>
+                                              class="bg-orange-50 border border-orange-100 text-orange-600 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 mt-1">HM</span>
                                     </div>
                                     
                                     <!-- Applied Job -->
@@ -127,12 +130,13 @@
                                             th:data-candidate-name="${c.fullName}"
                                             th:data-current-status="${c.status}"
                                             th:data-job-vacancy-id="${c.jobVacancy != null ? c.jobVacancy.id : ''}"
-                                            th:disabled="${c.status.name() == 'INTERVIEW' && !completedInterviewCandidateIds.contains(c.id)}"
+                                            th:disabled="${(c.status.name() == 'INTERVIEW' && !completedInterviewCandidateIds.contains(c.id)) or c.status.name() == 'HIRED'}"
                                             class="w-full text-xs bg-white border border-slate-200 hover:border-teal-400 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500/20 font-semibold text-slate-600 transition-colors cursor-pointer appearance-none disabled:opacity-50 disabled:cursor-not-allowed">
                                         <option th:each="opt : ${statuses}" 
                                                 th:value="${opt}" 
                                                 th:text="'Move to: ' + (${opt.toString() == 'KIV' ? 'KIV' : opt.toString()})"
-                                                th:selected="${c.status == opt}"></option>
+                                                th:selected="${c.status == opt}"
+                                                th:disabled="${opt.ordinal() < c.status.ordinal() and opt.ordinal() <= 4 and c.status.ordinal() <= 4}"></option>
                                     </select>
                                 </form>
                                 <p th:if="${c.status.name() == 'INTERVIEW' && !completedInterviewCandidateIds.contains(c.id)}" class="text-[9px] text-amber-600 w-full mt-1.5 font-bold leading-tight flex items-start gap-1">
@@ -212,9 +216,23 @@
             function handleStatusChange(selectEl) {
                 const newStatus = selectEl.value;
                 const currentStatus = selectEl.getAttribute('data-current-status');
+                const candidateId = selectEl.getAttribute('data-candidate-id');
+                
+                if (newStatus === 'OFFERED') {
+                    // Redirect to the offer generation flow instead of silent status save
+                    window.location.href = '/offers/generate/' + candidateId;
+                    selectEl.value = currentStatus; // revert visual state until redirected
+                    return;
+                }
+
+                if (newStatus === 'HIRED') {
+                    // Redirect to the finalize hire form
+                    window.location.href = '/candidates/hire/' + candidateId;
+                    selectEl.value = currentStatus; // revert visual state until redirected
+                    return;
+                }
                 
                 if (newStatus === 'INTERVIEW') {
-                    const candidateId = selectEl.getAttribute('data-candidate-id');
                     const candidateName = selectEl.getAttribute('data-candidate-name');
                     const jobId = selectEl.getAttribute('data-job-vacancy-id');
                     

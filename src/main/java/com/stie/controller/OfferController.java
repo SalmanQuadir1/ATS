@@ -60,6 +60,11 @@ public class OfferController {
         }
         
         String letter = documentService.generateOfferLetter(c, j, salary);
+        String pdfFilename = documentService.generateOfferLetterPdf(c, j, salary);
+        
+        c.setOfferLetterPath(pdfFilename);
+        c.setStatus(Candidate.CandidateStatus.OFFERED);
+        candidateService.saveCandidate(c);
         
         // Fulfill communication automation by automatically dispatching offer letter
         notificationService.sendOfferLetter(c.getEmail(), c.getFullName(), j.getTitle(), salary);

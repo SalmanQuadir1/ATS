@@ -7,6 +7,8 @@ import com.stie.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +35,9 @@ public class TenantService {
     private com.stie.repository.RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     public List<Tenant> getAllSites() {
         return tenantRepository.findAll();
@@ -142,7 +147,32 @@ public class TenantService {
         });
     }
 
+    @Transactional
     public void deleteSite(Long id) {
+        jdbcTemplate.update("DELETE FROM candidate_applications WHERE candidate_id IN (SELECT id FROM candidates WHERE tenant_id = ?)", id);
+        jdbcTemplate.update("DELETE FROM candidate_transfers WHERE tenant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM interview_scorecards WHERE interview_id IN (SELECT id FROM interviews WHERE tenant_id = ?)", id);
+        jdbcTemplate.update("DELETE FROM interviews WHERE tenant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM audit_logs WHERE tenant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM candidates WHERE tenant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM job_vacancy_skills WHERE job_vacancy_id IN (SELECT id FROM job_vacancies WHERE tenant_id = ?)", id);
+        jdbcTemplate.update("DELETE FROM job_vacancies WHERE tenant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM skills WHERE category_id IN (SELECT id FROM job_categories WHERE tenant_id = ?)", id);
+        jdbcTemplate.update("DELETE FROM job_categories WHERE tenant_id = ?", id);
+        
+        jdbcTemplate.update("DELETE FROM user_roles WHERE user_id IN (SELECT id FROM users WHERE tenant_id = ?)", id);
+        jdbcTemplate.update("DELETE FROM role_permissions WHERE role_id IN (SELECT id FROM roles WHERE tenant_id = ?)", id);
+        jdbcTemplate.update("DELETE FROM roles WHERE tenant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM users WHERE tenant_id = ?", id);
+        
+        jdbcTemplate.update("DELETE FROM email_templates WHERE tenant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM branding_config WHERE tenant_id = ?", id);
+        
+        jdbcTemplate.update("DELETE FROM tenant_departments WHERE tenant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM tenant_locations WHERE tenant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM departments WHERE tenant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM locations WHERE tenant_id = ?", id);
+        
         tenantRepository.deleteById(id);
     }
 

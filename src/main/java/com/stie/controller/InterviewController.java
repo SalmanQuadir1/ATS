@@ -187,8 +187,7 @@ public class InterviewController {
         model.addAttribute("interview", interview);
         
         java.util.List<com.stie.model.InterviewScorecard> scorecards = scorecardService.getScorecardsByInterview(id);
-        String currentUser = getCurrentUser();
-        boolean hasSubmitted = scorecards.stream().anyMatch(sc -> sc.getSubmitter().equals(currentUser));
+        boolean hasSubmitted = !scorecards.isEmpty() || interview.getStatus() == Interview.InterviewStatus.COMPLETED;
         
         model.addAttribute("existingScorecards", scorecards);
         model.addAttribute("hasSubmitted", hasSubmitted);

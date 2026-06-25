@@ -41,13 +41,12 @@
                         <td class="px-4 py-4 text-sm font-semibold text-slate-700" th:text="${cat.name}">Engineering</td>
                         <td class="px-4 py-4 text-xs text-slate-500">
                             <div th:if="${#lists.size(cat.skills)} > 0" class="relative inline-block">
-                                <span class="cursor-pointer underline decoration-dotted decoration-slate-300 hover:decoration-indigo-400" title="View skills">View skills</span>
-                                <div class="absolute left-0 top-8 z-50 hidden group-hover:block w-64 bg-slate-800 text-white text-xs rounded-xl p-3 shadow-xl">
-                                    <div class="font-bold mb-1.5 text-[10px] uppercase tracking-wider text-slate-300">Skills</div>
-                                    <ul class="space-y-1">
-                                        <li th:each="s : ${cat.skills}" th:text="${s.name}" class="truncate"></li>
-                                    </ul>
-                                    <div class="absolute -top-1 left-4 w-2 h-2 bg-slate-800 rotate-45"></div>
+                                <span class="cursor-pointer underline decoration-dotted decoration-slate-300 hover:decoration-indigo-400" 
+                                      th:data-catname="${cat.name}" th:data-catid="${cat.id}"
+                                      onclick="openSkillsModal(this.getAttribute('data-catname'), this.getAttribute('data-catid'))"
+                                      title="Click to view skills">View skills</span>
+                                <div th:id="'skillsData-' + ${cat.id}" class="hidden">
+                                    <div th:each="s : ${cat.skills}" th:text="${s.name}" class="skill-item"></div>
                                 </div>
                             </div>
                             <span th:unless="${#lists.size(cat.skills)} > 0" class="text-slate-400 italic text-xs">No skills</span>
@@ -83,6 +82,21 @@
             </table>
         </div>
     </div>
+    <!-- Skills Modal -->
+    <div id="skillsModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl scale-95 opacity-0 transition-all duration-200" id="skillsModalContent">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-bold text-slate-800" id="skillsModalTitle">Category Skills</h4>
+                <button onclick="closeSkillsModal()" class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 p-2 rounded-xl transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <ul id="skillsModalList" class="space-y-2 max-h-64 overflow-y-auto pr-2">
+                <!-- Skills injected here -->
+            </ul>
+        </div>
+    </div>
+
     <script>
         function editCategory(id, oldName) {
             var newName = prompt("Edit Category Name:", oldName);
@@ -90,6 +104,47 @@
                 document.getElementById('editInput-' + id).value = newName.trim();
                 document.getElementById('editForm-' + id).submit();
             }
+        }
+
+        function openSkillsModal(categoryName, catId) {
+            document.getElementById('skillsModalTitle').textContent = categoryName + ' Skills';
+            const list = document.getElementById('skillsModalList');
+            list.innerHTML = '';
+            
+            const skillItems = document.querySelectorAll('#skillsData-' + catId + ' .skill-item');
+            if (skillItems.length > 0) {
+                skillItems.forEach(function(item) {
+                    const li = document.createElement('li');
+                    li.className = "px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-600 font-medium";
+                    li.textContent = item.textContent;
+                    list.appendChild(li);
+                });
+            } else {
+                list.innerHTML = '<li class="text-sm text-slate-400 italic">No skills configured.</li>';
+            }
+            
+            const modal = document.getElementById('skillsModal');
+            const modalContent = document.getElementById('skillsModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeSkillsModal() {
+            const modal = document.getElementById('skillsModal');
+            const modalContent = document.getElementById('skillsModalContent');
+            
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 200);
         }
     </script>
 </div>

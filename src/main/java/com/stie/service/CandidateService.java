@@ -35,10 +35,27 @@ public class CandidateService {
         }
         return repository.findAll(pageable);
     }
+    
+    public Page<Candidate> getApplications(Pageable pageable) {
+        com.stie.model.Tenant tenant = userService.getCurrentTenant();
+        if (tenant != null && tenant.getId() != null) {
+            return repository.findByTenantAndJobVacancyIsNotNull(tenant, pageable);
+        }
+        return repository.findByJobVacancyIsNotNull(pageable);
+    }
 
     public Candidate saveCandidate(Candidate candidate) {
         if (candidate.getTenant() == null) {
             candidate.setTenant(userService.getCurrentTenant());
+        }
+        if (candidate.getApplicationId() == null) {
+            String year = String.valueOf(java.time.Year.now().getValue());
+            String appId;
+            do {
+                String randomStr = java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+                appId = "APP-" + year + "-" + randomStr;
+            } while (repository.findByApplicationId(appId).isPresent());
+            candidate.setApplicationId(appId);
         }
         Candidate saved = repository.save(candidate);
         auditService.log("CANDIDATE_APPLIED", "Public/Walk-in", "Candidate", saved.getId(), "New application: " + saved.getFullName());
@@ -95,6 +112,7 @@ public class CandidateService {
                 .filter(c -> status == null || status.isEmpty() || (c.getStatus() != null && c.getStatus().name().equalsIgnoreCase(status)))
                 .filter(c -> query == null || query.isEmpty() || 
                              c.getFullName().toLowerCase().contains(query.toLowerCase()) || 
+                             (c.getApplicationId() != null && c.getApplicationId().toLowerCase().contains(query.toLowerCase())) ||
                              (c.getSkills() != null && c.getSkills().toLowerCase().contains(query.toLowerCase())) ||
                              (c.getEducation() != null && c.getEducation().toLowerCase().contains(query.toLowerCase())) ||
                              (c.getTaggedRoles() != null && c.getTaggedRoles().toLowerCase().contains(query.toLowerCase())))

@@ -10,28 +10,37 @@
 
         <!-- Jasper Data & Reports -->
         <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm mb-8">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                 <div>
                     <h5 class="text-lg font-bold text-slate-800">Export Data & Reports</h5>
                     <p class="text-xs text-slate-500 font-medium mt-1">Download comprehensive reports in PDF or Excel formats.</p>
                 </div>
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-slate-600">From:</label>
+                        <input type="text" id="reportFromDate" class="text-sm px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none w-32 bg-white" placeholder="YYYY-MM-DD">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-slate-600">To:</label>
+                        <input type="text" id="reportToDate" class="text-sm px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none w-32 bg-white" placeholder="YYYY-MM-DD">
+                    </div>
+                    <div class="w-10 h-10 ml-2 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="group relative overflow-hidden flex flex-col p-5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200/60 transition-all duration-300 hover:shadow-md">
                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-indigo-100 to-transparent rounded-full -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
                    <h6 class="text-sm font-bold text-slate-800 relative z-10">Candidates List</h6>
                    <p class="text-xs text-slate-500 mt-1 mb-4 relative z-10">Full roster of applicants</p>
                    <div class="mt-auto flex items-center gap-4 relative z-10">
-                       <a href="/reports/candidates/pdf" target="_blank" class="flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                       <a href="#" data-href="/reports/candidates/pdf" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
                            PDF <span class="ml-1">↓</span>
                        </a>
-                       <a href="/reports/candidates/excel" target="_blank" class="flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+                       <a href="#" data-href="/reports/candidates/excel" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
                            Excel <span class="ml-1">↓</span>
                        </a>
                    </div>
@@ -42,10 +51,10 @@
                    <h6 class="text-sm font-bold text-slate-800 relative z-10">Job Vacancies</h6>
                    <p class="text-xs text-slate-500 mt-1 mb-4 relative z-10">Open and closed roles</p>
                    <div class="mt-auto flex items-center gap-4 relative z-10">
-                       <a href="/reports/jobs/pdf" target="_blank" class="flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                       <a href="#" data-href="/reports/jobs/pdf" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
                            PDF <span class="ml-1">↓</span>
                        </a>
-                       <a href="/reports/jobs/excel" target="_blank" class="flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+                       <a href="#" data-href="/reports/jobs/excel" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
                            Excel <span class="ml-1">↓</span>
                        </a>
                    </div>
@@ -56,10 +65,24 @@
                    <h6 class="text-sm font-bold text-slate-800 relative z-10">Interview Schedule</h6>
                    <p class="text-xs text-slate-500 mt-1 mb-4 relative z-10">Upcoming meeting times</p>
                    <div class="mt-auto flex items-center gap-4 relative z-10">
-                       <a href="/reports/interviews/pdf" target="_blank" class="flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                       <a href="#" data-href="/reports/interviews/pdf" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
                            PDF <span class="ml-1">↓</span>
                        </a>
-                       <a href="/reports/interviews/excel" target="_blank" class="flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+                       <a href="#" data-href="/reports/interviews/excel" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+                           Excel <span class="ml-1">↓</span>
+                       </a>
+                   </div>
+                </div>
+
+                <div class="group relative overflow-hidden flex flex-col p-5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200/60 transition-all duration-300 hover:shadow-md">
+                   <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-sky-100 to-transparent rounded-full -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                   <h6 class="text-sm font-bold text-slate-800 relative z-10">Candidate Transfers</h6>
+                   <p class="text-xs text-slate-500 mt-1 mb-4 relative z-10">Tenant mobility requests</p>
+                   <div class="mt-auto flex items-center gap-4 relative z-10">
+                       <a href="#" data-href="/reports/transfers/pdf" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                           PDF <span class="ml-1">↓</span>
+                       </a>
+                       <a href="#" data-href="/reports/transfers/excel" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
                            Excel <span class="ml-1">↓</span>
                        </a>
                    </div>
@@ -69,5 +92,53 @@
 
 
     </div>
+    
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const fromDateInput = document.getElementById('reportFromDate');
+            const toDateInput = document.getElementById('reportToDate');
+            
+            // Set default dates (e.g. current month)
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            const fromStr = firstDay.toISOString().split('T')[0];
+            const toStr = today.toISOString().split('T')[0];
+            
+            flatpickr(fromDateInput, {
+                defaultDate: fromStr,
+                dateFormat: "Y-m-d"
+            });
+            
+            flatpickr(toDateInput, {
+                defaultDate: toStr,
+                dateFormat: "Y-m-d"
+            });
+
+            // Add event listeners to all export links
+            const exportLinks = document.querySelectorAll('.export-link');
+            
+            exportLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const baseUrl = this.getAttribute('data-href');
+                    const fromDate = fromDateInput.value;
+                    const toDate = toDateInput.value;
+                    
+                    let finalUrl = baseUrl;
+                    if (fromDate && toDate) {
+                        finalUrl += '?fromDate=' + fromDate + '&toDate=' + toDate;
+                    } else if (fromDate) {
+                        finalUrl += '?fromDate=' + fromDate;
+                    } else if (toDate) {
+                        finalUrl += '?toDate=' + toDate;
+                    }
+                    
+                    window.open(finalUrl, '_blank');
+                });
+            });
+        });
+    </script>
 </body>
 </html>

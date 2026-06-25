@@ -31,6 +31,10 @@ public class JobService {
         return repository.findAll();
     }
 
+    public List<JobVacancy> getAllVacanciesAcrossTenants() {
+        return repository.findAll();
+    }
+
     public JobVacancy saveVacancy(JobVacancy vacancy) {
         if (vacancy.getTenant() == null) {
             vacancy.setTenant(userService.getCurrentTenant());
@@ -89,6 +93,14 @@ public class JobService {
                 .collect(Collectors.toList());
     }
 
+    public List<JobVacancy> getAllOpenJobsAcrossTenants() {
+        return repository.findAll().stream()
+                .filter(j -> j.getStatus() == JobVacancy.JobStatus.OPEN
+                          && j.getApprovalStatus() == JobVacancy.ApprovalStatus.APPROVED
+                          && j.isActive() != null && j.isActive())
+                .collect(Collectors.toList());
+    }
+
     public List<JobVacancy> getOpenJobsForTenant(Tenant tenant) {
         if (tenant == null) return getOpenJobs();
         return repository.findByTenant(tenant).stream()
@@ -123,6 +135,10 @@ public class JobService {
                     return match;
                 })
                 .orElse(null);
+    }
+
+    public JobVacancy getJobByIdAcrossTenants(Long id) {
+        return repository.findById(id).orElse(null);
     }
 
     @Scheduled(cron = "0 0 0 * * *") // Run at midnight every day

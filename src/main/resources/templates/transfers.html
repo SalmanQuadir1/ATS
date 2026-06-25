@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head></head>
+<body>
+    <div th:fragment="content">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 tracking-tight" th:text="${pageTitle}">Site Transfers</h2>
+                <p class="text-slate-500 mt-2 font-medium">Manage candidate site transfer requests.</p>
+            </div>
+            <div>
+                <button onclick="document.getElementById('addTransferModal').classList.remove('hidden')" 
+                        sec:authorize="hasAnyRole('ADMIN', 'HR')"
+                        class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm inline-flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Add Transfer
+                </button>
+            </div>
+        </div>
+
+        <div th:if="${successMessage}" class="bg-emerald-50 text-emerald-700 p-4 rounded-2xl font-semibold mb-6 flex items-center border border-emerald-100 shadow-sm">
+            <svg class="w-5 h-5 mr-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span th:text="${successMessage}"></span>
+        </div>
+        
+        <div th:if="${errorMessage}" class="bg-rose-50 text-rose-700 p-4 rounded-2xl font-semibold mb-6 flex items-center border border-rose-100 shadow-sm">
+            <svg class="w-5 h-5 mr-3 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex space-x-4 mb-6 border-b border-slate-200">
+            <button onclick="switchTab('active')" id="tab-active" class="px-4 py-2 text-sm font-bold border-b-2 border-emerald-500 text-emerald-600 transition-colors">
+                Active Requests
+            </button>
+            <button onclick="switchTab('historical')" id="tab-historical" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">
+                Completed & Historical
+            </button>
+        </div>
+
+        <!-- Transfers List: Active -->
+        <div id="content-active" class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden block">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/50 border-b border-slate-100">
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Candidate</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">From Site/Job</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">To Site/Job</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Direction</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Requested By</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Status</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr th:if="${activeTransfers == null || activeTransfers.isEmpty()}">
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-500 font-medium">
+                                No active transfer requests found.
+                            </td>
+                        </tr>
+                        <tr th:each="transfer : ${activeTransfers}" class="hover:bg-slate-50/50 transition-colors group">
+                            <td class="px-6 py-4">
+                                <a th:href="@{/candidates/{id}(id=${transfer.candidate.id})}" class="font-bold text-slate-800 hover:text-emerald-600 transition-colors block" th:text="${transfer.candidate.fullName}">Candidate Name</a>
+                                <span class="text-xs text-slate-500 font-medium" th:text="${transfer.candidate.email}">email@example.com</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-semibold text-slate-700">
+                                    <span th:text="${transfer.fromJobVacancy != null ? transfer.fromJobVacancy.location : 'General'}">Sales</span>
+                                    <span class="text-slate-400 font-normal" th:if="${transfer.tenant != null}" th:text="'(' + ${transfer.tenant.name} + ')'">(Tenant A)</span>
+                                </div>
+                                <div class="text-xs text-slate-500" th:text="${transfer.fromJobVacancy != null ? transfer.fromJobVacancy.title : 'No Assigned Job'}">Sales Manager</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-bold text-fuchsia-600">
+                                    <span th:text="${transfer.toJobVacancy.location}">Marketing</span>
+                                    <span class="text-fuchsia-400 font-normal" th:if="${transfer.targetTenant != null}" th:text="'(' + ${transfer.targetTenant.name} + ')'">(Tenant B)</span>
+                                </div>
+                                <div class="text-xs text-fuchsia-500/80" th:text="${transfer.toJobVacancy.title}">Marketing Executive</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span th:if="${currentTenant != null && transfer.tenant != null && currentTenant.id == transfer.tenant.id}" class="px-2 py-1 bg-sky-50 text-sky-600 text-[10px] font-bold rounded uppercase tracking-wider">Outgoing</span>
+                                <span th:if="${currentTenant != null && transfer.targetTenant != null && currentTenant.id == transfer.targetTenant.id && (transfer.tenant == null || transfer.tenant.id != transfer.targetTenant.id)}" class="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded uppercase tracking-wider">Incoming</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-semibold text-slate-700" th:text="${transfer.requestedBy}">HR User</div>
+                                <div class="text-xs text-slate-500" th:text="${#temporals.format(transfer.createdAt, 'dd MMM yyyy')}">Date</div>
+                                <button type="button" th:if="${transfer.requestNotes != null}" 
+                                        th:data-notes="${transfer.requestNotes}"
+                                        onclick="showRemarksModal(this.getAttribute('data-notes'))"
+                                        class="mt-1 text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold hover:bg-slate-200 uppercase">View Notes</button>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span th:classappend="${transfer.status == T(com.stie.model.CandidateTransferRequest.TransferStatus).APPROVED ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
+                                                     transfer.status == T(com.stie.model.CandidateTransferRequest.TransferStatus).REJECTED ? 'bg-rose-50 text-rose-700 border-rose-100' : 
+                                                     'bg-amber-50 text-amber-700 border-amber-100'}" 
+                                      class="px-3 py-1 text-xs font-extrabold rounded-lg border uppercase tracking-wider inline-block" th:text="${transfer.status}">PENDING</span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div th:if="${transfer.status == T(com.stie.model.CandidateTransferRequest.TransferStatus).PENDING && currentTenant != null && transfer.targetTenant != null && currentTenant.id == transfer.targetTenant.id}" 
+                                     sec:authorize="hasRole('ADMIN')">
+                                    <button th:data-id="${transfer.id}" onclick="openReviewModal(this.getAttribute('data-id'))" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-sm inline-flex items-center gap-1.5">
+                                        Review
+                                    </button>
+                                </div>
+                                <div th:unless="${transfer.status == T(com.stie.model.CandidateTransferRequest.TransferStatus).PENDING && currentTenant != null && transfer.targetTenant != null && currentTenant.id == transfer.targetTenant.id}" class="text-xs text-slate-400 font-medium">
+                                    <div th:if="${transfer.reviewedBy != null}">Src: <span th:text="${transfer.reviewedBy}">Admin</span>
+                                        <span th:if="${transfer.adminRemarks != null}" th:data-remarks="${transfer.adminRemarks}" onclick="showRemarksModal(this.getAttribute('data-remarks'))" class="cursor-pointer text-emerald-600 font-bold hover:underline"> (Show Remarks)</span>
+                                    </div>
+                                    <div th:if="${transfer.destinationReviewedBy != null}">Dest: <span th:text="${transfer.destinationReviewedBy}">Admin</span>
+                                        <span th:if="${transfer.destinationAdminRemarks != null}" th:data-remarks="${transfer.destinationAdminRemarks}" onclick="showRemarksModal(this.getAttribute('data-remarks'))" class="cursor-pointer text-emerald-600 font-bold hover:underline"> (Show Remarks)</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Transfers List: Historical -->
+        <div id="content-historical" class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/50 border-b border-slate-100">
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Candidate</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">From Site/Job</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">To Site/Job</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Direction</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Requested By</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Status</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr th:if="${historicalTransfers == null || historicalTransfers.isEmpty()}">
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-500 font-medium">
+                                No historical transfer requests found.
+                            </td>
+                        </tr>
+                        <tr th:each="transfer : ${historicalTransfers}" class="hover:bg-slate-50/50 transition-colors group">
+                            <td class="px-6 py-4">
+                                <a th:href="@{/candidates/{id}(id=${transfer.candidate.id})}" class="font-bold text-slate-800 hover:text-emerald-600 transition-colors block" th:text="${transfer.candidate.fullName}">Candidate Name</a>
+                                <span class="text-xs text-slate-500 font-medium" th:text="${transfer.candidate.email}">email@example.com</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-semibold text-slate-700">
+                                    <span th:text="${transfer.fromJobVacancy != null ? transfer.fromJobVacancy.location : 'General'}">Sales</span>
+                                    <span class="text-slate-400 font-normal" th:if="${transfer.tenant != null}" th:text="'(' + ${transfer.tenant.name} + ')'">(Tenant A)</span>
+                                </div>
+                                <div class="text-xs text-slate-500" th:text="${transfer.fromJobVacancy != null ? transfer.fromJobVacancy.title : 'No Assigned Job'}">Sales Manager</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-bold text-fuchsia-600">
+                                    <span th:text="${transfer.toJobVacancy.location}">Marketing</span>
+                                    <span class="text-fuchsia-400 font-normal" th:if="${transfer.targetTenant != null}" th:text="'(' + ${transfer.targetTenant.name} + ')'">(Tenant B)</span>
+                                </div>
+                                <div class="text-xs text-fuchsia-500/80" th:text="${transfer.toJobVacancy.title}">Marketing Executive</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span th:if="${currentTenant != null && transfer.tenant != null && currentTenant.id == transfer.tenant.id}" class="px-2 py-1 bg-sky-50 text-sky-600 text-[10px] font-bold rounded uppercase tracking-wider">Outgoing</span>
+                                <span th:if="${currentTenant != null && transfer.targetTenant != null && currentTenant.id == transfer.targetTenant.id && (transfer.tenant == null || transfer.tenant.id != transfer.targetTenant.id)}" class="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded uppercase tracking-wider">Incoming</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-semibold text-slate-700" th:text="${transfer.requestedBy}">HR User</div>
+                                <div class="text-xs text-slate-500" th:text="${#temporals.format(transfer.createdAt, 'dd MMM yyyy')}">Date</div>
+                                <button type="button" th:if="${transfer.requestNotes != null}" 
+                                        th:data-notes="${transfer.requestNotes}"
+                                        onclick="showRemarksModal(this.getAttribute('data-notes'))"
+                                        class="mt-1 text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold hover:bg-slate-200 uppercase">View Notes</button>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span th:classappend="${transfer.status == T(com.stie.model.CandidateTransferRequest.TransferStatus).APPROVED ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
+                                                     transfer.status == T(com.stie.model.CandidateTransferRequest.TransferStatus).REJECTED ? 'bg-rose-50 text-rose-700 border-rose-100' : 
+                                                     'bg-amber-50 text-amber-700 border-amber-100'}" 
+                                      class="px-3 py-1 text-xs font-extrabold rounded-lg border uppercase tracking-wider inline-block" th:text="${transfer.status}">PENDING</span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="text-xs text-slate-400 font-medium">
+                                    <div th:if="${transfer.reviewedBy != null}">Src: <span th:text="${transfer.reviewedBy}">Admin</span>
+                                        <span th:if="${transfer.adminRemarks != null}" th:data-remarks="${transfer.adminRemarks}" onclick="showRemarksModal(this.getAttribute('data-remarks'))" class="cursor-pointer text-emerald-600 font-bold hover:underline"> (Show Remarks)</span>
+                                    </div>
+                                    <div th:if="${transfer.destinationReviewedBy != null}">Dest: <span th:text="${transfer.destinationReviewedBy}">Admin</span>
+                                        <span th:if="${transfer.destinationAdminRemarks != null}" th:data-remarks="${transfer.destinationAdminRemarks}" onclick="showRemarksModal(this.getAttribute('data-remarks'))" class="cursor-pointer text-emerald-600 font-bold hover:underline"> (Show Remarks)</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Review Modal -->
+        <div id="reviewModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl">
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Review Transfer Request</h3>
+                <p class="text-xs text-slate-400 font-medium mb-6">Provide remarks and choose to approve or reject this transfer.</p>
+                <form id="reviewForm" method="POST" class="space-y-4">
+                    <input type="hidden" id="reviewAction" name="action" value="approve">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Admin Remarks</label>
+                        <textarea name="adminRemarks" placeholder="Optional remarks for the requester..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-slate-500 text-sm min-h-[80px]"></textarea>
+                    </div>
+                    <div class="flex space-x-3 pt-4">
+                        <button type="button" onclick="document.getElementById('reviewModal').classList.add('hidden')" 
+                                class="px-4 py-3 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors">Cancel</button>
+                        
+                        <button type="submit" onclick="submitReview('reject')" class="flex-1 px-4 py-3 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl font-semibold hover:bg-rose-100 transition-colors">Reject</button>
+                        
+                        <button type="submit" onclick="submitReview('approve')" class="flex-1 px-4 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors shadow-sm">Approve Transfer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Transfer Modal -->
+        <div id="addTransferModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl">
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Request Site Transfer</h3>
+                <p class="text-xs text-slate-400 font-medium mb-6">Transfer candidate to a different Job Vacancy/Site. Requires Admin approval.</p>
+                <form th:action="@{/transfers/request}" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Candidate</label>
+                        <select name="candidateId" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                            <option value="">-- Select Candidate --</option>
+                            <option th:each="candidate : ${candidates}" th:value="${candidate.id}" th:text="${candidate.fullName + ' [' + (candidate.tenant != null ? candidate.tenant.name : 'No Tenant') + '] (Current Site: ' + (candidate.jobVacancy != null ? candidate.jobVacancy.location : 'None') + ')'}">Candidate Name</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Target Job Vacancy (Site)</label>
+                        <select name="targetJobId" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                            <option value="">-- Select Target Job --</option>
+                            <option th:each="job : ${jobs}" th:value="${job.id}" th:text="${job.title + ' [' + (job.tenant != null ? job.tenant.name : 'Unknown Site') + '] (' + (job.location != null ? job.location : 'General Site') + ')'}">Job Title</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Transfer Notes</label>
+                        <textarea name="notes" placeholder="Reason for transfer..." required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm min-h-[80px]"></textarea>
+                    </div>
+                    <div class="flex space-x-4 pt-4">
+                        <button type="button" onclick="document.getElementById('addTransferModal').classList.add('hidden')" 
+                                class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors">Cancel</button>
+                        <button type="submit" class="flex-1 px-4 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Remarks Modal -->
+        <div id="remarksModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl">
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Remarks</h3>
+                <p id="remarksModalText" class="text-sm text-slate-600 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100 min-h-[80px] whitespace-pre-wrap"></p>
+                <div class="flex justify-end">
+                    <button type="button" onclick="document.getElementById('remarksModal').classList.add('hidden')" 
+                            class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors">Close</button>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            function showRemarksModal(text) {
+                document.getElementById('remarksModalText').textContent = text;
+                document.getElementById('remarksModal').classList.remove('hidden');
+            }
+
+            let currentTransferId = null;
+            function openReviewModal(transferId) {
+                currentTransferId = transferId;
+                document.getElementById('reviewModal').classList.remove('hidden');
+            }
+            
+            function submitReview(action) {
+            document.getElementById('reviewAction').value = action;
+            const form = document.getElementById('reviewForm');
+            form.action = `/transfers/${currentTransferId}/${action}`;
+        }
+        
+        function switchTab(tab) {
+            document.getElementById('content-active').classList.toggle('hidden', tab !== 'active');
+            document.getElementById('content-active').classList.toggle('block', tab === 'active');
+            
+            document.getElementById('content-historical').classList.toggle('hidden', tab !== 'historical');
+            document.getElementById('content-historical').classList.toggle('block', tab === 'historical');
+            
+            const activeBtn = document.getElementById('tab-active');
+            const histBtn = document.getElementById('tab-historical');
+            
+            if (tab === 'active') {
+                activeBtn.className = "px-4 py-2 text-sm font-bold border-b-2 border-emerald-500 text-emerald-600 transition-colors";
+                histBtn.className = "px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+            } else {
+                histBtn.className = "px-4 py-2 text-sm font-bold border-b-2 border-emerald-500 text-emerald-600 transition-colors";
+                activeBtn.className = "px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+            }
+        }
+        </script>
+    </div>
+</body>
+</html>

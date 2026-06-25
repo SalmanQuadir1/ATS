@@ -55,6 +55,12 @@ public class ApplyController {
         }
         JobVacancy job = jobService.getJobById(id);
         System.out.println("DEBUG: Job found: " + (job != null ? job.getTitle() : "null"));
+        if (job != null) {
+            System.out.println("DEBUG: Job Tenant: " + (job.getTenant() != null ? job.getTenant().getId() : "null"));
+            System.out.println("DEBUG: Request Tenant: " + tenant.getId());
+            System.out.println("DEBUG: Job Expired: " + job.isExpired() + " | ExpiryDate: " + job.getExpiryDate());
+            System.out.println("DEBUG: Job Active: " + job.isActive());
+        }
         if (job == null || job.getTenant() == null || !job.getTenant().getId().equals(tenant.getId())) {
             ra.addFlashAttribute("error", "Job vacancy not found with ID: " + id);
             return "redirect:/" + tenantName + "/landing";
@@ -118,7 +124,9 @@ public class ApplyController {
             try {
                 String resumeFileName = UUID.randomUUID().toString() + "_" + resume.getOriginalFilename();
                 Path filePath = uploadPath.resolve(resumeFileName);
-                Files.copy(resume.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            try (java.io.InputStream is = resume.getInputStream()) {
+                Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
                 candidate.setResumePath(resumeFileName);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -129,7 +137,9 @@ public class ApplyController {
             try {
                 String photoFileName = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
                 Path filePath = uploadPath.resolve(photoFileName);
-                Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            try (java.io.InputStream is = photo.getInputStream()) {
+                Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
                 candidate.setPhotoPath(photoFileName);
             } catch (IOException e) {
                 e.printStackTrace();

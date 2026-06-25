@@ -21,6 +21,9 @@ public class CandidateApplication {
     @JoinColumn(name = "candidate_id", nullable = false)
     private Candidate candidate;
 
+    @Column(name = "application_id", unique = true)
+    private String applicationId;
+
     @ManyToOne
     @JoinColumn(name = "job_vacancy_id")
     private JobVacancy jobVacancy;
@@ -68,6 +71,9 @@ public class CandidateApplication {
 
     public Candidate getCandidate() { return candidate; }
     public void setCandidate(Candidate candidate) { this.candidate = candidate; }
+
+    public String getApplicationId() { return applicationId; }
+    public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
 
     public JobVacancy getJobVacancy() { return jobVacancy; }
     public void setJobVacancy(JobVacancy jobVacancy) { this.jobVacancy = jobVacancy; }
