@@ -188,9 +188,12 @@ public class InterviewController {
         
         java.util.List<com.stie.model.InterviewScorecard> scorecards = scorecardService.getScorecardsByInterview(id);
         boolean hasSubmitted = !scorecards.isEmpty() || interview.getStatus() == Interview.InterviewStatus.COMPLETED;
+        boolean isAssignedInterviewer = interview.getInterviewer() != null && 
+                                        interview.getInterviewer().getUsername().equals(getCurrentUser());
         
         model.addAttribute("existingScorecards", scorecards);
         model.addAttribute("hasSubmitted", hasSubmitted);
+        model.addAttribute("isAssignedInterviewer", isAssignedInterviewer);
         return "interview-scorecard";
     }
 
@@ -208,6 +211,11 @@ public class InterviewController {
         if (interview == null) {
             redirectAttributes.addFlashAttribute("error", "Interview not found.");
             return "redirect:/interviews";
+        }
+
+        if (interview.getInterviewer() == null || !interview.getInterviewer().getUsername().equals(getCurrentUser())) {
+            redirectAttributes.addFlashAttribute("error", "Only the assigned interviewer can submit the scorecard.");
+            return "redirect:/interviews/" + id + "/scorecard";
         }
 
         InterviewScorecard scorecard = new InterviewScorecard(interview, technicalScore, problemSolvingScore,
