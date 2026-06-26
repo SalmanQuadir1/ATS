@@ -556,11 +556,11 @@
 
                         <!-- Resume upload -->
                         <div>
-                            <label class="field-label">Resume / CV <span
+                            <label class="field-label">Resume / CV <span class="text-red-500">*</span> <span
                                     class="text-orange-500 normal-case font-normal">(Auto-fills fields)</span></label>
                             <div class="drop-zone p-4 text-center" id="drop-zone"
                                 onclick="document.getElementById('resume').click()">
-                                <input type="file" name="resume" id="resume" class="hidden" accept=".pdf,.doc,.docx">
+                                <input type="file" name="resume" id="resume" class="hidden" accept=".pdf,.doc,.docx" required>
                                 <div id="upload-idle">
                                     <div
                                         class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-2">

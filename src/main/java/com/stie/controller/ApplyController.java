@@ -104,6 +104,14 @@ public class ApplyController {
             return "apply";
         }
 
+        if (resume == null || resume.isEmpty()) {
+            model.addAttribute("error", "Resume upload is mandatory.");
+            model.addAttribute("tenant", tenant);
+            model.addAttribute("branding", brandingService.getBranding(tenant));
+            model.addAttribute("job", job);
+            return "apply";
+        }
+
         model.addAttribute("tenant", tenant);
         model.addAttribute("branding", brandingService.getBranding(tenant));
         model.addAttribute("job", job);

@@ -639,11 +639,10 @@
                     </div>
 
                     <div class="pt-2">
-                        <label class="field-label">Resume / CV <span
-                                class="text-stone-400 normal-case font-normal">(optional)</span></label>
+                        <label class="field-label">Resume / CV <span class="text-red-500">*</span></label>
                         <div class="drop-zone p-5 text-center" id="resume-zone"
                             onclick="document.getElementById('resume').click()">
-                            <input type="file" name="resume" id="resume" class="hidden" accept=".pdf,.doc,.docx">
+                            <input type="file" name="resume" id="resume" class="hidden" accept=".pdf,.doc,.docx" required>
                             <div id="resume-idle">
                                 <div
                                     class="w-9 h-9 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-2">

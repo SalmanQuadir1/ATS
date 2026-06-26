@@ -92,6 +92,13 @@ public class WalkInController {
         model.addAttribute("branding", brandingService.getBranding(tenant));
         candidate.setTenant(tenant);
         
+        if (resume == null || resume.isEmpty()) {
+            model.addAttribute("error", "Resume upload is mandatory.");
+            model.addAttribute("candidate", candidate);
+            model.addAttribute("activeJobs", jobService.getAllOpenJobsAcrossTenants());
+            return "walkin";
+        }
+        
         String uploadDir = "uploads/";
         Path uploadPath = Paths.get(uploadDir);
         try {
