@@ -27,6 +27,9 @@ public class CandidateTransferController {
     @Autowired
     private com.stie.service.UserService userService;
 
+    @Autowired
+    private com.stie.repository.CandidateRepository candidateRepository;
+
     @GetMapping
     public String listTransfers(Model model) {
         model.addAttribute("pageTitle", "Site Transfers");
@@ -60,8 +63,13 @@ public class CandidateTransferController {
         JobVacancy targetJob = jobService.getJobByIdAcrossTenants(targetJobId);
 
         if (candidate != null && targetJob != null) {
+            long currentHired = candidateRepository.countByJobVacancyAndStatusIn(targetJob, java.util.Collections.singletonList(Candidate.CandidateStatus.HIRED));
             if (candidate.getJobVacancy() != null && candidate.getJobVacancy().getId().equals(targetJob.getId())) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Candidate is already in the selected job and department.");
+            } else if (targetJob.getStatus() != JobVacancy.JobStatus.OPEN) {
+                redirectAttributes.addFlashAttribute("errorMessage", "The selected job vacancy is not open.");
+            } else if (currentHired >= targetJob.getNoOfPosts()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "The selected job vacancy has no available positions.");
             } else {
                 transferService.requestTransfer(candidate, targetJob, notes);
                 redirectAttributes.addFlashAttribute("successMessage", "Transfer request submitted successfully.");
@@ -81,6 +89,17 @@ public class CandidateTransferController {
     public String approveTransfer(@PathVariable Long id, 
                                   @RequestParam(required = false) String adminRemarks, 
                                   RedirectAttributes redirectAttributes) {
+        com.stie.model.CandidateTransferRequest req = transferService.getAllTransfers().stream()
+                .filter(t -> t.getId().equals(id)).findFirst().orElse(null);
+        if (req != null) {
+            JobVacancy targetJob = req.getToJobVacancy();
+            long currentHired = candidateRepository.countByJobVacancyAndStatusIn(targetJob, java.util.Collections.singletonList(Candidate.CandidateStatus.HIRED));
+            if (targetJob.getStatus() != JobVacancy.JobStatus.OPEN || currentHired >= targetJob.getNoOfPosts()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Cannot approve: The target job vacancy is no longer open or has no available positions.");
+                return "redirect:/transfers";
+            }
+        }
+        
         transferService.approveTransfer(id, adminRemarks);
         redirectAttributes.addFlashAttribute("successMessage", "Transfer approved successfully.");
         return "redirect:/transfers";
