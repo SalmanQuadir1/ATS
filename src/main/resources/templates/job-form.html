@@ -54,9 +54,10 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Experience Required</label>
-                            <select th:field="*{experienceRequired}"
+                            <select th:field="*{experienceRequired}" required
                                     class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
-                                <option value="">No experience required (Fresh)</option>
+                                <option value="" disabled selected>Select Experience Required</option>
+                                <option value="Fresh">No experience required (Fresh)</option>
                                 <option value="Less than 1 year">Less than 1 year</option>
                                 <option value="1 year">1 year</option>
                                 <option value="2 years">2 years</option>

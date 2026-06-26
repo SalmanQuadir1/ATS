@@ -23,11 +23,11 @@
                    <h6 class="text-sm font-bold text-slate-800 relative z-10">Candidates List</h6>
                    <p class="text-xs text-slate-500 mt-1 mb-4 relative z-10">Full roster of applicants</p>
                    <div class="mt-auto flex items-center gap-4 relative z-10">
-                       <a href="#" data-href="/reports/candidates/pdf" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
-                           PDF <span class="ml-1">↓</span>
+                       <a th:href="@{/reports/candidates/pdf}" target="_blank" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                           PDF <span class="ml-1"> </span>
                        </a>
-                       <a href="#" data-href="/reports/candidates/excel" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
-                           Excel <span class="ml-1">↓</span>
+                       <a th:href="@{/reports/candidates/excel}" target="_blank" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+                           Excel <span class="ml-1"> </span>
                        </a>
                    </div>
                 </div>
@@ -37,11 +37,11 @@
                    <h6 class="text-sm font-bold text-slate-800 relative z-10">Job Vacancies</h6>
                    <p class="text-xs text-slate-500 mt-1 mb-4 relative z-10">Open and closed roles</p>
                    <div class="mt-auto flex items-center gap-4 relative z-10">
-                       <a href="#" data-href="/reports/jobs/pdf" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
-                           PDF <span class="ml-1">↓</span>
+                       <a th:href="@{/reports/jobs/pdf}" target="_blank" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                           PDF <span class="ml-1"> </span>
                        </a>
-                       <a href="#" data-href="/reports/jobs/excel" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
-                           Excel <span class="ml-1">↓</span>
+                       <a th:href="@{/reports/jobs/excel}" target="_blank" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+                           Excel <span class="ml-1"> </span>
                        </a>
                    </div>
                 </div>
@@ -51,11 +51,11 @@
                    <h6 class="text-sm font-bold text-slate-800 relative z-10">Interview Schedule</h6>
                    <p class="text-xs text-slate-500 mt-1 mb-4 relative z-10">Upcoming meeting times</p>
                    <div class="mt-auto flex items-center gap-4 relative z-10">
-                       <a href="#" data-href="/reports/interviews/pdf" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
-                           PDF <span class="ml-1">↓</span>
+                       <a th:href="@{/reports/interviews/pdf}" target="_blank" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                           PDF <span class="ml-1"> </span>
                        </a>
-                       <a href="#" data-href="/reports/interviews/excel" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
-                           Excel <span class="ml-1">↓</span>
+                       <a th:href="@{/reports/interviews/excel}" target="_blank" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+                           Excel <span class="ml-1"> </span>
                        </a>
                    </div>
                 </div>
@@ -65,11 +65,11 @@
                    <h6 class="text-sm font-bold text-slate-800 relative z-10">Candidate Transfers</h6>
                    <p class="text-xs text-slate-500 mt-1 mb-4 relative z-10">Tenant mobility requests</p>
                    <div class="mt-auto flex items-center gap-4 relative z-10">
-                       <a href="#" data-href="/reports/transfers/pdf" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
-                           PDF <span class="ml-1">↓</span>
+                       <a th:href="@{/reports/transfers/pdf}" target="_blank" class="export-link flex items-center text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                           PDF <span class="ml-1"> </span>
                        </a>
-                       <a href="#" data-href="/reports/transfers/excel" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
-                           Excel <span class="ml-1">↓</span>
+                       <a th:href="@{/reports/transfers/excel}" target="_blank" class="export-link flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+                           Excel <span class="ml-1"> </span>
                        </a>
                    </div>
                 </div>
@@ -79,19 +79,6 @@
 
     </div>
     
-    <script th:inline="javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add event listeners to all export links
-            const exportLinks = document.querySelectorAll('.export-link');
-            
-            exportLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const baseUrl = this.getAttribute('data-href');
-                    window.open(baseUrl, '_blank');
-                });
-            });
-        });
-    </script>
+
 </body>
 </html>
