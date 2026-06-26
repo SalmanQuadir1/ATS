@@ -60,7 +60,7 @@
                         <!-- Candidate Card -->
                         <div th:each="c : ${candidates}" 
                              th:if="${c.status == st}"
-                             th:data-job-id="${c.taggedRoles}"
+                             th:data-job-id="${c.jobVacancy != null ? c.jobVacancy.id : ''}"
                              th:data-skills="${#strings.toLowerCase(c.skills)}"
                              th:data-name="${#strings.toLowerCase(c.fullName)}"
                              class="candidate-card bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow hover:border-slate-300 transition-all duration-200 flex flex-col relative group">
