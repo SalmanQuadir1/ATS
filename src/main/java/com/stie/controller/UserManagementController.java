@@ -33,7 +33,9 @@ public class UserManagementController {
         model.addAttribute("currentSite", current.getTenant());
         model.addAttribute("siteUsers", current.getTenant() != null
                 ? userService.getUsersBySite(current.getTenant()) : java.util.Collections.emptyList());
-        model.addAttribute("availableRoles", current.getTenant() != null ? roleRepository.findByTenantOrTenantIsNull(current.getTenant()) : roleRepository.findByTenantIsNull());
+        java.util.List<com.stie.model.Role> roles = current.getTenant() != null ? roleRepository.findByTenantOrTenantIsNull(current.getTenant()) : roleRepository.findByTenantIsNull();
+        roles = roles.stream().filter(r -> !com.stie.config.AppConstants.Roles.SUPER_ADMIN.equals(r.getName()) && !r.getName().toLowerCase().contains("superadmin") && !r.getName().toLowerCase().contains("super_admin")).collect(java.util.stream.Collectors.toList());
+        model.addAttribute("availableRoles", roles);
         
         return "register";
     }
@@ -54,7 +56,9 @@ public class UserManagementController {
             model.addAttribute("pageTitle", "Register New Team Member");
             model.addAttribute("currentSite", site);
             model.addAttribute("siteUsers", site != null ? userService.getUsersBySite(site) : java.util.Collections.emptyList());
-            model.addAttribute("availableRoles", current.getTenant() != null ? roleRepository.findByTenantOrTenantIsNull(current.getTenant()) : roleRepository.findByTenantIsNull());
+            java.util.List<com.stie.model.Role> roles = current.getTenant() != null ? roleRepository.findByTenantOrTenantIsNull(current.getTenant()) : roleRepository.findByTenantIsNull();
+            roles = roles.stream().filter(r -> !com.stie.config.AppConstants.Roles.SUPER_ADMIN.equals(r.getName()) && !r.getName().toLowerCase().contains("superadmin") && !r.getName().toLowerCase().contains("super_admin")).collect(java.util.stream.Collectors.toList());
+            model.addAttribute("availableRoles", roles);
             return "register";
         }
 
