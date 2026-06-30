@@ -491,7 +491,9 @@
         // Copy walk-in link
         function copyLink() {
             var tenantSubdomain = /*[[${tenant.subdomain}]]*/ 'tenant';
-            navigator.clipboard.writeText(window.location.origin + '/' + tenantSubdomain + '/walkin').then(() => {
+            const appBaseUrl = /*[[${baseUrl}]]*/ '';
+            const origin = (appBaseUrl && appBaseUrl.trim() !== '') ? appBaseUrl : window.location.origin;
+            navigator.clipboard.writeText(origin + '/' + tenantSubdomain + '/walkin').then(() => {
                 const btn  = document.getElementById('copy-btn');
                 const txt  = document.getElementById('copy-txt');
                 if (txt) txt.textContent = '✓ Copied!';

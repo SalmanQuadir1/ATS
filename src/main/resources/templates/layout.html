@@ -498,7 +498,9 @@
         });
         function copyWalkinLink(btn) {
             const tenantPrefix = /*[[${user != null and user.tenant != null ? '/' + user.tenant.subdomain : ''}]]*/ '';
-            navigator.clipboard.writeText(window.location.origin + tenantPrefix + '/walkin').then(() => {
+            const appBaseUrl = /*[[${baseUrl}]]*/ '';
+            const origin = (appBaseUrl && appBaseUrl.trim() !== '') ? appBaseUrl : window.location.origin;
+            navigator.clipboard.writeText(origin + tenantPrefix + '/walkin').then(() => {
                 const label = document.getElementById('walkinBtnText');
                 if (label) {
                     label.textContent = 'Copied! ✓';

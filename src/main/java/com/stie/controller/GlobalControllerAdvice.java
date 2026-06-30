@@ -16,6 +16,9 @@ public class GlobalControllerAdvice {
     @Autowired
     private NotificationService notificationService;
 
+    @org.springframework.beans.factory.annotation.Value("${app.base-url:}")
+    private String appBaseUrl;
+
     @ModelAttribute("appNotifications")
     public List<NotificationService.AppNotification> getNotifications() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -28,6 +31,11 @@ public class GlobalControllerAdvice {
     @ModelAttribute("uploadUrlPrefix")
     public String getUploadUrlPrefix() {
         return com.stie.config.AppConstants.FilePaths.UPLOAD_URL_PREFIX;
+    }
+
+    @ModelAttribute("baseUrl")
+    public String getBaseUrl() {
+        return appBaseUrl;
     }
 
     @ModelAttribute("notificationCount")

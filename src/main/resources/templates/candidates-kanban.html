@@ -163,7 +163,7 @@
                     <h3 class="text-xl font-bold text-white">Schedule Interview</h3>
                     <p id="forwardCandidateName" class="text-teal-100 text-sm mt-1 font-medium"></p>
                 </div>
-                <form id="forwardForm" method="POST" action="/interviews/schedule" class="p-8 space-y-5">
+                <form id="forwardForm" method="POST" th:action="@{/interviews/schedule}" class="p-8 space-y-5">
                     <input type="hidden" name="candidateId" id="forwardCandidateId">
                     <input type="hidden" name="jobVacancyId" id="forwardJobVacancyId">
                     <input type="hidden" name="returnUrl" value="/candidates/kanban">

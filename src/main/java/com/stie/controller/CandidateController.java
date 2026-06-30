@@ -425,6 +425,10 @@ public class CandidateController {
     @Autowired
     private com.stie.service.ParserService parserService;
 
+
+    @org.springframework.beans.factory.annotation.Value("${app.base-url:http://localhost:8080}")
+    private String appBaseUrl;
+
     @PostMapping("/{id}/upload")
     public String uploadDocument(@PathVariable Long id,
             @RequestParam("file") MultipartFile file,
@@ -649,7 +653,7 @@ public class CandidateController {
                 if (interviewer != null) {
                     candidateService.assignInterviewer(id, interviewer);
                     auditService.log("CANDIDATE_FORWARDED", getCurrentUser(), "Candidate", id, "Forwarded to Interviewer: " + (interviewer.getDisplayName() != null ? interviewer.getDisplayName() : interviewer.getUsername()));
-                    notificationService.addNotification("You have been assigned to interview candidate " + candidateService.findById(id).get().getFullName(), "http://localhost:8080/candidates/" + id, interviewer.getUsername());
+                    notificationService.addNotification("You have been assigned to interview candidate " + candidateService.findById(id).get().getFullName(), appBaseUrl + "/candidates/" + id, interviewer.getUsername());
                 }
             }
             // Notify candidate by email
