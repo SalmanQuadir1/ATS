@@ -216,30 +216,7 @@ public class ParserService {
     }
 
     private String extractSkills(String text) {
-        List<String> skillsList = new ArrayList<String>();
-        String[] keywords = {
-            "Java", "Python", "C++", "JavaScript", "TypeScript", "React", "Angular", "Vue", "Spring Boot",
-            "Node.js", "SQL", "NoSQL", "Docker", "Kubernetes", "AWS", "Azure", "GCP", "Microservices",
-            "Project Management", "Agile", "Scrum", "Cybersecurity", "Network", "Cisco", "Firewall",
-            "Accounting", "SAP", "Excel", "Marketing", "SEO", "Salesforce", "Flutter", "Kotlin", "Swift",
-            "Machine Learning", "AI", "Data Science", "Tableau", "PowerBI", "Linux", "Git", "Jenkins",
-            "HTML", "CSS", "C#", ".NET", "PHP", "Ruby", "Golang", "Rust", "MySQL", "PostgreSQL", "MongoDB",
-            "Redis", "Kafka", "RabbitMQ", "Jira", "Confluence", "Figma", "UI/UX", "AutoCAD",
-            "PLRD", "Security Officer", "Patrolling", "CCTV", "Access Control", "First Aid", "Fire Safety",
-            "Incident Response", "Customer Service", "Physical Security", "Risk Assessment", "Crowd Control",
-            "Vigilance", "Surveillance"
-        };
-        for (String kw : keywords) {
-            Pattern p = Pattern.compile("(?i)\\b" + Pattern.quote(kw) + "\\b");
-            if (p.matcher(text).find()) {
-                skillsList.add(kw);
-            }
-        }
-        String skillsStr = "";
-        for (int i = 0; i < skillsList.size(); i++) {
-            skillsStr += (i > 0 ? ", " : "") + skillsList.get(i);
-        }
-        return skillsStr.length() > 250 ? skillsStr.substring(0, 250) : skillsStr;
+        return ""; // Disabled to only save manually written skills
     }
 }
 
