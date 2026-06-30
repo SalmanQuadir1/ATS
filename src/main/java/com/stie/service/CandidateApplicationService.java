@@ -85,6 +85,11 @@ public class CandidateApplicationService {
             if (existing.isPresent()) return Optional.empty();
         }
 
+        // PRESERVE legacy application before creating new one or changing active job
+        if (job != null && candidate.getJobVacancy() != null && !candidate.getJobVacancy().getId().equals(job.getId())) {
+            seedLegacyApplicationIfAbsent(candidate);
+        }
+
         CandidateApplication app = new CandidateApplication();
         app.setCandidate(candidate);
         app.setJobVacancy(job);
@@ -98,6 +103,13 @@ public class CandidateApplicationService {
         app.setApplicationId("APP-" + year + "-" + randomStr);
 
         CandidateApplication saved = applicationRepository.save(app);
+
+        // Update candidate's overall active job to the latest application
+        if (job != null && (candidate.getJobVacancy() == null || !candidate.getJobVacancy().getId().equals(job.getId()))) {
+            candidate.setJobVacancy(job);
+            candidateRepository.save(candidate);
+        }
+
         auditService.log("APPLICATION_CREATED", performedBy, "CandidateApplication", saved.getId(),
                 "Application created for candidate: " + candidate.getFullName()
                 + (job != null ? " | Job: " + job.getTitle() : " | No specific job"));

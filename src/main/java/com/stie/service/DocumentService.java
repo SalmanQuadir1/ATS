@@ -32,7 +32,7 @@ public class DocumentService {
     }
 
     public String generateOfferLetterPdf(Candidate candidate, JobVacancy job, Double salary) {
-        String uploadDir = "uploads/offers/";
+        String uploadDir = com.stie.config.AppConstants.FilePaths.OFFERS_SUBDIR;
         try {
             Path uploadPath = Paths.get(uploadDir);
             if (!Files.exists(uploadPath)) {

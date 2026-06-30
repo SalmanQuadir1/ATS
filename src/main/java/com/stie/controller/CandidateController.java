@@ -583,6 +583,21 @@ public class CandidateController {
         }
     }
 
+    @GetMapping("/debug/candidates")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public String debugCandidates() {
+        StringBuilder sb = new StringBuilder();
+        for (Candidate c : candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 1000)).getContent()) {
+            sb.append("ID: ").append(c.getId())
+              .append(", Email: ").append(c.getEmail())
+              .append(", Name: ").append(c.getFullName())
+              .append(", JobID: ").append(c.getJobVacancy() != null ? c.getJobVacancy().getId() : "null")
+              .append(", Apps: ").append(applicationService.getApplicationsForCandidate(c.getId()).size())
+              .append("<br>");
+        }
+        return sb.toString();
+    }
+
     // =========================================================================
     // KANBAN
     // =========================================================================
@@ -679,7 +694,7 @@ public class CandidateController {
         
         if (signedOfferFile != null && !signedOfferFile.isEmpty()) {
             try {
-                String uploadDir = "uploads/offers/signed/";
+                String uploadDir = com.stie.config.AppConstants.FilePaths.SIGNED_OFFERS_SUBDIR;
                 java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
                 if (!java.nio.file.Files.exists(uploadPath)) {
                     java.nio.file.Files.createDirectories(uploadPath);
@@ -717,7 +732,7 @@ public class CandidateController {
         }
 
         try {
-            java.nio.file.Path file = java.nio.file.Paths.get("uploads/offers/").resolve(candidate.getOfferLetterPath());
+            java.nio.file.Path file = java.nio.file.Paths.get(com.stie.config.AppConstants.FilePaths.OFFERS_SUBDIR).resolve(candidate.getOfferLetterPath());
             org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(file.toUri());
 
             if (resource.exists() || resource.isReadable()) {

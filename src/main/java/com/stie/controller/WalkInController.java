@@ -99,7 +99,7 @@ public class WalkInController {
             return "walkin";
         }
         
-        String uploadDir = "uploads/";
+        String uploadDir = com.stie.config.AppConstants.FilePaths.UPLOAD_DIR;
         Path uploadPath = Paths.get(uploadDir);
         try {
             if (!Files.exists(uploadPath)) {

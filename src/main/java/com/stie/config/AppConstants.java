@@ -83,6 +83,12 @@ public final class AppConstants {
         /** URL prefix served by the static resource handler (MvcConfig). */
         public static final String UPLOAD_URL_PREFIX    = "/uploads/";
 
+        /** Sub-folder for offer letters inside {@link #UPLOAD_DIR}. */
+        public static final String OFFERS_SUBDIR        = "uploads/offers/";
+
+        /** Sub-folder for signed offer letters inside {@link #UPLOAD_DIR}. */
+        public static final String SIGNED_OFFERS_SUBDIR = "uploads/offers/signed/";
+
         /** Maximum file size for resume uploads (mirrors application.properties). */
         public static final long   MAX_FILE_SIZE_BYTES  = 5L * 1024 * 1024; // 5 MB
     }

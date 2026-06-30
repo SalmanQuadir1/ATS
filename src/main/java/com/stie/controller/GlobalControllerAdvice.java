@@ -25,6 +25,11 @@ public class GlobalControllerAdvice {
         return Collections.emptyList();
     }
 
+    @ModelAttribute("uploadUrlPrefix")
+    public String getUploadUrlPrefix() {
+        return com.stie.config.AppConstants.FilePaths.UPLOAD_URL_PREFIX;
+    }
+
     @ModelAttribute("notificationCount")
     public long getNotificationCount() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

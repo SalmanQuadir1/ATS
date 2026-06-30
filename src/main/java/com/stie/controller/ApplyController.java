@@ -34,6 +34,9 @@ public class ApplyController {
     private CandidateService candidateService;
 
     @Autowired
+    private com.stie.service.CandidateApplicationService applicationService;
+
+    @Autowired
     private ParserService parserService;
 
     @Autowired
@@ -46,7 +49,8 @@ public class ApplyController {
     private com.stie.service.TenantService tenantService;
 
     @GetMapping("/{tenantName}/apply/{id}")
-    public String showApplyForm(@PathVariable("tenantName") String tenantName, @PathVariable("id") Long id, Model model, RedirectAttributes ra) {
+    public String showApplyForm(@PathVariable("tenantName") String tenantName, @PathVariable("id") Long id, Model model,
+            RedirectAttributes ra) {
         System.out.println("DEBUG: showApplyForm called for job ID: " + id);
         com.stie.model.Tenant tenant = tenantService.getSiteBySubdomain(tenantName);
         if (tenant == null) {
@@ -78,15 +82,16 @@ public class ApplyController {
 
     @PostMapping("/{tenantName}/apply/{id}/submit")
     public String submitApplication(@PathVariable("tenantName") String tenantName, @PathVariable("id") Long id,
-                                    @RequestParam(value = "resume", required = false) MultipartFile resume,
-                                    @RequestParam(value = "photo", required = false) MultipartFile photo,
-                                    Candidate candidate,
-                                    Model model) {
+            @RequestParam(value = "resume", required = false) MultipartFile resume,
+            @RequestParam(value = "photo", required = false) MultipartFile photo,
+            Candidate candidate,
+            Model model) {
         System.out.println("DEBUG: submitApplication called for job ID: " + id);
         System.out.println("DEBUG: Candidate name: " + candidate.getFullName() + ", email: " + candidate.getEmail());
 
         com.stie.model.Tenant tenant = tenantService.getSiteBySubdomain(tenantName);
-        if (tenant == null) return "redirect:/login";
+        if (tenant == null)
+            return "redirect:/login";
 
         JobVacancy job = jobService.getJobById(id);
         System.out.println("DEBUG: Job found: " + (job != null ? job.getTitle() : "null"));
@@ -118,7 +123,7 @@ public class ApplyController {
         candidate.setJobVacancy(job);
         candidate.setTenant(tenant);
 
-        String uploadDir = "uploads/";
+        String uploadDir = com.stie.config.AppConstants.FilePaths.UPLOAD_DIR;
         Path uploadPath = Paths.get(uploadDir);
         try {
             if (!Files.exists(uploadPath)) {
@@ -132,9 +137,9 @@ public class ApplyController {
             try {
                 String resumeFileName = UUID.randomUUID().toString() + "_" + resume.getOriginalFilename();
                 Path filePath = uploadPath.resolve(resumeFileName);
-            try (java.io.InputStream is = resume.getInputStream()) {
-                Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
-            }
+                try (java.io.InputStream is = resume.getInputStream()) {
+                    Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
+                }
                 candidate.setResumePath(resumeFileName);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -145,9 +150,9 @@ public class ApplyController {
             try {
                 String photoFileName = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
                 Path filePath = uploadPath.resolve(photoFileName);
-            try (java.io.InputStream is = photo.getInputStream()) {
-                Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
-            }
+                try (java.io.InputStream is = photo.getInputStream()) {
+                    Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
+                }
                 candidate.setPhotoPath(photoFileName);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -155,28 +160,33 @@ public class ApplyController {
         }
 
         try {
-            if (candidate.getEmail() != null && !candidate.getEmail().trim().isEmpty()) {
-                String email = candidate.getEmail().trim().toLowerCase();
-                boolean emailExists = candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 1000)).getContent().stream()
-                        .anyMatch(c -> email.equals(c.getEmail().trim().toLowerCase()) && c.getJobVacancy() != null && c.getJobVacancy().getId().equals(job.getId()));
-                if (emailExists) {
-                    model.addAttribute("error", "You have already applied for this job with the email address ('" + candidate.getEmail() + "').");
-                    model.addAttribute("candidate", candidate);
-                    return "apply";
-                }
-            }
+            // Fix Spring MVC data binding bug: The @PathVariable("id") representing the Job ID
+            // gets automatically bound to candidate.setId() by Spring. We MUST clear it
+            // so Hibernate treats this as a brand new Candidate insertion instead of updating
+            // an existing Candidate with that ID.
+            candidate.setId(null);
+
+            // New candidate entirely
             candidateService.saveCandidate(candidate);
-            notificationService.addNotification("New application for " + job.getTitle() + ": " + candidate.getFullName(), "/candidates/" + candidate.getId());
+
+            // Still create the CandidateApplication record for history/tracking
+            applicationService.createApplication(candidate.getId(), job.getId(),
+                    com.stie.model.CandidateApplication.ApplicationSource.ONLINE, null, null, "Public Portal");
+
+            notificationService.addNotification(
+                    "New application for " + job.getTitle() + ": " + candidate.getFullName(),
+                    "/candidates/" + candidate.getId());
             notificationService.sendAcknowledgment(candidate.getEmail(), candidate.getFullName());
-            model.addAttribute("message", "Application for " + job.getTitle() + " submitted successfully! Our HR team will contact you soon.");
+            model.addAttribute("message", "Application for " + job.getTitle()
+                    + " submitted successfully! Our HR team will contact you soon.");
             return "success";
-        } catch (org.springframework.dao.DataIntegrityViolationException e) {
-            model.addAttribute("error", "An application with this email address already exists.");
-            model.addAttribute("candidate", candidate);
-            return "apply";
+
         } catch (Exception e) {
-            model.addAttribute("error", "Error saving application: " + e.getMessage());
-            model.addAttribute("candidate", candidate);
+            e.printStackTrace();
+            model.addAttribute("error", "Failed to submit application: " + e.getMessage());
+            model.addAttribute("tenant", tenant);
+            model.addAttribute("branding", brandingService.getBranding(tenant));
+            model.addAttribute("job", job);
             return "apply";
         }
     }
