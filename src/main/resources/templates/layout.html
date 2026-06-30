@@ -500,7 +500,9 @@
             const tenantPrefix = /*[[${user != null and user.tenant != null ? '/' + user.tenant.subdomain : ''}]]*/ '';
             const appBaseUrl = /*[[${baseUrl}]]*/ '';
             const origin = (appBaseUrl && appBaseUrl.trim() !== '') ? appBaseUrl : window.location.origin;
-            navigator.clipboard.writeText(origin + tenantPrefix + '/walkin').then(() => {
+            const urlToCopy = origin + tenantPrefix + '/walkin';
+
+            const onSuccess = () => {
                 const label = document.getElementById('walkinBtnText');
                 if (label) {
                     label.textContent = 'Copied! ✓';
@@ -512,7 +514,28 @@
                         btn.classList.add('text-slate-600', 'bg-slate-100');
                     }, 2000);
                 }
-            });
+            };
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(urlToCopy).then(onSuccess);
+            } else {
+                // Fallback for non-secure contexts (HTTP)
+                const textArea = document.createElement("textarea");
+                textArea.value = urlToCopy;
+                textArea.style.position = "fixed";
+                textArea.style.opacity = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    onSuccess();
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                    alert("Unable to copy to clipboard. Please copy manually: " + urlToCopy);
+                }
+                document.body.removeChild(textArea);
+            }
         }
 
         // Auto-expand menus based on current path

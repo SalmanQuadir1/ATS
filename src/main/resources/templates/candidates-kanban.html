@@ -213,22 +213,24 @@
             </div>
         </div>
 
-        <script>
+        <script th:inline="javascript">
             function handleStatusChange(selectEl) {
                 const newStatus = selectEl.value;
                 const currentStatus = selectEl.getAttribute('data-current-status');
                 const candidateId = selectEl.getAttribute('data-candidate-id');
+                const contextPath = /*[[@{/}]]*/ '/';
+                const basePath = contextPath.endsWith('/') ? contextPath.slice(0, -1) : contextPath;
                 
                 if (newStatus === 'OFFERED') {
                     // Redirect to the offer generation flow instead of silent status save
-                    window.location.href = '/offers/generate/' + candidateId;
+                    window.location.href = basePath + '/offers/generate/' + candidateId;
                     selectEl.value = currentStatus; // revert visual state until redirected
                     return;
                 }
 
                 if (newStatus === 'HIRED') {
                     // Redirect to the finalize hire form
-                    window.location.href = '/candidates/hire/' + candidateId;
+                    window.location.href = basePath + '/candidates/hire/' + candidateId;
                     selectEl.value = currentStatus; // revert visual state until redirected
                     return;
                 }
