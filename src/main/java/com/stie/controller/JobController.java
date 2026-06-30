@@ -90,18 +90,22 @@ public class JobController {
         int end = Math.min(start + size, total);
         java.util.List<JobVacancy> paged = start < total ? all.subList(start, end) : java.util.Collections.emptyList();
         
+        // Global status counts for the tiles
+        java.util.List<com.stie.model.Candidate> allCandidates = candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 10000)).getContent();
+
         java.util.Map<Long, Long> totalAppsMap = new java.util.HashMap<>();
         java.util.Map<Long, java.util.Map<String, Long>> statusAppsMap = new java.util.HashMap<>();
         for (JobVacancy job : paged) {
-            java.util.List<com.stie.model.CandidateApplication> apps = applicationService.getApplicationsForJob(job.getId());
-            totalAppsMap.put(job.getId(), (long) apps.size());
-            java.util.Map<String, Long> statusCounts = apps.stream()
-                .collect(java.util.stream.Collectors.groupingBy(a -> a.getStatus().name(), java.util.stream.Collectors.counting()));
+            java.util.List<com.stie.model.Candidate> jobCandidates = allCandidates.stream()
+                .filter(c -> c.getJobVacancy() != null && c.getJobVacancy().getId().equals(job.getId()))
+                .collect(java.util.stream.Collectors.toList());
+                
+            totalAppsMap.put(job.getId(), (long) jobCandidates.size());
+            java.util.Map<String, Long> statusCounts = jobCandidates.stream()
+                .collect(java.util.stream.Collectors.groupingBy(c -> c.getStatus().name(), java.util.stream.Collectors.counting()));
             statusAppsMap.put(job.getId(), statusCounts);
         }
 
-        // Global status counts for the tiles
-        java.util.List<com.stie.model.Candidate> allCandidates = candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 10000)).getContent();
         long countApplied = allCandidates.stream().filter(c -> c.getStatus() == com.stie.model.Candidate.CandidateStatus.APPLIED).count();
         long countShortlisted = allCandidates.stream().filter(c -> c.getStatus() == com.stie.model.Candidate.CandidateStatus.SHORTLISTED).count();
         long countInterview = allCandidates.stream().filter(c -> c.getStatus() == com.stie.model.Candidate.CandidateStatus.INTERVIEW).count();
