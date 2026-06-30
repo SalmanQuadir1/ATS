@@ -499,7 +499,9 @@
         function copyWalkinLink(btn) {
             const tenantPrefix = /*[[${user != null and user.tenant != null ? '/' + user.tenant.subdomain : ''}]]*/ '';
             const appBaseUrl = /*[[${baseUrl}]]*/ '';
-            const origin = (appBaseUrl && appBaseUrl.trim() !== '') ? appBaseUrl : window.location.origin;
+            const contextPath = /*[[@{/}]]*/ '/';
+            const normalizedContext = contextPath.endsWith('/') ? contextPath.slice(0, -1) : contextPath;
+            const origin = (appBaseUrl && appBaseUrl.trim() !== '') ? appBaseUrl : (window.location.origin + normalizedContext);
             const urlToCopy = origin + tenantPrefix + '/walkin';
 
             const onSuccess = () => {
