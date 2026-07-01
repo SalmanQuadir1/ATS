@@ -19,13 +19,13 @@
                     <input type="hidden" name="id" th:value="${vacancy.id}" th:if="${vacancy.id != null}">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Title</label>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Title <span class="text-rose-500">*</span></label>
                             <input type="text" th:field="*{title}" required
                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder-slate-400"
                                    placeholder="e.g. Senior Software Engineer">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Department</label>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Department <span class="text-rose-500">*</span></label>
                             <select th:field="*{department}" required
                                     class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
                                 <option value="" disabled selected>Select Department</option>
@@ -34,12 +34,12 @@
                             </select>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Expiry Date</label>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Expiry Date <span class="text-rose-500">*</span></label>
                             <input type="datetime-local" th:field="*{expiryDate}" required
                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Location / Work Site</label>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Location / Work Site <span class="text-rose-500">*</span></label>
                             <select name="location" required
                                     class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
                                 <option value="" disabled selected>Select Location</option>
@@ -48,13 +48,13 @@
                             </select>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">No. of Posts / Headcount</label>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">No. of Posts / Headcount <span class="text-rose-500">*</span></label>
                             <input type="number" th:field="*{noOfPosts}" min="1" required
                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                                    placeholder="e.g. 5">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Experience Required</label>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Experience Required <span class="text-rose-500">*</span></label>
                             <select th:field="*{experienceRequired}" required
                                     class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
                                 <option value="" disabled selected>Select Experience Required</option>
@@ -71,7 +71,7 @@
                             </select>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Category</label>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Category <span class="text-rose-500">*</span></label>
                             <select name="categoryId" id="categorySelect" required
                                     class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
                                 <option value="" disabled selected>Select Category</option>
@@ -87,10 +87,14 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Description</label>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Job Description <span class="text-rose-500">*</span></label>
                         <textarea th:field="*{description}" rows="6" required
                                   class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder-slate-400"
                                   placeholder="Describe the roles, responsibilities and requirements..."></textarea>
+                    </div>
+
+                    <div class="pt-4 flex items-center gap-2 text-xs text-slate-400">
+                        <span class="text-rose-500 font-bold">*</span> indicates a required field
                     </div>
 
                     <div class="pt-6 border-t border-slate-100 flex items-center justify-between">
@@ -165,4 +169,3 @@
     </script>
 </body>
 </html>
-

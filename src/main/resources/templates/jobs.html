@@ -289,8 +289,8 @@
                                     </button>
                                 </form>
 
-                                <!-- Public apply link -->
-                                <a th:href="@{'/' + ${job.tenant.subdomain} + '/apply/' + ${job.id}}" target="_blank"
+                                <!-- Public apply link (only for approved jobs) -->
+                                <a th:if="${job.approvalStatus != null and job.approvalStatus.name() == 'APPROVED'}" th:href="@{'/' + ${job.tenant.subdomain} + '/apply/' + ${job.id}}" target="_blank"
                                    title="Public Apply Link"
                                    class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
