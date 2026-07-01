@@ -376,7 +376,7 @@
                                 <div class="w-2 h-2 rounded-full mt-1.5 shrink-0"
                                     th:classappend="${notif.read ? 'bg-slate-300' : 'bg-emerald-500 animate-pulse'}">
                                 </div>
-                                <a th:href="${notif.targetUrl}" class="flex-1 min-w-0">
+                                <a th:href="@{${notif.targetUrl}}" class="flex-1 min-w-0">
                                     <p class="text-xs leading-relaxed"
                                         th:classappend="${notif.read ? 'text-slate-400 font-normal' : 'font-semibold text-slate-700'}"
                                         th:text="${notif.message}">New applicant application received.</p>
