@@ -47,7 +47,9 @@ public class CandidateTransferController {
         model.addAttribute("historicalTransfers", historicalTransfers);
         // keep "transfers" just in case
         model.addAttribute("transfers", allTransfers);
-        model.addAttribute("candidates", candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 10000)).getContent());
+        model.addAttribute("candidates", candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 10000)).getContent().stream()
+                .filter(c -> c.getStatus() != null && c.getStatus().name().equals("HIRED"))
+                .collect(java.util.stream.Collectors.toList()));
         model.addAttribute("jobs", jobService.getAllVacanciesAcrossTenants());
         model.addAttribute("currentTenant", userService.getCurrentTenant());
         return "transfers";
