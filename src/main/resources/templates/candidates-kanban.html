@@ -192,10 +192,10 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Assign Interviewer</label>
-                        <select name="interviewerId"
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Assign Interviewer <span class="text-red-500">*</span></label>
+                        <select name="interviewerId" required
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
-                            <option value="">None (send to applicant only)</option>
+                            <option value="" disabled selected>Select Interviewer</option>
                             <option th:each="iv : ${interviewers}" th:value="${iv.id}" th:text="${iv.displayName != null ? iv.displayName : iv.username}"></option>
                         </select>
                         <p class="text-xs text-slate-400 mt-1">They will be notified and sent a calendar invite.</p>
