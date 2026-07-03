@@ -260,7 +260,7 @@
             </div>
         </div>
         
-        <script>
+        <script th:inline="javascript">
             function showRemarksModal(text) {
                 document.getElementById('remarksModalText').textContent = text;
                 document.getElementById('remarksModal').classList.remove('hidden');
@@ -273,10 +273,11 @@
             }
             
             function submitReview(action) {
-            document.getElementById('reviewAction').value = action;
-            const form = document.getElementById('reviewForm');
-            form.action = `/transfers/${currentTransferId}/${action}`;
-        }
+                document.getElementById('reviewAction').value = action;
+                const form = document.getElementById('reviewForm');
+                const basePath = /*[[@{/transfers/}]]*/ '/transfers/';
+                form.action = basePath + currentTransferId + '/' + action;
+            }
         
         function switchTab(tab) {
             document.getElementById('content-active').classList.toggle('hidden', tab !== 'active');

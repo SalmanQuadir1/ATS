@@ -230,10 +230,11 @@
 
 
 
-        <script>
+        <script th:inline="javascript">
             function openOutcomeModal(interviewId, candidateName) {
                 const form = document.getElementById('outcomeForm');
-                form.action = '/interviews/' + interviewId + '/outcome';
+                const basePath = /*[[@{/interviews/}]]*/ '/interviews/';
+                form.action = basePath + interviewId + '/outcome';
                 document.getElementById('outcomeSubtitle').textContent = 'Applicant: ' + candidateName;
                 // Reset radio selections
                 document.querySelectorAll('#outcomeForm input[type="radio"]').forEach(r => r.checked = false);
@@ -242,7 +243,8 @@
 
             function openFeedbackModal(interviewId) {
                 const form = document.getElementById('feedbackForm');
-                form.action = '/interviews/' + interviewId + '/feedback';
+                const basePath = /*[[@{/interviews/}]]*/ '/interviews/';
+                form.action = basePath + interviewId + '/feedback';
                 document.getElementById('feedbackModal').classList.remove('hidden');
             }
 
@@ -250,5 +252,3 @@
     </div>
 </body>
 </html>
-
-
