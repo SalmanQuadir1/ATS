@@ -1,5 +1,7 @@
 package com.stie.controller;
 
+import com.stie.model.PermissionModule;
+import com.stie.service.ModuleAccessService;
 import com.stie.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -15,6 +17,9 @@ public class GlobalControllerAdvice {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private ModuleAccessService moduleAccessService;
 
     @org.springframework.beans.factory.annotation.Value("${app.base-url:}")
     private String appBaseUrl;
@@ -46,5 +51,14 @@ public class GlobalControllerAdvice {
         }
         return 0;
     }
-}
 
+    /**
+     * Injects the list of sidebar nav modules visible to the current user
+     * into every page model automatically.
+     */
+    @ModelAttribute("navModules")
+    public List<PermissionModule> getNavModules() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return moduleAccessService.getVisibleNavModules(auth);
+    }
+}

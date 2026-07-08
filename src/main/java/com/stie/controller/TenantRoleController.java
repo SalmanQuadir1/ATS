@@ -1,5 +1,6 @@
 package com.stie.controller;
 
+import com.stie.model.PermissionModule;
 import com.stie.model.Role;
 import com.stie.model.User;
 import com.stie.repository.PermissionModuleRepository;
@@ -18,71 +19,60 @@ import java.util.List;
 import java.util.Set;
 
 @Controller
-@RequestMapping("/settings/roles")
 @PreAuthorize("hasAuthority('MANAGE_ROLES') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SUPER_ADMIN')")
 public class TenantRoleController {
 
-    @Autowired
-    private RoleRepository roleRepository;
+    @Autowired private RoleRepository roleRepository;
+    @Autowired private PermissionModuleRepository permissionModuleRepository;
+    @Autowired private UserService userService;
+    @Autowired private AuditService auditService;
 
-    @Autowired
-    private PermissionModuleRepository permissionModuleRepository;
+    // ─── Roles ─────────────────────────────────────────────────────────────
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AuditService auditService;
-
-    @GetMapping
+    @GetMapping("/settings/roles")
     public String listTenantRoles(Model model) {
         User user = userService.getCurrentUser();
         if (user == null) return "redirect:/login";
 
         if (user.getTenant() == null) {
-            // SuperAdmin or Global user - direct to super admin roles
             return "redirect:/super-admin/roles";
         }
 
-        model.addAttribute("pageTitle", "Role Management");
+        model.addAttribute("pageTitle", "Roles & Modules");
         model.addAttribute("roles", roleRepository.findByTenantOrTenantIsNull(user.getTenant()));
         model.addAttribute("allPermissions", permissionModuleRepository.findAll());
         return "settings-roles";
     }
 
-    @PostMapping("/create")
+    @PostMapping("/settings/roles/create")
     public String createRole(@RequestParam String name,
                              @RequestParam(required = false) List<String> permissions,
                              RedirectAttributes redirectAttributes) {
         User user = userService.getCurrentUser();
         if (user == null || user.getTenant() == null) return "redirect:/login";
 
-        // Check if role name exists for this tenant
         boolean exists = roleRepository.findByTenant(user.getTenant()).stream()
                 .anyMatch(r -> r.getName().equalsIgnoreCase(name));
-        
         if (exists) {
             redirectAttributes.addFlashAttribute("error", "Role name already exists.");
             return "redirect:/settings/roles";
         }
 
         Set<String> perms = new HashSet<>();
-        if (permissions != null) {
-            perms = new HashSet<>(permissions);
-        }
+        if (permissions != null) perms = new HashSet<>(permissions);
 
         Role role = new Role(name, perms, false);
         role.setTenant(user.getTenant());
         roleRepository.save(role);
 
-        auditService.log("ROLE_CREATE", user.getUsername(), "Role", role.getId(), 
+        auditService.log("ROLE_CREATE", user.getUsername(), "Role", role.getId(),
             "Created custom role: " + name, user.getTenant());
 
         redirectAttributes.addFlashAttribute("success", "Custom role created successfully.");
         return "redirect:/settings/roles";
     }
 
-    @PostMapping("/update/{id}")
+    @PostMapping("/settings/roles/update/{id}")
     public String updateRole(@PathVariable Long id,
                              @RequestParam(required = false) List<String> permissions,
                              RedirectAttributes redirectAttributes) {
@@ -91,61 +81,121 @@ public class TenantRoleController {
 
         Role role = roleRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Role not found: " + id));
 
-        // Ensure role belongs to this tenant and is not a system role
         if (role.getTenant() == null || !role.getTenant().getId().equals(user.getTenant().getId())) {
             redirectAttributes.addFlashAttribute("error", "You do not have permission to modify this role.");
             return "redirect:/settings/roles";
         }
-        
         if (role.isSystemRole()) {
             redirectAttributes.addFlashAttribute("error", "System roles cannot be modified.");
             return "redirect:/settings/roles";
         }
 
         Set<String> perms = new HashSet<>();
-        if (permissions != null) {
-            perms = new HashSet<>(permissions);
-        }
+        if (permissions != null) perms = new HashSet<>(permissions);
         role.setPermissions(perms);
         roleRepository.save(role);
 
-        auditService.log("ROLE_UPDATE", user.getUsername(), "Role", role.getId(), 
+        auditService.log("ROLE_UPDATE", user.getUsername(), "Role", role.getId(),
             "Updated custom role: " + role.getName(), user.getTenant());
 
         redirectAttributes.addFlashAttribute("success", "Permissions for '" + role.getName() + "' updated successfully.");
         return "redirect:/settings/roles";
     }
 
-    @PostMapping("/delete/{id}")
+    @PostMapping("/settings/roles/delete/{id}")
     public String deleteRole(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         User user = userService.getCurrentUser();
         if (user == null || user.getTenant() == null) return "redirect:/login";
 
         Role role = roleRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Role not found: " + id));
-        
-        // Ensure role belongs to this tenant and is not a system role
+
         if (role.getTenant() == null || !role.getTenant().getId().equals(user.getTenant().getId())) {
             redirectAttributes.addFlashAttribute("error", "You do not have permission to delete this role.");
             return "redirect:/settings/roles";
         }
-        
         if (role.isSystemRole()) {
             redirectAttributes.addFlashAttribute("error", "System roles cannot be deleted.");
             return "redirect:/settings/roles";
         }
 
-        // Before deleting, ensure no users are assigned to it (optional but good practice)
-        // Since we don't have user Role management tightly coupled here, we will just delete it.
-        // Spring Data JPA might throw DataIntegrityViolationException if foreign key constraint fails.
         try {
             roleRepository.delete(role);
-            auditService.log("ROLE_DELETE", user.getUsername(), "Role", role.getId(), 
+            auditService.log("ROLE_DELETE", user.getUsername(), "Role", role.getId(),
                 "Deleted custom role: " + role.getName(), user.getTenant());
             redirectAttributes.addFlashAttribute("success", "Custom role deleted successfully.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Cannot delete role. It might be assigned to users.");
         }
-        
+
+        return "redirect:/settings/roles";
+    }
+
+    // ─── Permission Modules CRUD ────────────────────────────────────────────
+
+    @PostMapping("/settings/modules/create")
+    public String createModule(@RequestParam String name,
+                               @RequestParam(required = false) String description,
+                               @RequestParam(required = false) String isNavItem,
+                               @RequestParam(required = false) String navLabel,
+                               @RequestParam(required = false) String navUrl,
+                               @RequestParam(required = false, defaultValue = "main") String navGroup,
+                               @RequestParam(required = false, defaultValue = "100") int navOrder,
+                               RedirectAttributes redirectAttributes) {
+        String safeName = name.toUpperCase().replace(" ", "_");
+        if (permissionModuleRepository.findByName(safeName).isPresent()) {
+            redirectAttributes.addFlashAttribute("error", "Module '" + safeName + "' already exists.");
+            return "redirect:/settings/roles";
+        }
+
+        PermissionModule pm = new PermissionModule(safeName, description);
+        pm.setNavItem("true".equals(isNavItem));
+        pm.setNavLabel(navLabel);
+        pm.setNavUrl(navUrl);
+        pm.setNavGroup(navGroup != null ? navGroup : "main");
+        pm.setNavOrder(navOrder);
+        pm.setSystemModule(false);
+        permissionModuleRepository.save(pm);
+
+        redirectAttributes.addFlashAttribute("success", "Module '" + safeName + "' created successfully.");
+        return "redirect:/settings/roles";
+    }
+
+    @PostMapping("/settings/modules/update/{id}")
+    public String updateModule(@PathVariable Long id,
+                               @RequestParam(required = false) String description,
+                               @RequestParam(required = false) String isNavItem,
+                               @RequestParam(required = false) String navLabel,
+                               @RequestParam(required = false) String navUrl,
+                               @RequestParam(required = false, defaultValue = "main") String navGroup,
+                               @RequestParam(required = false, defaultValue = "0") int navOrder,
+                               RedirectAttributes redirectAttributes) {
+        PermissionModule pm = permissionModuleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Module not found: " + id));
+
+        pm.setDescription(description);
+        pm.setNavItem("true".equals(isNavItem));
+        pm.setNavLabel(navLabel);
+        pm.setNavUrl(navUrl);
+        pm.setNavGroup(navGroup != null ? navGroup : "main");
+        pm.setNavOrder(navOrder);
+        permissionModuleRepository.save(pm);
+
+        redirectAttributes.addFlashAttribute("success", "Module '" + pm.getName() + "' updated.");
+        return "redirect:/settings/roles";
+    }
+
+    @PostMapping("/settings/modules/delete/{id}")
+    public String deleteModule(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        PermissionModule pm = permissionModuleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Module not found: " + id));
+
+        if (pm.isSystemModule()) {
+            redirectAttributes.addFlashAttribute("error", "Built-in system modules cannot be deleted.");
+            return "redirect:/settings/roles";
+        }
+
+        permissionModuleRepository.delete(pm);
+        redirectAttributes.addFlashAttribute("success", "Module deleted.");
         return "redirect:/settings/roles";
     }
 }
