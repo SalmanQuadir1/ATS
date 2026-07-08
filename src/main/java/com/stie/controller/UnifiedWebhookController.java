@@ -121,8 +121,8 @@ public class UnifiedWebhookController {
                 if (candidate.getPhone() == null || candidate.getPhone().isEmpty()) {
                     candidate.setPhone(parsedData.getPhone());
                 }
-                if (parsedData.getEducation() != null && !parsedData.getEducation().isEmpty()) {
-                    candidate.setEducation(parsedData.getEducation());
+                if (parsedData.getEducations() != null && !parsedData.getEducations().isEmpty()) {
+                    candidate.setEducations(parsedData.getEducations());
                 }
                 if (parsedData.getSkills() != null && !parsedData.getSkills().isEmpty()) {
                     candidate.setSkills(parsedData.getSkills());
@@ -194,7 +194,9 @@ public class UnifiedWebhookController {
             candidate.setNationality("Foreigner");
             candidate.setExperienceYears(1);
             candidate.setStatus(Candidate.CandidateStatus.APPLIED);
-            candidate.setEducation("Extracted from Forwarded Email System");
+            com.stie.model.CandidateEducation defaultEdu = new com.stie.model.CandidateEducation();
+            defaultEdu.setDegree("Extracted from Forwarded Email System");
+            candidate.setEducations(java.util.Collections.singletonList(defaultEdu));
             candidate.setSkills("Forwarded");
 
             // Parse attached CV
@@ -207,8 +209,8 @@ public class UnifiedWebhookController {
                 if (parsedData.getPhone() != null && !parsedData.getPhone().isEmpty()) {
                     candidate.setPhone(parsedData.getPhone());
                 }
-                if (parsedData.getEducation() != null && !parsedData.getEducation().isEmpty()) {
-                    candidate.setEducation(parsedData.getEducation());
+                if (parsedData.getEducations() != null && !parsedData.getEducations().isEmpty()) {
+                    candidate.setEducations(parsedData.getEducations());
                 }
                 if (parsedData.getSkills() != null && !parsedData.getSkills().isEmpty()) {
                     candidate.setSkills(parsedData.getSkills());

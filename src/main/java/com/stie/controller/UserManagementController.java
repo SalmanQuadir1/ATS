@@ -44,8 +44,8 @@ public class UserManagementController {
     public String registerUser(@RequestParam String username,
                                @RequestParam String password,
                                @RequestParam Long roleId,
-                               @RequestParam(required = false, defaultValue = "") String displayName,
-                               @RequestParam(required = false, defaultValue = "") String email,
+                               @RequestParam String displayName,
+                               @RequestParam String email,
                                RedirectAttributes ra, Model model) {
         User current = userService.getCurrentUser();
         if (current == null) return "redirect:/login";

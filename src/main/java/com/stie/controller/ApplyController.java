@@ -84,6 +84,10 @@ public class ApplyController {
     public String submitApplication(@PathVariable("tenantName") String tenantName, @PathVariable("id") Long id,
             @RequestParam(value = "resume", required = false) MultipartFile resume,
             @RequestParam(value = "photo", required = false) MultipartFile photo,
+            @RequestParam(value = "academicCert", required = false) MultipartFile academicCert,
+            @RequestParam(value = "otherDoc", required = false) MultipartFile otherDoc,
+            @RequestParam(value = "educationRaw", required = false) String educationRaw,
+            @RequestParam(value = "certificationsRaw", required = false) String certificationsRaw,
             Candidate candidate,
             Model model) {
         System.out.println("DEBUG: submitApplication called for job ID: " + id);
@@ -159,6 +163,32 @@ public class ApplyController {
             }
         }
 
+        if (academicCert != null && !academicCert.isEmpty()) {
+            try {
+                String certFileName = UUID.randomUUID().toString() + "_" + academicCert.getOriginalFilename();
+                Path filePath = uploadPath.resolve(certFileName);
+                try (java.io.InputStream is = academicCert.getInputStream()) {
+                    Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                candidate.setAcademicCertPath(certFileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (otherDoc != null && !otherDoc.isEmpty()) {
+            try {
+                String docFileName = UUID.randomUUID().toString() + "_" + otherDoc.getOriginalFilename();
+                Path filePath = uploadPath.resolve(docFileName);
+                try (java.io.InputStream is = otherDoc.getInputStream()) {
+                    Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                candidate.setOtherDocPath(docFileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         try {
             // Fix Spring MVC data binding bug: The @PathVariable("id") representing the Job ID
             // gets automatically bound to candidate.setId() by Spring. We MUST clear it
@@ -167,6 +197,33 @@ public class ApplyController {
             candidate.setId(null);
 
             // New candidate entirely
+            if (educationRaw != null && !educationRaw.trim().isEmpty()) {
+                java.util.List<com.stie.model.CandidateEducation> edList = new java.util.ArrayList<>();
+                String[] edParts = educationRaw.split(",");
+                for (String edPart : edParts) {
+                    if (edPart.trim().isEmpty()) continue;
+                    String[] chunks = edPart.split("\\|");
+                    com.stie.model.CandidateEducation ce = new com.stie.model.CandidateEducation();
+                    if (chunks.length > 0) ce.setInstitution(chunks[0].trim());
+                    if (chunks.length > 1) ce.setDegree(chunks[1].trim());
+                    if (chunks.length > 2) ce.setStartYear(chunks[2].trim());
+                    if (chunks.length > 3) ce.setEndYear(chunks[3].trim());
+                    if (chunks.length > 4) {
+                        String cgpaStr = chunks[4].trim();
+                        if (cgpaStr.startsWith("CGPA:")) {
+                            try {
+                                ce.setCgpa(Double.parseDouble(cgpaStr.replace("CGPA:", "").trim()));
+                            } catch (Exception ex) {}
+                        }
+                    }
+                    edList.add(ce);
+                }
+                candidate.setEducations(edList);
+            }
+            if (certificationsRaw != null && !certificationsRaw.trim().isEmpty()) {
+                candidate.setCertifications(java.util.Arrays.asList(certificationsRaw.split("\\s*,\\s*")));
+            }
+
             candidateService.saveCandidate(candidate);
 
             // Still create the CandidateApplication record for history/tracking

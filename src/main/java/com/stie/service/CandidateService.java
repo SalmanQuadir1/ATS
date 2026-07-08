@@ -62,7 +62,7 @@ public class CandidateService {
         return saved;
     }
 
-    public void updateStatus(Long id, Candidate.CandidateStatus status) {
+    public void updateStatus(Long id, Candidate.CandidateStatus status, String performedBy) {
         Tenant tenant = userService.getCurrentTenant();
         repository.findById(id).filter(c -> tenant == null || c.getTenant() == null || (tenant.getId() != null && tenant.getId().equals(c.getTenant().getId()))).ifPresent(c -> {
             if (c.getStatus() == Candidate.CandidateStatus.SHORTLISTED && 
@@ -71,7 +71,7 @@ public class CandidateService {
             }
             c.setStatus(status);
             repository.save(c);
-            auditService.log("CANDIDATE_STATUS_UPDATED", "HR_User", "Candidate", id, "Status changed to: " + status);
+            auditService.log("CANDIDATE_STATUS_UPDATED", performedBy != null ? performedBy : "System", "Candidate", id, "Status changed to: " + status);
             
             if (status == Candidate.CandidateStatus.REJECTED) {
                 notificationService.sendRejectionEmail(c.getEmail(), c.getFullName());
@@ -114,13 +114,13 @@ public class CandidateService {
                              c.getFullName().toLowerCase().contains(query.toLowerCase()) || 
                              (c.getApplicationId() != null && c.getApplicationId().toLowerCase().contains(query.toLowerCase())) ||
                              (c.getSkills() != null && c.getSkills().toLowerCase().contains(query.toLowerCase())) ||
-                             (c.getEducation() != null && c.getEducation().toLowerCase().contains(query.toLowerCase())) ||
+                             (c.getEducations() != null && c.getEducations().stream().anyMatch(e -> (e.getDegree() != null && e.getDegree().toLowerCase().contains(query.toLowerCase())) || (e.getInstitution() != null && e.getInstitution().toLowerCase().contains(query.toLowerCase())))) ||
                              (c.getTaggedRoles() != null && c.getTaggedRoles().toLowerCase().contains(query.toLowerCase())))
                 .filter(c -> nationality == null || nationality.isEmpty() || (c.getNationality() != null && c.getNationality().equalsIgnoreCase(nationality)))
                 .filter(c -> minExp == null || (c.getExperienceYears() != null && c.getExperienceYears() >= minExp))
                 .filter(c -> maxSalary == null || c.getExpectedSalary() == null || c.getExpectedSalary() <= maxSalary)
                 .filter(c -> certifications == null || certifications.isEmpty() || 
-                             (c.getCertifications() != null && c.getCertifications().toLowerCase().contains(certifications.toLowerCase())))
+                             (c.getCertifications() != null && c.getCertifications().stream().anyMatch(cert -> cert.toLowerCase().contains(certifications.toLowerCase()))))
                 .filter(c -> hasSecurityLicense == null || !hasSecurityLicense || 
                              (c.getSecurityLicense() != null && !c.getSecurityLicense().trim().isEmpty()))
                 .filter(c -> workPermitEligible == null || !workPermitEligible || c.isWorkPermitEligible())

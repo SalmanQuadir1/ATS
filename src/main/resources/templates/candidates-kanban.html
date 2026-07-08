@@ -91,15 +91,11 @@
                                 </div>
                             </div>
 
-                            <!-- Experience & Expected Salary -->
+                            <!-- Experience -->
                             <div class="flex items-center gap-4 text-[11px] text-slate-500 font-medium mb-3 bg-slate-50 px-2.5 py-2 rounded-lg border border-slate-100">
                                 <div class="flex items-center gap-1.5">
                                     <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                    <span th:text="${c.experienceYears} + ' Yrs'">3 Yrs</span>
-                                </div>
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <span th:text="${c.expectedSalary != null ? '$' + #numbers.formatInteger(c.expectedSalary, 0, 'COMMA') : 'N/A'}">$5,000</span>
+                                    <span th:text="${c.experienceYears} + ' Yrs Exp'">3 Yrs Exp</span>
                                 </div>
                             </div>
 
@@ -131,7 +127,7 @@
                                             th:data-candidate-name="${c.fullName}"
                                             th:data-current-status="${c.status}"
                                             th:data-job-vacancy-id="${c.jobVacancy != null ? c.jobVacancy.id : ''}"
-                                            th:disabled="${(c.status.name() == 'INTERVIEW' && !completedInterviewCandidateIds.contains(c.id)) or c.status.name() == 'HIRED'}"
+                                            th:disabled="${(c.status.name() == 'INTERVIEW' && !completedInterviewCandidateIds.contains(c.id)) or c.status.name() == 'HIRED' or c.status.name() == 'REJECTED'}"
                                             class="w-full text-xs bg-white border border-slate-200 hover:border-teal-400 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500/20 font-semibold text-slate-600 transition-colors cursor-pointer appearance-none disabled:opacity-50 disabled:cursor-not-allowed">
                                         <option th:each="opt : ${statuses}" 
                                                 th:value="${opt}" 
@@ -144,6 +140,10 @@
                                     <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     <span>Waiting for interviewer remarks/scorecard to proceed</span>
                                 </p>
+                                <p th:if="${c.status.name() == 'REJECTED'}" class="text-[9px] text-rose-500 w-full mt-1.5 font-bold leading-tight flex items-start gap-1">
+                                    <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                    <span>Application rejected — card is locked</span>
+                                </p>
                             </div>
                         </div>
 
@@ -154,6 +154,36 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Rejection Remarks Modal -->
+        <div id="rejectionModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden">
+                <div class="bg-gradient-to-r from-rose-600 to-rose-500 px-8 py-6">
+                    <h3 class="text-xl font-bold text-white">Reject Applicant</h3>
+                    <p id="rejectionCandidateName" class="text-rose-100 text-sm mt-1 font-medium"></p>
+                </div>
+                <div class="p-8 space-y-5">
+                    <p class="text-sm text-slate-500">Please provide a reason for rejecting this applicant. These remarks will be saved and visible on the candidate's profile.</p>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Rejection Remarks <span class="text-red-500">*</span></label>
+                        <textarea id="rejectionRemarksInput" rows="4" required
+                                  placeholder="e.g. Does not meet minimum experience requirements..."
+                                  class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none text-sm resize-none"></textarea>
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeRejectionModal()"
+                                class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors text-sm">Cancel</button>
+                        <button type="button" onclick="submitRejection()"
+                                class="flex-1 px-4 py-2.5 bg-rose-600 text-white rounded-xl font-semibold hover:bg-rose-700 transition-colors text-sm">Confirm Rejection</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Hidden form for rejection POST -->
+            <form id="rejectionForm" method="POST" class="hidden">
+                <input type="hidden" name="status" value="REJECTED">
+                <input type="hidden" name="rejectionRemarks" id="rejectionRemarksHidden">
+            </form>
         </div>
 
         <!-- Forward to Interviewer Modal -->
@@ -174,7 +204,7 @@
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm">
                             <option value="Online">Online</option>
                             <option value="Onsite">Onsite</option>
-                            <option value="Phone">Phone</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
 
@@ -214,6 +244,9 @@
         </div>
 
         <script th:inline="javascript">
+            let _rejectionCandidateId = null;
+            let _rejectionSelectEl = null;
+
             function handleStatusChange(selectEl) {
                 const newStatus = selectEl.value;
                 const currentStatus = selectEl.getAttribute('data-current-status');
@@ -222,16 +255,25 @@
                 const basePath = contextPath.endsWith('/') ? contextPath.slice(0, -1) : contextPath;
                 
                 if (newStatus === 'OFFERED') {
-                    // Redirect to the offer generation flow instead of silent status save
                     window.location.href = basePath + '/offers/generate/' + candidateId;
-                    selectEl.value = currentStatus; // revert visual state until redirected
+                    selectEl.value = currentStatus;
                     return;
                 }
 
                 if (newStatus === 'HIRED') {
-                    // Redirect to the finalize hire form
                     window.location.href = basePath + '/candidates/hire/' + candidateId;
-                    selectEl.value = currentStatus; // revert visual state until redirected
+                    selectEl.value = currentStatus;
+                    return;
+                }
+
+                if (newStatus === 'REJECTED') {
+                    const candidateName = selectEl.getAttribute('data-candidate-name');
+                    _rejectionCandidateId = candidateId;
+                    _rejectionSelectEl = selectEl;
+                    document.getElementById('rejectionCandidateName').textContent = 'Applicant: ' + candidateName;
+                    document.getElementById('rejectionRemarksInput').value = '';
+                    document.getElementById('rejectionModal').classList.remove('hidden');
+                    selectEl.value = currentStatus;
                     return;
                 }
                 
@@ -245,20 +287,35 @@
                         return;
                     }
 
-                    // Setup modal
                     document.getElementById('forwardCandidateName').textContent = 'Applicant: ' + candidateName;
                     document.getElementById('forwardCandidateId').value = candidateId;
                     document.getElementById('forwardJobVacancyId').value = jobId;
-                    
-                    // Show modal
                     document.getElementById('forwardModal').classList.remove('hidden');
-                    
-                    // Reset the select back to current status so it doesn't look changed if they cancel
                     selectEl.value = currentStatus;
                 } else {
-                    // Just submit the form for other statuses
                     selectEl.closest('form').submit();
                 }
+            }
+
+            function closeRejectionModal() {
+                document.getElementById('rejectionModal').classList.add('hidden');
+                _rejectionCandidateId = null;
+                _rejectionSelectEl = null;
+            }
+
+            function submitRejection() {
+                const remarks = document.getElementById('rejectionRemarksInput').value.trim();
+                if (!remarks) {
+                    document.getElementById('rejectionRemarksInput').focus();
+                    document.getElementById('rejectionRemarksInput').style.borderColor = '#f43f5e';
+                    return;
+                }
+                const contextPath = /*[[@{/}]]*/ '/';
+                const basePath = contextPath.endsWith('/') ? contextPath.slice(0, -1) : contextPath;
+                const form = document.getElementById('rejectionForm');
+                form.action = basePath + '/candidates/' + _rejectionCandidateId + '/move';
+                document.getElementById('rejectionRemarksHidden').value = remarks;
+                form.submit();
             }
 
             function submitForwardForm() {

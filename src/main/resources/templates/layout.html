@@ -158,7 +158,7 @@
             </a>
 
             <a th:href="@{/transfers}" sec:authorize="hasRole('ADMIN')"
-                class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
+                class="hidden sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI == '/transfers' ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -217,7 +217,7 @@
                     </svg>
                 </button>
                 <div id="userSubMenu" class="hidden pl-8 space-y-1">
-                    <a th:href="@{/users/register}" sec:authorize="hasAuthority('MANAGE_USERS')"
+                    <a th:href="@{/users/register}" sec:authorize="hasAuthority('ROLE_ADMIN')"
                         class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors">Register
                         User</a>
                     <a th:href="@{/users/password}"
@@ -262,10 +262,7 @@
                         class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
                         th:classappend="${#httpServletRequest.requestURI != null and #strings.startsWith(#httpServletRequest.requestURI, '/settings/categories') ? 'text-emerald-600 font-semibold' : ''}">Job
                         Categories & Skills</a>
-                    <a th:href="@{/settings/roles}"
-                        class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
-                        th:classappend="${#httpServletRequest.requestURI == '/settings/roles' ? 'text-emerald-600 font-semibold' : ''}">Custom
-                        Roles</a>
+
                     <a th:href="@{/locations}"
                         class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
                         th:classappend="${#httpServletRequest.requestURI == '/locations' ? 'text-emerald-600 font-semibold' : ''}">Locations</a>

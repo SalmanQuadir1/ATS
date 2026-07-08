@@ -359,7 +359,7 @@ public class JobController {
             String candidateSkillsLower = candidate.getSkills().toLowerCase();
             // Also check certifications and tagged roles for bonus matches
             String bonus = "";
-            if (candidate.getCertifications() != null) bonus += " " + candidate.getCertifications().toLowerCase();
+            if (candidate.getCertifications() != null) bonus += " " + String.join(" ", candidate.getCertifications()).toLowerCase();
             if (candidate.getTaggedRoles() != null) bonus += " " + candidate.getTaggedRoles().toLowerCase();
             String combined = candidateSkillsLower + bonus;
 

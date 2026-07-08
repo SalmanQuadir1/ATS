@@ -79,9 +79,7 @@ public class InterviewController {
         }
 
         try {
-            interviewService.scheduleInterview(candidateId, jobVacancyId, time, finalLocation, interviewerId);
-            auditService.log("INTERVIEW_SCHEDULE", getCurrentUser(), "Interview", candidateId,
-                    "Job: " + jobVacancyId + ", Time: " + time);
+            interviewService.scheduleInterview(candidateId, jobVacancyId, time, finalLocation, interviewerId, getCurrentUser());
             redirectAttributes.addFlashAttribute("success",
                     "Interview scheduled successfully! Invite sent automatically to candidate" +
                     (interviewerId != null ? " and interviewer" : "") + " with calendar attachment.");
@@ -159,9 +157,7 @@ public class InterviewController {
         Interview interview = interviewService.findById(id).orElse(null);
         if (interview != null && interview.getCandidate() != null) {
             candidateService.updateStatus(interview.getCandidate().getId(),
-                    Candidate.CandidateStatus.valueOf(candidateStatus));
-            auditService.log("CANDIDATE_STATUS", getCurrentUser(), "Candidate",
-                    interview.getCandidate().getId(), "Status → " + candidateStatus);
+                    Candidate.CandidateStatus.valueOf(candidateStatus), getCurrentUser());
         }
 
         auditService.log("INTERVIEW_FEEDBACK", getCurrentUser(), "Interview", id,
@@ -227,7 +223,7 @@ public class InterviewController {
 
         if (candidateStatus != null && !candidateStatus.isEmpty() && interview.getCandidate() != null) {
             candidateService.updateStatus(interview.getCandidate().getId(),
-                    Candidate.CandidateStatus.valueOf(candidateStatus));
+                    Candidate.CandidateStatus.valueOf(candidateStatus), getCurrentUser());
             if ("REJECTED".equalsIgnoreCase(candidateStatus)) {
                 notificationService.addNotification("Rejection dispatched to: " + interview.getCandidate().getFullName(),
                         "/candidates/" + interview.getCandidate().getId());

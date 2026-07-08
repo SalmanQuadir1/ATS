@@ -20,7 +20,11 @@ public class Candidate {
     private String phone;
     private Integer experienceYears;
     private String skills;
-    private String education;
+
+    @ElementCollection
+    @CollectionTable(name = "candidate_educations", joinColumns = @JoinColumn(name = "candidate_id"))
+    private java.util.List<CandidateEducation> educations = new java.util.ArrayList<>();
+
     private String nationality; // Singaporean, PR, Foreigner
     
     @Column(name = "application_id", unique = true)
@@ -34,12 +38,19 @@ public class Candidate {
     private boolean workPermitEligible;
     private String securityLicense; // SOP point 3 requirement
     private Integer expectedSalary; // For salary filtering
-    private String certifications; // For certifications filtering
+
+    @ElementCollection
+    @CollectionTable(name = "candidate_certifications", joinColumns = @JoinColumn(name = "candidate_id"))
+    @Column(name = "certification")
+    private java.util.List<String> certifications = new java.util.ArrayList<>();
+
     private String taggedRoles; // For matching future/past opportunities
     private boolean sharedWithHM = false; // Workflow status
     
     private String photoPath;
     private String resumePath;
+    private String academicCertPath;
+    private String otherDocPath;
     
     @Column(length = 2000)
     private String projects;
@@ -61,6 +72,9 @@ public class Candidate {
 
     @Column(name = "hire_notes", length = 1000)
     private String hireNotes;
+
+    @Column(name = "rejection_remarks", length = 1000)
+    private String rejectionRemarks;
 
     @Transient
     private Integer matchScore = 0; // Runtime transient field for skill matching rank
@@ -111,8 +125,8 @@ public class Candidate {
     public String getSkills() { return skills; }
     public void setSkills(String skills) { this.skills = skills; }
 
-    public String getEducation() { return education; }
-    public void setEducation(String education) { this.education = education; }
+    public java.util.List<CandidateEducation> getEducations() { return educations; }
+    public void setEducations(java.util.List<CandidateEducation> educations) { this.educations = educations; }
 
     public String getNationality() { return nationality; }
     public void setNationality(String nationality) { this.nationality = nationality; }
@@ -132,8 +146,8 @@ public class Candidate {
     public Integer getExpectedSalary() { return expectedSalary; }
     public void setExpectedSalary(Integer expectedSalary) { this.expectedSalary = expectedSalary; }
 
-    public String getCertifications() { return certifications; }
-    public void setCertifications(String certifications) { this.certifications = certifications; }
+    public java.util.List<String> getCertifications() { return certifications; }
+    public void setCertifications(java.util.List<String> certifications) { this.certifications = certifications; }
 
     public boolean isSharedWithHM() { return sharedWithHM; }
     public void setSharedWithHM(boolean sharedWithHM) { this.sharedWithHM = sharedWithHM; }
@@ -156,6 +170,12 @@ public class Candidate {
     public String getResumePath() { return resumePath; }
     public void setResumePath(String resumePath) { this.resumePath = resumePath; }
 
+    public String getAcademicCertPath() { return academicCertPath; }
+    public void setAcademicCertPath(String academicCertPath) { this.academicCertPath = academicCertPath; }
+
+    public String getOtherDocPath() { return otherDocPath; }
+    public void setOtherDocPath(String otherDocPath) { this.otherDocPath = otherDocPath; }
+
     public String getProjects() { return projects; }
     public void setProjects(String projects) { this.projects = projects; }
 
@@ -176,6 +196,9 @@ public class Candidate {
 
     public String getHireNotes() { return hireNotes; }
     public void setHireNotes(String hireNotes) { this.hireNotes = hireNotes; }
+
+    public String getRejectionRemarks() { return rejectionRemarks; }
+    public void setRejectionRemarks(String rejectionRemarks) { this.rejectionRemarks = rejectionRemarks; }
 
     public String getTransferSource() { return transferSource; }
     public void setTransferSource(String transferSource) { this.transferSource = transferSource; }

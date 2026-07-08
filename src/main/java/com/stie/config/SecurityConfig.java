@@ -25,6 +25,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .headers().frameOptions().sameOrigin()
+            .and()
             .csrf().disable()
             .authorizeRequests()
                 // Public access
@@ -36,7 +38,7 @@ public class SecurityConfig {
                 .antMatchers("/super-admin", "/super-admin/**", "/api/tenants/**").hasAuthority("ROLE_SUPER_ADMIN")
 
                 // User Management (site admin)
-                .antMatchers("/users/register", "/users/{id}/delete").hasAuthority("MANAGE_USERS")
+                .antMatchers("/users/register", "/users/{id}/delete").hasAuthority("ROLE_ADMIN")
 
                 // Tenant-scoped resources (departments, locations, categories, settings)
                 .antMatchers("/departments/**", "/locations/**", "/api/departments/**", "/api/locations/**").hasAuthority("MANAGE_DEPARTMENTS")

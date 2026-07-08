@@ -36,7 +36,7 @@ public class LandingController {
         }
         model.addAttribute("tenant", tenant);
         model.addAttribute("branding", brandingService.getBranding(tenant));
-        model.addAttribute("openJobs", jobService.getAllApprovedJobsForTenant(tenant));
+        model.addAttribute("openJobs", jobService.getOpenJobsForTenant(tenant));
         return "landing";
     }
 }

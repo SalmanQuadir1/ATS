@@ -38,7 +38,12 @@ public class ParserService {
             candidate.setPhone(extractPhone(contactSection.isEmpty() ? text : contactSection));
             candidate.setSkills(extractSkills(text));
             candidate.setExperienceYears(extractExperienceYears(experienceSection.isEmpty() ? text : experienceSection));
-            candidate.setEducation(extractEducation(educationSection.isEmpty() ? text : educationSection));
+            String eduStr = extractEducation(educationSection.isEmpty() ? text : educationSection);
+            if (eduStr != null && !eduStr.isEmpty()) {
+                com.stie.model.CandidateEducation ce = new com.stie.model.CandidateEducation();
+                ce.setDegree(eduStr);
+                candidate.setEducations(java.util.Collections.singletonList(ce));
+            }
             candidate.setNationality(extractNationality(text));
             candidate.setSecurityLicense(extractSecurityLicense(text));
             candidate.setPassportNumber(extractPassportNumber(text));

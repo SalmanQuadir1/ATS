@@ -90,7 +90,7 @@ public class InterviewService {
      */
     public Interview scheduleInterview(Long candidateId, Long jobVacancyId,
                                        LocalDateTime time, String location,
-                                       Long interviewerId) {
+                                       Long interviewerId, String currentUser) {
 
         // Load full entities (not mocked stubs)
         Candidate candidate = candidateRepository.findById(candidateId)
@@ -119,7 +119,7 @@ public class InterviewService {
         repository.save(saved);
 
         // Update candidate pipeline stage
-        candidateService.updateStatus(candidateId, Candidate.CandidateStatus.INTERVIEW);
+        candidateService.updateStatus(candidateId, Candidate.CandidateStatus.INTERVIEW, currentUser);
 
         notificationService.addNotification(
                 "Interview scheduled for " + candidate.getFullName() + " — invite sent automatically.",
@@ -127,7 +127,7 @@ public class InterviewService {
         
         notificationService.notifyInterviewerAssigned(saved);
 
-        auditService.log("INTERVIEW_SCHEDULED", "HR_User", "Interview", saved.getId(),
+        auditService.log("INTERVIEW_SCHEDULED", currentUser != null ? currentUser : "System", "Interview", saved.getId(),
                 "Candidate: " + candidateId + ", Job: " + jobVacancyId + ", Time: " + time);
 
         return saved;
@@ -181,21 +181,21 @@ public class InterviewService {
 
             switch (outcome.toUpperCase()) {
                 case "REJECTED":
-                    candidateService.updateStatus(candidate.getId(), Candidate.CandidateStatus.REJECTED);
+                    candidateService.updateStatus(candidate.getId(), Candidate.CandidateStatus.REJECTED, currentUser);
                     notificationService.sendRejectionEmail(candidate.getEmail(), candidate.getFullName());
                     notificationService.addNotification(
                             "Rejection email sent to " + candidate.getFullName(), "/candidates/" + candidate.getId());
                     break;
 
                 case "KIV":
-                    candidateService.updateStatus(candidate.getId(), Candidate.CandidateStatus.KIV);
+                    candidateService.updateStatus(candidate.getId(), Candidate.CandidateStatus.KIV, currentUser);
                     notificationService.sendKivEmail(candidate.getEmail(), candidate.getFullName());
                     notificationService.addNotification(
                             candidate.getFullName() + " retained in KIV talent pool.", "/candidates/" + candidate.getId());
                     break;
 
                 case "OFFERED":
-                    candidateService.updateStatus(candidate.getId(), Candidate.CandidateStatus.OFFERED);
+                    candidateService.updateStatus(candidate.getId(), Candidate.CandidateStatus.OFFERED, currentUser);
                     double salary = candidate.getExpectedSalary() != null ? candidate.getExpectedSalary() : 3000;
                     notificationService.sendOfferLetter(candidate.getEmail(), candidate.getFullName(), jobTitle, salary);
                     notificationService.addNotification(

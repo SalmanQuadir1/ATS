@@ -67,6 +67,10 @@ public class WalkInController {
     public String submitApplication(@org.springframework.web.bind.annotation.PathVariable(value = "tenantName", required = false) String tenantName,
                                     @RequestParam(value = "resume", required = false) MultipartFile resume,
                                     @RequestParam(value = "photo", required = false) MultipartFile photo,
+                                    @RequestParam(value = "academicCert", required = false) MultipartFile academicCert,
+                                    @RequestParam(value = "otherDoc", required = false) MultipartFile otherDoc,
+                                    @RequestParam(value = "educationRaw", required = false) String educationRaw,
+                                    @RequestParam(value = "certificationsRaw", required = false) String certificationsRaw,
                                     @RequestParam(value = "jobId", required = false) Long jobId,
                                     Candidate candidate, Model model) {
         com.stie.model.Tenant tenant = null;
@@ -120,6 +124,28 @@ public class WalkInController {
             }
         }
 
+        if (academicCert != null && !academicCert.isEmpty()) {
+            try (java.io.InputStream is = academicCert.getInputStream()) {
+                String fileName = UUID.randomUUID().toString() + "_" + academicCert.getOriginalFilename();
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
+                candidate.setAcademicCertPath(fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (otherDoc != null && !otherDoc.isEmpty()) {
+            try (java.io.InputStream is = otherDoc.getInputStream()) {
+                String fileName = UUID.randomUUID().toString() + "_" + otherDoc.getOriginalFilename();
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
+                candidate.setOtherDocPath(fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         if (resume != null && !resume.isEmpty()) {
             try (java.io.InputStream is = resume.getInputStream()) {
                 String fileName = UUID.randomUUID().toString() + "_" + resume.getOriginalFilename();
@@ -129,26 +155,6 @@ public class WalkInController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
-            Candidate parsedData = parserService.parseResume(resume);
-            
-            if (candidate.getFullName() == null || candidate.getFullName().isEmpty()) candidate.setFullName(parsedData.getFullName());
-            if (candidate.getEmail() == null || candidate.getEmail().isEmpty()) candidate.setEmail(parsedData.getEmail());
-            if (candidate.getPhone() == null || candidate.getPhone().isEmpty()) candidate.setPhone(parsedData.getPhone());
-            if (candidate.getNationality() == null || candidate.getNationality().isEmpty()) candidate.setNationality(parsedData.getNationality());
-            if (candidate.getExperienceYears() == null || candidate.getExperienceYears() == 0) candidate.setExperienceYears(parsedData.getExperienceYears());
-            if (parsedData.getEducation() != null && !parsedData.getEducation().isEmpty()) candidate.setEducation(parsedData.getEducation());
-            if (candidate.getSecurityLicense() == null || candidate.getSecurityLicense().isEmpty()) candidate.setSecurityLicense(parsedData.getSecurityLicense());
-            if (candidate.getPassportNumber() == null || candidate.getPassportNumber().isEmpty()) candidate.setPassportNumber(parsedData.getPassportNumber());
-            
-            // Merge Skills
-            String existingSkills = candidate.getSkills() != null ? candidate.getSkills() : "";
-            String parsedSkills = parsedData.getSkills() != null ? parsedData.getSkills() : "";
-            if (!parsedSkills.isEmpty()) {
-                candidate.setSkills(existingSkills.isEmpty() ? parsedSkills : existingSkills + ", " + parsedSkills);
-            }
-            
-            candidate.setWorkPermitEligible(parsedData.isWorkPermitEligible() || candidate.isWorkPermitEligible());
         }
         
         try {
@@ -165,6 +171,34 @@ public class WalkInController {
                     return "walkin";
                 }
             }
+
+            if (educationRaw != null && !educationRaw.trim().isEmpty()) {
+                java.util.List<com.stie.model.CandidateEducation> edList = new java.util.ArrayList<>();
+                String[] edParts = educationRaw.split(",");
+                for (String edPart : edParts) {
+                    if (edPart.trim().isEmpty()) continue;
+                    String[] chunks = edPart.split("\\|");
+                    com.stie.model.CandidateEducation ce = new com.stie.model.CandidateEducation();
+                    if (chunks.length > 0) ce.setInstitution(chunks[0].trim());
+                    if (chunks.length > 1) ce.setDegree(chunks[1].trim());
+                    if (chunks.length > 2) ce.setStartYear(chunks[2].trim());
+                    if (chunks.length > 3) ce.setEndYear(chunks[3].trim());
+                    if (chunks.length > 4) {
+                        String cgpaStr = chunks[4].trim();
+                        if (cgpaStr.startsWith("CGPA:")) {
+                            try {
+                                ce.setCgpa(Double.parseDouble(cgpaStr.replace("CGPA:", "").trim()));
+                            } catch (Exception ex) {}
+                        }
+                    }
+                    edList.add(ce);
+                }
+                candidate.setEducations(edList);
+            }
+            if (certificationsRaw != null && !certificationsRaw.trim().isEmpty()) {
+                candidate.setCertifications(java.util.Arrays.asList(certificationsRaw.split("\\s*,\\s*")));
+            }
+
             candidateService.saveCandidate(candidate);
             notificationService.addNotification("New candidate application received: " + candidate.getFullName() + " (" + candidate.getNationality() + ")", "/candidates/" + candidate.getId());
             notificationService.sendAcknowledgment(candidate.getEmail(), candidate.getFullName());

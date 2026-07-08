@@ -197,10 +197,10 @@ public class CandidateController {
         candidate.setPhone(phone);
         candidate.setNationality(nationality);
         candidate.setExperienceYears(experienceYears);
-        candidate.setEducation(education);
+        candidate.setEducations(parseEducation(education));
         candidate.setSkills(skills);
         candidate.setExpectedSalary(expectedSalary);
-        candidate.setCertifications(certifications);
+        candidate.setCertifications(parseCertifications(certifications));
         candidate.setSecurityLicense(securityLicense);
         candidate.setTaggedRoles(taggedRoles);
         candidate.setWorkPermitEligible(workPermitEligible);
@@ -279,6 +279,7 @@ public class CandidateController {
         model.addAttribute("appSources", CandidateApplication.ApplicationSource.values());
         model.addAttribute("appStatuses", CandidateApplication.AppStatus.values());
         model.addAttribute("fromDb", fromDb);
+        model.addAttribute("pageTitle", "Candidate Profile");
         return "candidate-detail";
     }
 
@@ -382,8 +383,7 @@ public class CandidateController {
         Candidate candidate = candidateService.findById(id).orElse(null);
         if (candidate != null) {
             try {
-                candidateService.updateStatus(id, status);
-                auditService.log("CANDIDATE_STATUS_CHANGE", getCurrentUser(), "Candidate", id, "New Status: " + status);
+                candidateService.updateStatus(id, status, getCurrentUser());
                 // Notify candidate by email
                 if (status != Candidate.CandidateStatus.SHORTLISTED) {
                     try {
@@ -435,58 +435,88 @@ public class CandidateController {
             @RequestParam("type") String type,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
 
-        if ("Resume".equalsIgnoreCase(type) && !file.isEmpty()) {
-            Candidate existing = candidateService.findById(id).orElse(null);
+        Candidate existing = candidateService.findById(id).orElse(null);
+        if (existing == null) {
+            redirectAttributes.addFlashAttribute("error", "Candidate not found.");
+            return "redirect:/candidates";
+        }
 
-            if (existing != null) {
-                Candidate parsed = parserService.parseResume(file);
-
-                if (parsed.getEmail() != null && !parsed.getEmail().trim().isEmpty()) {
-                    String parsedEmail = parsed.getEmail().trim().toLowerCase();
-                    boolean emailExists = candidateService.getAllCandidates(PageRequest.of(0, 10000)).getContent()
-                            .stream()
-                            .anyMatch(c -> !c.getId().equals(id)
-                                    && parsedEmail.equals(c.getEmail().trim().toLowerCase()));
-                    if (emailExists) {
-                        redirectAttributes.addFlashAttribute("error", "Failed to update profile: The email '"
-                                + parsed.getEmail() + "' is already registered to another candidate.");
-                        return "redirect:/candidates/" + id;
-                    }
-                    existing.setEmail(parsed.getEmail());
-                }
-
-                if (parsed.getFullName() != null && !parsed.getFullName().isEmpty())
-                    existing.setFullName(parsed.getFullName());
-                if (parsed.getPhone() != null && !parsed.getPhone().isEmpty())
-                    existing.setPhone(parsed.getPhone());
-                if (parsed.getNationality() != null && !parsed.getNationality().isEmpty())
-                    existing.setNationality(parsed.getNationality());
-                if (parsed.getExperienceYears() != null && parsed.getExperienceYears() > 0)
-                    existing.setExperienceYears(parsed.getExperienceYears());
-                if (parsed.getEducation() != null && !parsed.getEducation().isEmpty())
-                    existing.setEducation(parsed.getEducation());
-                if (parsed.getSkills() != null && !parsed.getSkills().isEmpty())
-                    existing.setSkills(parsed.getSkills());
-
-                try {
-                    candidateService.saveCandidate(existing);
-                    redirectAttributes.addFlashAttribute("success", "Resume parsed and profile updated.");
-                } catch (Exception e) {
-                    redirectAttributes.addFlashAttribute("error", "Failed to save profile changes: " + e.getMessage());
-                    return "redirect:/candidates/" + id;
-                }
-            } else {
-                redirectAttributes.addFlashAttribute("error", "Candidate not found.");
-                return "redirect:/candidates";
-            }
-        } else if (!file.isEmpty()) {
-            redirectAttributes.addFlashAttribute("success", "Document uploaded successfully.");
-        } else {
+        if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Please select a file to upload.");
             return "redirect:/candidates/" + id;
         }
 
-        System.out.println("Uploaded " + type + " for candidate " + id + ": " + file.getOriginalFilename());
+        if ("Resume".equalsIgnoreCase(type)) {
+            Candidate parsed = parserService.parseResume(file);
+
+            if (parsed.getEmail() != null && !parsed.getEmail().trim().isEmpty()) {
+                String parsedEmail = parsed.getEmail().trim().toLowerCase();
+                boolean emailExists = candidateService.getAllCandidates(org.springframework.data.domain.PageRequest.of(0, 10000)).getContent()
+                        .stream()
+                        .anyMatch(c -> !c.getId().equals(id)
+                                && parsedEmail.equals(c.getEmail().trim().toLowerCase()));
+                if (emailExists) {
+                    redirectAttributes.addFlashAttribute("error", "Failed to update profile: The email '"
+                            + parsed.getEmail() + "' is already registered to another candidate.");
+                    return "redirect:/candidates/" + id;
+                }
+                existing.setEmail(parsed.getEmail());
+            }
+
+            if (parsed.getFullName() != null && !parsed.getFullName().isEmpty())
+                existing.setFullName(parsed.getFullName());
+            if (parsed.getPhone() != null && !parsed.getPhone().isEmpty())
+                existing.setPhone(parsed.getPhone());
+            if (parsed.getNationality() != null && !parsed.getNationality().isEmpty())
+                existing.setNationality(parsed.getNationality());
+            if (parsed.getExperienceYears() != null && parsed.getExperienceYears() > 0)
+                existing.setExperienceYears(parsed.getExperienceYears());
+            if (parsed.getEducations() != null && !parsed.getEducations().isEmpty())
+                existing.setEducations(parsed.getEducations());
+            if (parsed.getSkills() != null && !parsed.getSkills().isEmpty())
+                existing.setSkills(parsed.getSkills());
+            if (parsed.getCertifications() != null && !parsed.getCertifications().isEmpty())
+                existing.setCertifications(parsed.getCertifications());
+
+            try {
+                String uploadDir = com.stie.config.AppConstants.FilePaths.UPLOAD_DIR;
+                java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
+                if (!java.nio.file.Files.exists(uploadPath)) java.nio.file.Files.createDirectories(uploadPath);
+                String fileName = java.util.UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                java.nio.file.Files.copy(file.getInputStream(), uploadPath.resolve(fileName), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                existing.setResumePath(fileName);
+                
+                candidateService.saveCandidate(existing);
+                redirectAttributes.addFlashAttribute("success", "Resume parsed and profile updated.");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Failed to save profile changes: " + e.getMessage());
+                return "redirect:/candidates/" + id;
+            }
+        } else {
+            try {
+                String uploadDir = com.stie.config.AppConstants.FilePaths.UPLOAD_DIR;
+                java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
+                if (!java.nio.file.Files.exists(uploadPath)) java.nio.file.Files.createDirectories(uploadPath);
+                
+                String fileName = java.util.UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                java.nio.file.Files.copy(file.getInputStream(), uploadPath.resolve(fileName), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                
+                if ("CERT".equalsIgnoreCase(type)) {
+                    existing.setAcademicCertPath(fileName);
+                } else if ("OTHER".equalsIgnoreCase(type)) {
+                    existing.setOtherDocPath(fileName);
+                } else if ("PASSPORT".equalsIgnoreCase(type)) {
+                    // Not requested but could be mapped if needed, keeping it minimal
+                }
+                
+                candidateService.saveCandidate(existing);
+                redirectAttributes.addFlashAttribute("success", "Document uploaded successfully.");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Failed to upload document: " + e.getMessage());
+                return "redirect:/candidates/" + id;
+            }
+        }
+
         auditService.log("DOCUMENT_UPLOAD", getCurrentUser(), "Candidate", id,
                 "Type: " + type + ", File: " + file.getOriginalFilename());
         return "redirect:/candidates/" + id;
@@ -537,10 +567,10 @@ public class CandidateController {
         existing.setPhone(phone);
         existing.setNationality(nationality);
         existing.setExperienceYears(experienceYears);
-        existing.setEducation(education);
+        existing.setEducations(parseEducation(education));
         existing.setSkills(skills);
         existing.setExpectedSalary(expectedSalary);
-        existing.setCertifications(certifications);
+        existing.setCertifications(parseCertifications(certifications));
         existing.setSecurityLicense(securityLicense);
         existing.setTaggedRoles(taggedRoles);
         existing.setProjects(projects);
@@ -579,7 +609,7 @@ public class CandidateController {
                     c.getNationality() != null ? c.getNationality() : "",
                     c.getExperienceYears() != null ? c.getExperienceYears() : 0,
                     c.getSkills() != null ? c.getSkills() : "",
-                    c.getEducation() != null ? c.getEducation() : "",
+                    c.getEducations() != null ? c.getEducations().size() + " records" : "",
                     c.getExpectedSalary() != null ? c.getExpectedSalary() : "",
                     c.getStatus(),
                     c.getAppliedAt() != null ? c.getAppliedAt() : "",
@@ -641,12 +671,22 @@ public class CandidateController {
     public String moveCandidate(@PathVariable Long id, 
             @RequestParam("status") String statusStr,
             @RequestParam(value="interviewerId", required=false) Long interviewerId,
+            @RequestParam(value="rejectionRemarks", required=false) String rejectionRemarks,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
             Candidate.CandidateStatus status = Candidate.CandidateStatus.valueOf(statusStr.toUpperCase());
-            candidateService.updateStatus(id, status);
-            auditService.log("CANDIDATE_STAGE_SHIFT", getCurrentUser(), "Candidate", id,
-                    "Moved to pipeline stage: " + status);
+            candidateService.updateStatus(id, status, getCurrentUser());
+
+            // Save rejection remarks when rejecting
+            if (status == Candidate.CandidateStatus.REJECTED && rejectionRemarks != null && !rejectionRemarks.trim().isEmpty()) {
+                Candidate c = candidateService.findById(id).orElse(null);
+                if (c != null) {
+                    c.setRejectionRemarks(rejectionRemarks);
+                    candidateService.saveCandidate(c);
+                    auditService.log("CANDIDATE_REJECTED", getCurrentUser(), "Candidate", id,
+                            "Rejected with remarks: " + rejectionRemarks);
+                }
+            }
             
             if (status == Candidate.CandidateStatus.INTERVIEW && interviewerId != null) {
                 com.stie.model.User interviewer = userService.findById(interviewerId);
@@ -750,5 +790,32 @@ public class CandidateController {
         } catch (java.net.MalformedURLException e) {
             return org.springframework.http.ResponseEntity.internalServerError().build();
         }
+    }
+
+    private java.util.List<com.stie.model.CandidateEducation> parseEducation(String raw) {
+        java.util.List<com.stie.model.CandidateEducation> list = new java.util.ArrayList<>();
+        if (raw == null || raw.trim().isEmpty()) return list;
+        for (String part : raw.split(",")) {
+            if (part.trim().isEmpty()) continue;
+            String[] chunks = part.split("\\|");
+            com.stie.model.CandidateEducation ce = new com.stie.model.CandidateEducation();
+            if (chunks.length > 0) ce.setInstitution(chunks[0].trim());
+            if (chunks.length > 1) ce.setDegree(chunks[1].trim());
+            if (chunks.length > 2) ce.setStartYear(chunks[2].trim());
+            if (chunks.length > 3) ce.setEndYear(chunks[3].trim());
+            if (chunks.length > 4) {
+                String cStr = chunks[4].trim();
+                if (cStr.startsWith("CGPA:")) {
+                    try { ce.setCgpa(Double.parseDouble(cStr.replace("CGPA:", "").trim())); } catch (Exception ex){}
+                }
+            }
+            list.add(ce);
+        }
+        return list;
+    }
+
+    private java.util.List<String> parseCertifications(String raw) {
+        if (raw == null || raw.trim().isEmpty()) return new java.util.ArrayList<>();
+        return java.util.Arrays.asList(raw.split("\\s*,\\s*"));
     }
 }
