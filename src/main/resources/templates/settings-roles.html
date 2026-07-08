@@ -5,37 +5,21 @@
 <body>
 <div th:fragment="content">
 
-    <div class="mb-8 flex items-center justify-between">
-        <div>
-            <h2 class="text-2xl font-black text-slate-800 tracking-tight">Roles &amp; Modules</h2>
-            <p class="text-sm text-slate-500 mt-1">Manage dynamic roles, permissions, and sidebar module visibility.</p>
-        </div>
-        <!-- Flash messages -->
-        <div th:if="${success}" class="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-xl text-sm font-semibold border border-emerald-200" th:text="${success}"></div>
-        <div th:if="${error}" class="px-4 py-2 bg-rose-100 text-rose-700 rounded-xl text-sm font-semibold border border-rose-200" th:text="${error}"></div>
+    <div class="mb-8">
+        <h2 class="text-2xl font-black text-slate-800 tracking-tight">Custom Roles</h2>
+        <p class="text-sm text-slate-500 mt-1">Create and manage dynamic roles and their permissions for your site.</p>
     </div>
 
-    <!-- Tab Bar -->
-    <div class="flex gap-2 mb-6 border-b border-slate-200">
-        <button onclick="showTab('roles')" id="tab-roles"
-            class="tab-btn px-5 py-3 text-sm font-bold text-emerald-600 border-b-2 border-emerald-600 -mb-px">
-            Roles
-        </button>
-        <button onclick="showTab('modules')" id="tab-modules"
-            class="tab-btn px-5 py-3 text-sm font-bold text-slate-400 border-b-2 border-transparent -mb-px hover:text-slate-600">
-            Permission Modules
-        </button>
-    </div>
-
-    <!-- ════════════ ROLES TAB ════════════════════════════════════════════ -->
-    <div id="panel-roles" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         <!-- Roles List -->
         <div class="lg:col-span-2">
             <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                <div class="px-8 py-6 border-b border-slate-100">
-                    <h4 class="text-lg font-bold text-slate-800">All Roles</h4>
-                    <p class="text-xs text-slate-400 mt-0.5">Manage permissions for each role.</p>
+                <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-800">All Roles</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">Manage permissions for each role.</p>
+                    </div>
                 </div>
 
                 <div class="divide-y divide-slate-50">
@@ -67,27 +51,15 @@
                             </div>
                         </div>
 
-                        <!-- Permissions badge list -->
-                        <div class="flex flex-wrap gap-1 mb-2">
-                            <span th:each="p : ${role.permissions}"
-                                  class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-full border border-emerald-100"
-                                  th:text="${p}"></span>
-                            <span th:if="${role.permissions.isEmpty()}" class="text-[11px] text-slate-400 italic">No permissions assigned</span>
-                        </div>
-
-                        <!-- Edit Form -->
+                        <!-- Edit Form (only for editable roles) -->
                         <div th:if="${!role.isSystemRole and role.tenant != null}" th:id="'edit-role-' + ${role.id}" class="hidden mt-4 pt-4 border-t border-slate-100">
                             <form th:action="@{'/settings/roles/update/' + ${role.id}}" method="post">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Assign Permissions</p>
                                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-                                    <label th:each="perm : ${allPermissions}" class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer" th:title="${perm.description}">
+                                    <label th:each="perm : ${allPermissions}" class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                                         <input type="checkbox" name="permissions" th:value="${perm.name}"
                                                th:checked="${#lists.contains(role.permissions, perm.name)}"
                                                class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                                        <span>
-                                            <span th:text="${perm.name}" class="font-semibold block text-xs text-slate-700"></span>
-                                            <span th:text="${perm.description}" class="text-[10px] text-slate-400"></span>
-                                        </span>
+                                        <span th:text="${perm.name}">PERM</span>
                                     </label>
                                 </div>
                                 <button type="submit" class="text-xs font-bold px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">Save Permissions</button>
@@ -98,8 +70,9 @@
             </div>
         </div>
 
-        <!-- Create Role -->
-        <div>
+        <!-- Create Forms Column -->
+        <div class="space-y-8">
+            <!-- Create Role Form -->
             <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
                 <h5 class="text-sm font-bold text-slate-700 uppercase tracking-widest mb-6">Create Custom Role</h5>
                 <form th:action="@{/settings/roles/create}" method="post" class="space-y-4">
@@ -108,8 +81,9 @@
                         <input type="text" name="name" required placeholder="e.g. ROLE_AUDITOR"
                                class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
+
                     <div class="space-y-2 mt-4">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Initial Permissions</label>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Permissions</label>
                         <div class="space-y-2 max-h-60 overflow-y-auto p-2 bg-slate-50 rounded-xl border border-slate-100">
                             <label th:each="perm : ${allPermissions}" class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer" th:title="${perm.description}">
                                 <input type="checkbox" name="permissions" th:value="${perm.name}"
@@ -118,6 +92,7 @@
                             </label>
                         </div>
                     </div>
+
                     <button type="submit"
                             class="w-full mt-4 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-2xl hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200 text-sm">
                         Create Role
@@ -126,223 +101,7 @@
             </div>
         </div>
     </div>
-
-    <!-- ════════════ MODULES TAB ══════════════════════════════════════════ -->
-    <div id="panel-modules" class="hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-            <!-- Module List -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                    <div class="px-8 py-6 border-b border-slate-100">
-                        <h4 class="text-lg font-bold text-slate-800">Permission Modules</h4>
-                        <p class="text-xs text-slate-400 mt-0.5">Each module maps a permission to a sidebar nav item. Toggle visibility without code changes.</p>
-                    </div>
-                    <div class="divide-y divide-slate-50">
-                        <div th:each="mod : ${allPermissions}" class="px-8 py-4 hover:bg-slate-50/70 transition-colors">
-                            <div class="flex items-start justify-between gap-4">
-                                <div class="flex items-start gap-3 flex-1 min-w-0">
-                                    <!-- Nav status indicator -->
-                                    <div th:if="${mod.navItem}"
-                                         class="mt-1 w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0" title="Visible in sidebar"></div>
-                                    <div th:if="${!mod.navItem}"
-                                         class="mt-1 w-2.5 h-2.5 rounded-full bg-slate-200 shrink-0" title="Hidden from sidebar"></div>
-                                    <div class="min-w-0">
-                                        <p class="font-bold text-slate-800 text-sm" th:text="${mod.name}">MODULE</p>
-                                        <p class="text-xs text-slate-400 mt-0.5" th:text="${mod.description}">Description</p>
-                                        <div class="flex flex-wrap gap-2 mt-1.5 text-[10px]">
-                                            <span th:if="${mod.navItem}" class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 font-semibold">
-                                                Sidebar: <span th:text="${mod.navLabel}">Label</span>
-                                            </span>
-                                            <span th:if="${mod.navItem}" class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full font-semibold">
-                                                URL: <span th:text="${mod.navUrl}">url</span>
-                                            </span>
-                                            <span th:if="${mod.navItem}" class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full font-semibold">
-                                                Group: <span th:text="${mod.navGroup}">main</span>
-                                            </span>
-                                            <span th:if="${mod.navItem}" class="px-2 py-0.5 bg-orange-50 text-orange-600 rounded-full font-semibold">
-                                                Order: <span th:text="${mod.navOrder}">0</span>
-                                            </span>
-                                            <span th:if="${mod.systemModule}" class="px-2 py-0.5 bg-slate-100 text-slate-400 rounded-full font-semibold">Built-in</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="flex gap-2 shrink-0">
-                                    <button th:onclick="'openEditModule(' + ${mod.id} + ', \'' + ${mod.name} + '\', \'' + ${mod.description} + '\', ' + ${mod.navItem} + ', \'' + ${mod.navLabel} + '\', \'' + ${mod.navUrl} + '\', \'' + ${mod.navGroup} + '\', ' + ${mod.navOrder} + ')'"
-                                            class="text-xs font-bold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors">
-                                        Edit
-                                    </button>
-                                    <form th:if="${!mod.systemModule}" th:action="@{'/settings/modules/delete/' + ${mod.id}}" method="post"
-                                          onsubmit="return confirm('Delete this module?');">
-                                        <button type="submit" class="text-xs font-bold px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-100 transition-colors">
-                                            Delete
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Create Module Form -->
-            <div class="space-y-6">
-                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
-                    <h5 class="text-sm font-bold text-slate-700 uppercase tracking-widest mb-6">Add Permission Module</h5>
-                    <form th:action="@{/settings/modules/create}" method="post" class="space-y-4">
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Permission Key *</label>
-                            <input type="text" name="name" required placeholder="e.g. VIEW_ANALYTICS"
-                                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none uppercase">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Description</label>
-                            <input type="text" name="description" placeholder="What this module does"
-                                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" name="isNavItem" value="true" class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                                <span class="text-xs font-bold text-slate-600">Show as sidebar nav item</span>
-                            </label>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sidebar Label</label>
-                            <input type="text" name="navLabel" placeholder="e.g. Analytics"
-                                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">URL Path</label>
-                            <input type="text" name="navUrl" placeholder="e.g. /analytics"
-                                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Group</label>
-                                <select name="navGroup" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                                    <option value="main">Main</option>
-                                    <option value="settings">Settings</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-                            </div>
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Order</label>
-                                <input type="number" name="navOrder" value="100" min="0"
-                                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                            </div>
-                        </div>
-                        <button type="submit"
-                                class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-2xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg shadow-indigo-200 text-sm">
-                            Add Module
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Legend -->
-                <div class="bg-slate-50 rounded-2xl p-5 text-xs text-slate-500 space-y-2 border border-slate-100">
-                    <p class="font-bold text-slate-600 text-xs uppercase tracking-widest mb-3">How it works</p>
-                    <p class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span> Green dot = visible in sidebar</p>
-                    <p class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-slate-300 shrink-0"></span> Grey dot = permission exists but no sidebar item</p>
-                    <p>Roles assigned this permission key will see the nav item automatically.</p>
-                    <p>Roles page → assign permission → user sees module in sidebar.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ── Edit Module Modal ───────────────────────────────────────────── -->
-    <div id="editModuleModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
-            <div class="flex items-center justify-between mb-6">
-                <h5 class="text-lg font-bold text-slate-800">Edit Module</h5>
-                <button onclick="closeEditModule()" class="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <form id="editModuleForm" method="post" class="space-y-4">
-                <input type="hidden" name="_method" value="POST">
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Permission Key</label>
-                    <p id="editModuleName" class="font-bold text-slate-700 mt-1"></p>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Description</label>
-                    <input type="text" name="description" id="editModuleDesc"
-                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                </div>
-                <div>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" name="isNavItem" id="editModuleIsNav" value="true"
-                               class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="text-sm font-semibold text-slate-600">Show as sidebar nav item</span>
-                    </label>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sidebar Label</label>
-                    <input type="text" name="navLabel" id="editModuleLabel"
-                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">URL Path</label>
-                    <input type="text" name="navUrl" id="editModuleUrl"
-                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Group</label>
-                        <select name="navGroup" id="editModuleGroup" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                            <option value="main">Main</option>
-                            <option value="settings">Settings</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Order</label>
-                        <input type="number" name="navOrder" id="editModuleOrder" min="0"
-                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                    </div>
-                </div>
-                <button type="submit"
-                        class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-2xl hover:from-emerald-700 hover:to-teal-700 transition-all text-sm">
-                    Save Changes
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function showTab(tab) {
-            document.getElementById('panel-roles').classList.add('hidden');
-            document.getElementById('panel-modules').classList.add('hidden');
-            document.getElementById('panel-' + tab).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.remove('text-emerald-600', 'border-emerald-600');
-                b.classList.add('text-slate-400', 'border-transparent');
-            });
-            const active = document.getElementById('tab-' + tab);
-            active.classList.add('text-emerald-600', 'border-emerald-600');
-            active.classList.remove('text-slate-400', 'border-transparent');
-        }
-
-        function openEditModule(id, name, desc, isNav, label, url, group, order) {
-            document.getElementById('editModuleForm').action = '/settings/modules/update/' + id;
-            document.getElementById('editModuleName').textContent = name;
-            document.getElementById('editModuleDesc').value = desc || '';
-            document.getElementById('editModuleIsNav').checked = isNav;
-            document.getElementById('editModuleLabel').value = label !== 'null' ? label : '';
-            document.getElementById('editModuleUrl').value = url !== 'null' ? url : '';
-            const grpSel = document.getElementById('editModuleGroup');
-            for (let i = 0; i < grpSel.options.length; i++) {
-                if (grpSel.options[i].value === group) grpSel.selectedIndex = i;
-            }
-            document.getElementById('editModuleOrder').value = order || 0;
-            document.getElementById('editModuleModal').classList.remove('hidden');
-        }
-
-        function closeEditModule() {
-            document.getElementById('editModuleModal').classList.add('hidden');
-        }
-    </script>
 </div>
 </body>
 </html>
+

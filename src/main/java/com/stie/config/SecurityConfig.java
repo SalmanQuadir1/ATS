@@ -42,7 +42,7 @@ public class SecurityConfig {
 
                 // Tenant-scoped resources (departments, locations, categories, settings)
                 .antMatchers("/departments/**", "/locations/**", "/api/departments/**", "/api/locations/**").hasAuthority("MANAGE_DEPARTMENTS")
-                .antMatchers("/settings/**", "/settings/modules/**").hasAnyAuthority("MANAGE_SETTINGS", "MANAGE_ROLES", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
+                .antMatchers("/settings/**").hasAuthority("MANAGE_SETTINGS")
 
                 // Jobs & Candidates
                 .antMatchers("/jobs/new", "/jobs/create", "/jobs/edit/**", "/jobs/update").hasAuthority("CREATE_JOBS")
