@@ -175,7 +175,7 @@
                             </div>
                             <div class="space-y-1">
                                 <span class="text-slate-500 text-xs font-semibold block uppercase">Education Credentials</span>
-                                <span class="font-bold text-white block text-md" th:text="${candidate.education}">BS Computer Science</span>
+                                <span class="font-bold text-white block text-md" th:text="${candidate.educations != null and !candidate.educations.isEmpty() ? candidate.educations[0].degree : '-'}">BS Computer Science</span>
                             </div>
                             <div class="space-y-1 md:col-span-2">
                                 <span class="text-slate-500 text-xs font-semibold block uppercase">Skills Portfolio</span>
@@ -238,9 +238,14 @@
                             </div>
 
                             <!-- Certifications -->
-                            <div th:if="${candidate.certifications != null}" class="p-3.5 bg-slate-900/30 rounded-2xl border border-slate-800/80">
-                                <span class="block text-xs font-bold text-white mb-1.5">Linked Certifications</span>
-                                <p class="text-xs text-slate-400 leading-relaxed" th:text="${candidate.certifications}">Google Professional Cloud Architect</p>
+                            <div th:if="${candidate.certifications != null && !candidate.certifications.isEmpty()}" class="p-3.5 bg-slate-900/30 rounded-2xl border border-slate-800/80">
+                                <p class="text-xs text-slate-400 font-medium mb-2 flex items-center gap-1.5 uppercase tracking-wider">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                                    Certifications
+                                </p>
+                                <div class="flex flex-wrap gap-1.5 mt-2">
+                                    <span th:each="cert : ${candidate.certifications}" class="px-2 py-1 bg-slate-800 text-slate-300 text-xs rounded-md border border-slate-700" th:text="${cert}"></span>
+                                </div>
                             </div>
                         </div>
 

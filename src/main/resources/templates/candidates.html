@@ -162,9 +162,10 @@
                                 <span th:each="skill : ${#strings.arraySplit(candidate.skills, ',')}" 
                                       class="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded" th:text="${skill}">Java</span>
                             </div>
-                            <div class="mt-1.5 flex flex-wrap gap-1" th:if="${candidate.certifications != null && !#strings.isEmpty(candidate.certifications)}">
-                                <span th:each="cert : ${#strings.arraySplit(candidate.certifications, ',')}" 
-                                      class="px-2 py-0.5 bg-amber-50 text-amber-600 text-[9px] font-medium rounded border border-amber-100" th:text="${cert.trim()}">AWS Certified</span>
+                            <div class="mt-1.5 flex flex-wrap gap-1" th:if="${candidate.certifications != null && !candidate.certifications.isEmpty()}">
+                                <span th:each="cert : ${candidate.certifications}" 
+                                      class="px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-semibold rounded-full truncate max-w-[120px]" 
+                                      th:title="${cert}" th:text="${cert}"></span>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-sm text-slate-600 font-semibold" th:text="${candidate.nationality}">Singaporean</td>
