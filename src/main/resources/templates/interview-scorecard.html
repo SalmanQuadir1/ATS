@@ -528,11 +528,11 @@
 
                 <!-- HR Section -->
                 <th:block th:if="${iterStat.first and !isAssignedInterviewer}">
-                    <div class="mt-8 border-t-[4px] border-t-indigo-500 bg-white shadow-lg rounded-b-xl overflow-hidden relative">
-                        <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-100 to-purple-50 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
+                    <div class="mt-8 border-t-[4px] border-t-teal-500 bg-white shadow-lg rounded-b-xl overflow-hidden relative">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-teal-100 to-emerald-50 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
                         
-                        <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white font-bold px-8 py-5 text-sm uppercase tracking-widest flex items-center gap-3 relative z-10 shadow-sm">
-                            <svg class="w-5 h-5 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-bold px-8 py-5 text-sm uppercase tracking-widest flex items-center gap-3 relative z-10 shadow-sm">
+                            <svg class="w-5 h-5 text-teal-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                             Human Resource Department
                         </div>
                         <form th:action="@{/interviews/{id}/scorecard/{scId}/hr(id=${interview.id},scId=${sc.id},modal=${isModal ? 'true' : null})}" method="POST" class="text-sm relative z-10 p-8 space-y-6">
@@ -541,11 +541,11 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-slate-700 text-xs uppercase tracking-wider">Position Offer</label>
-                                    <input type="text" name="positionOffer" th:value="${!#strings.isEmpty(sc.positionOffer) ? sc.positionOffer : interview.jobVacancy.title}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none read-only:bg-slate-100 read-only:text-slate-500" placeholder="e.g. Software Engineer" required>
+                                    <input type="text" name="positionOffer" th:value="${!#strings.isEmpty(sc.positionOffer) ? sc.positionOffer : interview.jobVacancy.title}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-shadow outline-none read-only:bg-slate-100 read-only:text-slate-500" placeholder="e.g. Software Engineer" required>
                                 </div>
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-slate-700 text-xs uppercase tracking-wider">Commencement Date</label>
-                                    <input type="date" name="commencementDate" th:value="${sc.commencementDate}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
+                                    <input type="date" name="commencementDate" th:value="${sc.commencementDate}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-shadow outline-none text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
                                 </div>
                             </div>
 
@@ -553,11 +553,11 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-slate-700 text-xs uppercase tracking-wider">Project</label>
-                                    <input type="text" name="project" th:value="${!#strings.isEmpty(sc.project) ? sc.project : (interview.jobVacancy.tenant != null ? interview.jobVacancy.tenant.name : '')}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none read-only:bg-slate-100 read-only:text-slate-500" placeholder="Project Name" required>
+                                    <input type="text" name="project" th:value="${!#strings.isEmpty(sc.project) ? sc.project : (interview.jobVacancy.tenant != null ? interview.jobVacancy.tenant.name : '')}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-shadow outline-none read-only:bg-slate-100 read-only:text-slate-500" placeholder="Project Name" required>
                                 </div>
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-slate-700 text-xs uppercase tracking-wider">Employment Status</label>
-                                    <select name="employmentStatus" th:disabled="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none text-slate-700 cursor-pointer appearance-none disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed" required>
+                                    <select name="employmentStatus" th:disabled="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-shadow outline-none text-slate-700 cursor-pointer appearance-none disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed" required>
                                         <option value="" th:selected="${sc.employmentStatus == null}">Select Status</option>
                                         <option value="Full Time" th:selected="${sc.employmentStatus == 'Full Time'}">Full Time</option>
                                         <option value="Contract Basis" th:selected="${sc.employmentStatus == 'Contract Basis'}">Contract Basis</option>
@@ -606,10 +606,10 @@
                                         </div>
                                     </div>
                                     <div class="flex flex-col gap-2">
-                                        <span class="text-xs font-black text-indigo-700">Total</span>
+                                        <span class="text-xs font-black text-teal-700">Total</span>
                                         <div class="relative">
-                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 font-black">$</span>
-                                            <input type="text" id="salaryTotal" readonly class="w-full bg-indigo-50/50 border border-indigo-200 rounded-lg pl-8 pr-4 py-2.5 outline-none font-black text-indigo-800 shadow-inner">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-teal-500 font-black">$</span>
+                                            <input type="text" id="salaryTotal" readonly class="w-full bg-teal-50/50 border border-teal-200 rounded-lg pl-8 pr-4 py-2.5 outline-none font-black text-teal-800 shadow-inner">
                                         </div>
                                     </div>
                                 </div>
@@ -641,7 +641,7 @@
                             </script>
                             
                             <div th:if="${#strings.isEmpty(sc.employmentStatus)}" class="pt-6 flex justify-end">
-                                <button type="submit" class="bg-indigo-600 text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-95 flex items-center gap-2">
+                                <button type="submit" class="bg-teal-600 text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-teal-700 hover:shadow-lg hover:shadow-teal-500/30 transition-all active:scale-95 flex items-center gap-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                                     Save HR Details
                                 </button>
