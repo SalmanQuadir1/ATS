@@ -26,21 +26,18 @@ public class ScorecardService {
         List<InterviewScorecard> scorecards = scorecardRepository.findByInterviewId(interview.getId());
 
         if (!scorecards.isEmpty()) {
-            double tech = 0;
-            double problem = 0;
-            double comm = 0;
-            double culture = 0;
+            double sumAvg = 0;
 
             for (InterviewScorecard sc : scorecards) {
-                tech += sc.getTechnicalScore();
-                comm += sc.getCommunicationScore();
-                culture += sc.getCultureScore();
+                sumAvg += sc.getAverageScore();
             }
 
             int count = scorecards.size();
-            interview.setTechnicalScore((int) Math.round(tech / count));
-            interview.setCommunicationScore((int) Math.round(comm / count));
-            interview.setCultureScore((int) Math.round(culture / count));
+            int overallAvg = (int) Math.round(sumAvg / count);
+            
+            interview.setTechnicalScore(overallAvg);
+            interview.setCommunicationScore(overallAvg);
+            interview.setCultureScore(overallAvg);
             
             // Generate combined feedback
             StringBuilder combinedFeed = new StringBuilder();

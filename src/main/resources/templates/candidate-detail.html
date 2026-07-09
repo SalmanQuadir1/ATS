@@ -171,23 +171,103 @@
                             <p class="text-xs text-slate-600 italic leading-relaxed break-words" th:text="${sc.comments}">"Interviewer notes..."</p>
 
                             <!-- Detailed breakdown metrics -->
-                            <div class="grid grid-cols-4 gap-3 pt-3 border-t border-slate-200/50 text-center">
-                                <div class="bg-white p-2 rounded-xl border border-slate-100">
-                                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Technical</span>
-                                    <span class="text-xs font-black text-slate-800" th:text="${sc.technicalScore} + '/5'">3/5</span>
-                                </div>
-                                <div class="bg-white p-2 rounded-xl border border-slate-100">
-                                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Problem Solv</span>
-                                    <span class="text-xs font-black text-slate-800" th:text="${sc.problemSolvingScore} + '/5'">3/5</span>
-                                </div>
-                                <div class="bg-white p-2 rounded-xl border border-slate-100">
-                                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Communic</span>
-                                    <span class="text-xs font-black text-slate-800" th:text="${sc.communicationScore} + '/5'">3/5</span>
-                                </div>
-                                <div class="bg-white p-2 rounded-xl border border-slate-100">
-                                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Culture Fit</span>
-                                    <span class="text-xs font-black text-slate-800" th:text="${sc.cultureScore} + '/5'">3/5</span>
-                                </div>
+                            <div class="mt-4 rounded-xl border border-slate-200 overflow-hidden bg-white">
+                                <table class="w-full border-collapse text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-50 border-b border-slate-200">
+                                            <th class="p-3 text-center font-bold text-slate-700 w-1/4 border-r border-slate-200">Criterions</th>
+                                            <th class="p-3 text-center font-bold text-slate-700 border-r border-slate-200">Not<br>acceptable</th>
+                                            <th class="p-3 text-center font-bold text-slate-700 border-r border-slate-200">Below<br>average</th>
+                                            <th class="p-3 text-center font-bold text-slate-700 border-r border-slate-200">Average</th>
+                                            <th class="p-3 text-center font-bold text-slate-700 border-r border-slate-200">Good</th>
+                                            <th class="p-3 text-center font-bold text-slate-700 border-r border-slate-200">Excellent</th>
+                                            <th class="p-3 text-center font-bold text-slate-700 w-1/4">Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-200">
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="p-3 align-top font-bold text-slate-800 border-r border-slate-200">Communication<ul class="list-disc pl-4 font-normal mt-1 text-slate-500"><li>Express thoughts well</li><li>Talk professionally</li></ul></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.communicationScore == 1}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.communicationScore == 2}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.communicationScore == 3}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.communicationScore == 4}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.communicationScore == 5}">✓</span></td>
+                                            <td class="p-3 align-top text-slate-600" th:text="${sc.communicationRemarks}"></td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="p-3 align-top font-bold text-slate-800 border-r border-slate-200">Job Knowledge & Abilities<ul class="list-disc pl-4 font-normal mt-1 text-slate-500"><li>Competency, job skills</li><li>Knowing responsibilities</li></ul></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.jobKnowledgeScore == 1}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.jobKnowledgeScore == 2}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.jobKnowledgeScore == 3}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.jobKnowledgeScore == 4}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.jobKnowledgeScore == 5}">✓</span></td>
+                                            <td class="p-3 align-top text-slate-600" th:text="${sc.jobKnowledgeRemarks}"></td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="p-3 align-top font-bold text-slate-800 border-r border-slate-200">Response<ul class="list-disc pl-4 font-normal mt-1 text-slate-500"><li>Mental Alertness</li></ul></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.responseScore == 1}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.responseScore == 2}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.responseScore == 3}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.responseScore == 4}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.responseScore == 5}">✓</span></td>
+                                            <td class="p-3 align-top text-slate-600" th:text="${sc.responseRemarks}"></td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="p-3 align-top font-bold text-slate-800 border-r border-slate-200">Attitude<ul class="list-disc pl-4 font-normal mt-1 text-slate-500"><li>Courteous, show enthusiasm</li></ul></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.attitudeScore == 1}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.attitudeScore == 2}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.attitudeScore == 3}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.attitudeScore == 4}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.attitudeScore == 5}">✓</span></td>
+                                            <td class="p-3 align-top text-slate-600" th:text="${sc.attitudeRemarks}"></td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="p-3 align-top font-bold text-slate-800 border-r border-slate-200">Initiative<ul class="list-disc pl-4 font-normal mt-1 text-slate-500"><li>Independent, resourceful</li><li>Willing to go extra mile</li></ul></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.initiativeScore == 1}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.initiativeScore == 2}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.initiativeScore == 3}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.initiativeScore == 4}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.initiativeScore == 5}">✓</span></td>
+                                            <td class="p-3 align-top text-slate-600" th:text="${sc.initiativeRemarks}"></td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="p-3 align-top font-bold text-slate-800 border-r border-slate-200">Personality<ul class="list-disc pl-4 font-normal mt-1 text-slate-500"><li>Show responsible</li><li>Emotion management</li></ul></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.personalityScore == 1}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.personalityScore == 2}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.personalityScore == 3}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.personalityScore == 4}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.personalityScore == 5}">✓</span></td>
+                                            <td class="p-3 align-top text-slate-600" th:text="${sc.personalityRemarks}"></td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="p-3 align-top font-bold text-slate-800 border-r border-slate-200">Leadership<ul class="list-disc pl-4 font-normal mt-1 text-slate-500"><li>Show management skill</li><li>Experience</li></ul></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.leadershipScore == 1}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.leadershipScore == 2}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.leadershipScore == 3}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.leadershipScore == 4}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.leadershipScore == 5}">✓</span></td>
+                                            <td class="p-3 align-top text-slate-600" th:text="${sc.leadershipRemarks}"></td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="p-3 align-top font-bold text-slate-800 border-r border-slate-200">Teamwork<ul class="list-disc pl-4 font-normal mt-1 text-slate-500"><li>Team spirits</li><li>Communicable</li></ul></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.teamworkScore == 1}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.teamworkScore == 2}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.teamworkScore == 3}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.teamworkScore == 4}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.teamworkScore == 5}">✓</span></td>
+                                            <td class="p-3 align-top text-slate-600" th:text="${sc.teamworkRemarks}"></td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="p-3 align-top font-bold text-slate-800 border-r border-slate-200">Appearance / Professional Image<ul class="list-disc pl-4 font-normal mt-1 text-slate-500"><li>Dress sense</li><li>body language</li></ul></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.appearanceScore == 1}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.appearanceScore == 2}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.appearanceScore == 3}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.appearanceScore == 4}">✓</span></td>
+                                            <td class="p-3 text-center align-middle font-black text-lg text-teal-600 border-r border-slate-200"><span th:if="${sc.appearanceScore == 5}">✓</span></td>
+                                            <td class="p-3 align-top text-slate-600" th:text="${sc.appearanceRemarks}"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -400,7 +480,7 @@
                         <div th:if="${candidate.otherDocPath != null}" class="flex items-center justify-between p-3 border border-indigo-100 bg-indigo-50/50 rounded-xl transition-colors">
                             <div class="flex items-center">
                                 <svg class="w-6 h-6 text-indigo-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                <span class="ml-3 text-sm font-medium text-indigo-800">Any Other Document</span>
+                                <span class="ml-3 text-sm font-medium text-indigo-800">Other Documents</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <button type="button" th:data-url="@{|${uploadUrlPrefix}${candidate.otherDocPath}|}" onclick="openPreviewModal(this.getAttribute('data-url'))" class="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors" title="Preview">

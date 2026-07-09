@@ -37,25 +37,41 @@ public class SecurityConfig {
                 // SuperAdmin only
                 .antMatchers("/super-admin", "/super-admin/**", "/api/tenants/**").hasAuthority("ROLE_SUPER_ADMIN")
 
-                // User Management (site admin)
-                .antMatchers("/users/register", "/users/{id}/delete").hasAuthority("ROLE_ADMIN")
+                // User Management - admin only
+                .antMatchers("/users/register", "/users/{id}/delete").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPER_ADMIN")
+
+                // Roles management - always accessible to ROLE_ADMIN so they can manage permissions
+                .antMatchers("/settings/roles", "/settings/roles/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPER_ADMIN", "System Settings")
 
                 // Tenant-scoped resources (departments, locations, categories, settings)
-                .antMatchers("/departments/**", "/locations/**", "/api/departments/**", "/api/locations/**").hasAuthority("MANAGE_DEPARTMENTS")
-                .antMatchers("/settings/**").hasAuthority("MANAGE_SETTINGS")
+                .antMatchers("/departments/**", "/locations/**", "/api/departments/**", "/api/locations/**")
+                    .hasAnyAuthority("System Settings", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
+                .antMatchers("/settings/**")
+                    .hasAnyAuthority("System Settings", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
 
                 // Jobs & Candidates
-                .antMatchers("/jobs/new", "/jobs/create", "/jobs/edit/**", "/jobs/update").hasAuthority("CREATE_JOBS")
-                .antMatchers("/jobs/*/approve", "/jobs/*/reject", "/jobs/approvals", "/jobs/pending").hasAuthority("APPROVE_JOBS")
-                .antMatchers("/jobs/**").hasAnyAuthority("MANAGE_JOBS", "CREATE_JOBS", "APPROVE_JOBS", "MANAGE_APPLICANTS")
-                .antMatchers("/candidates/**").hasAnyAuthority("MANAGE_APPLICANTS", "MANAGE_INTERVIEWS")
+                .antMatchers("/jobs/new", "/jobs/create", "/jobs/edit/**", "/jobs/update")
+                    .hasAnyAuthority("CREATE_JOBS", "ROLE_SUPER_ADMIN")
+                .antMatchers("/jobs/*/approve", "/jobs/*/reject", "/jobs/approvals", "/jobs/pending")
+                    .hasAnyAuthority("APPROVE_JOBS", "ROLE_SUPER_ADMIN")
+                .antMatchers("/jobs/**")
+                    .hasAnyAuthority("Jobs", "MANAGE_JOBS", "CREATE_JOBS", "APPROVE_JOBS", "ROLE_SUPER_ADMIN")
+                .antMatchers("/candidates/**")
+                    .hasAnyAuthority("Job Applications", "Pipeline Kanban", "Candidate Database", "Interviews", "ROLE_SUPER_ADMIN")
 
                 // Interviews
-                .antMatchers("/interviews/**").hasAuthority("MANAGE_INTERVIEWS")
-                .antMatchers("/interviewer", "/interviewer/**").hasAnyAuthority("ROLE_SUPER_ADMIN", "MANAGE_INTERVIEWS")
+                .antMatchers("/interviews/**")
+                    .hasAnyAuthority("Interviews", "ROLE_SUPER_ADMIN")
+                .antMatchers("/interviewer", "/interviewer/**")
+                    .hasAnyAuthority("Interviews", "ROLE_SUPER_ADMIN")
 
                 // Reports
-                .antMatchers("/reports/**").hasAuthority("VIEW_REPORTS")
+                .antMatchers("/reports/**")
+                    .hasAnyAuthority("Reports", "ROLE_SUPER_ADMIN")
+
+                // Hired Records
+                .antMatchers("/hired-records/**")
+                    .hasAnyAuthority("Hired Records", "ROLE_SUPER_ADMIN")
 
                 // Everything else requires login
                 .anyRequest().authenticated()

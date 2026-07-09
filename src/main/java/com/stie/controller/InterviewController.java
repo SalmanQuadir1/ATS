@@ -171,8 +171,29 @@ public class InterviewController {
     // Scorecard
     // ─────────────────────────────────────────────────────────────────────────
 
+    @GetMapping("/candidate/{candidateId}/scorecard")
+    public String showScorecardByCandidate(@PathVariable Long candidateId, 
+                                           @RequestParam(required = false) String modal,
+                                           RedirectAttributes redirectAttributes) {
+        java.util.List<Interview> interviews = interviewService.getInterviewsByCandidate(candidateId);
+        if (interviews == null || interviews.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "No interview found for this candidate.");
+            return "redirect:/candidates/kanban";
+        }
+        
+        // get latest interview
+        Interview latest = interviews.get(interviews.size() - 1);
+        
+        String redirectUrl = "redirect:/interviews/" + latest.getId() + "/scorecard";
+        if ("true".equals(modal)) {
+            redirectUrl += "?modal=true";
+        }
+        return redirectUrl;
+    }
+
     @GetMapping("/{id}/scorecard")
     public String showScorecard(@PathVariable Long id, Model model,
+                                @RequestParam(required = false) String modal,
                                 RedirectAttributes redirectAttributes) {
         Interview interview = interviewService.findById(id).orElse(null);
         if (interview == null) {
@@ -181,6 +202,12 @@ public class InterviewController {
         }
         model.addAttribute("pageTitle", "Panel Evaluation Scorecard");
         model.addAttribute("interview", interview);
+        
+        if ("true".equals(modal)) {
+            model.addAttribute("isModal", true);
+        } else {
+            model.addAttribute("isModal", false);
+        }
         
         java.util.List<com.stie.model.InterviewScorecard> scorecards = scorecardService.getScorecardsByInterview(id);
         boolean hasSubmitted = !scorecards.isEmpty() || interview.getStatus() == Interview.InterviewStatus.COMPLETED;
@@ -195,12 +222,9 @@ public class InterviewController {
 
     @PostMapping("/{id}/scorecard")
     public String submitScorecard(@PathVariable Long id,
-                                  @RequestParam Integer technicalScore,
-                                  @RequestParam Integer problemSolvingScore,
-                                  @RequestParam Integer communicationScore,
-                                  @RequestParam Integer cultureScore,
-                                  @RequestParam String comments,
+                                  @ModelAttribute InterviewScorecard scorecardData,
                                   @RequestParam(value = "candidateStatus", required = false) String candidateStatus,
+                                  @RequestParam(required = false) String modal,
                                   RedirectAttributes redirectAttributes) {
 
         Interview interview = interviewService.findById(id).orElse(null);
@@ -211,27 +235,57 @@ public class InterviewController {
 
         if (interview.getInterviewer() == null || !interview.getInterviewer().getUsername().equals(getCurrentUser())) {
             redirectAttributes.addFlashAttribute("error", "Only the assigned interviewer can submit the scorecard.");
-            return "redirect:/interviews/" + id + "/scorecard";
+            return "redirect:/interviews/" + id + "/scorecard" + ("true".equals(modal) ? "?modal=true" : "");
         }
 
-        InterviewScorecard scorecard = new InterviewScorecard(interview, technicalScore, problemSolvingScore,
-                communicationScore, cultureScore, comments, getCurrentUser());
+        // Map data to a new managed entity (since ModelAttribute creates a detached one)
+        InterviewScorecard scorecard = new InterviewScorecard();
+        scorecard.setInterview(interview);
+        scorecard.setSubmitter(getCurrentUser());
+        scorecard.setCreatedAt(LocalDateTime.now());
+        
+        // 9 Criteria
+        scorecard.setCommunicationScore(scorecardData.getCommunicationScore());
+        scorecard.setCommunicationRemarks(scorecardData.getCommunicationRemarks());
+        scorecard.setJobKnowledgeScore(scorecardData.getJobKnowledgeScore());
+        scorecard.setJobKnowledgeRemarks(scorecardData.getJobKnowledgeRemarks());
+        scorecard.setResponseScore(scorecardData.getResponseScore());
+        scorecard.setResponseRemarks(scorecardData.getResponseRemarks());
+        scorecard.setAttitudeScore(scorecardData.getAttitudeScore());
+        scorecard.setAttitudeRemarks(scorecardData.getAttitudeRemarks());
+        scorecard.setInitiativeScore(scorecardData.getInitiativeScore());
+        scorecard.setInitiativeRemarks(scorecardData.getInitiativeRemarks());
+        scorecard.setPersonalityScore(scorecardData.getPersonalityScore());
+        scorecard.setPersonalityRemarks(scorecardData.getPersonalityRemarks());
+        scorecard.setLeadershipScore(scorecardData.getLeadershipScore());
+        scorecard.setLeadershipRemarks(scorecardData.getLeadershipRemarks());
+        scorecard.setTeamworkScore(scorecardData.getTeamworkScore());
+        scorecard.setTeamworkRemarks(scorecardData.getTeamworkRemarks());
+        scorecard.setAppearanceScore(scorecardData.getAppearanceScore());
+        scorecard.setAppearanceRemarks(scorecardData.getAppearanceRemarks());
+        
+        scorecard.setSignature1(scorecardData.getSignature1());
+        scorecard.setSignature2(scorecardData.getSignature2());
+        scorecard.setSignature3(scorecardData.getSignature3());
+        
+        scorecard.setInterviewer1Name(scorecardData.getInterviewer1Name());
+        if (scorecard.getInterviewer1Name() == null || scorecard.getInterviewer1Name().trim().isEmpty()) {
+            scorecard.setInterviewer1Name(interview.getInterviewer() != null ? interview.getInterviewer().getDisplayName() : getCurrentUser());
+        }
+        scorecard.setInterviewer2Name(scorecardData.getInterviewer2Name());
+        scorecard.setApproverName(scorecardData.getApproverName());
+        
+        scorecard.setComments(scorecardData.getComments());
+        scorecard.setRecommendation(scorecardData.getRecommendation());
+
         scorecardService.saveScorecard(scorecard);
 
-        interviewService.updateOutcome(id, Interview.InterviewStatus.COMPLETED, interview.getFeedback(),
-                interview.getTechnicalScore(), interview.getCultureScore(), interview.getCommunicationScore());
-
-        if (candidateStatus != null && !candidateStatus.isEmpty() && interview.getCandidate() != null) {
-            candidateService.updateStatus(interview.getCandidate().getId(),
-                    Candidate.CandidateStatus.valueOf(candidateStatus), getCurrentUser());
-            if ("REJECTED".equalsIgnoreCase(candidateStatus)) {
-                notificationService.addNotification("Rejection dispatched to: " + interview.getCandidate().getFullName(),
-                        "/candidates/" + interview.getCandidate().getId());
-            } else if ("OFFERED".equalsIgnoreCase(candidateStatus)) {
-                notificationService.addNotification("Offer process initiated for: " + interview.getCandidate().getFullName(),
-                        "/candidates/" + interview.getCandidate().getId());
-            }
-        }
+        // Calculate average and set on Interview for backwards compatibility
+        Double avg = scorecard.getAverageScore();
+        int avgInt = (int) Math.round(avg);
+        
+        interviewService.updateOutcome(id, Interview.InterviewStatus.COMPLETED, scorecard.getComments(),
+                avgInt, avgInt, avgInt); // using avg for the old 3 scores
 
         auditService.log("INTERVIEW_SCORECARD_SUBMIT", getCurrentUser(), "Interview", id,
                 "Scorecard by " + getCurrentUser() + ", avg: " + scorecard.getAverageScore());
@@ -239,7 +293,54 @@ public class InterviewController {
         notificationService.notifyHrFeedbackSubmitted(scorecard);        
                 
         redirectAttributes.addFlashAttribute("success", "Panel scorecard saved successfully.");
+        
+        if ("true".equals(modal)) {
+            return "redirect:/interviews/" + id + "/scorecard?modal=true";
+        }
         return "redirect:/interviews";
+    }
+
+    @PostMapping("/{id}/scorecard/{scorecardId}/hr")
+    public String updateScorecardHrFields(@PathVariable Long id,
+                                          @PathVariable Long scorecardId,
+                                          @RequestParam(required = false) String modal,
+                                          @RequestParam(required = false) String positionOffer,
+                                          @RequestParam(required = false) String commencementDate,
+                                          @RequestParam(required = false) String project,
+                                          @RequestParam(required = false) String employmentStatus,
+                                          @RequestParam(required = false) String salaryOfferBasic,
+                                          @RequestParam(required = false) String salaryOfferTransport,
+                                          @RequestParam(required = false) String salaryOfferMobile,
+                                          @RequestParam(required = false) String salaryOfferOther,
+                                          RedirectAttributes redirectAttributes) {
+        
+        InterviewScorecard scorecard = scorecardService.getScorecardsByInterview(id).stream()
+                .filter(s -> s.getId().equals(scorecardId)).findFirst().orElse(null);
+
+        if (scorecard == null) {
+            redirectAttributes.addFlashAttribute("error", "Scorecard not found.");
+            return "redirect:/interviews/" + id + "/scorecard";
+        }
+
+        scorecard.setPositionOffer(positionOffer);
+        scorecard.setCommencementDate(commencementDate);
+        scorecard.setProject(project);
+        scorecard.setEmploymentStatus(employmentStatus);
+        scorecard.setSalaryOfferBasic(salaryOfferBasic);
+        scorecard.setSalaryOfferTransport(salaryOfferTransport);
+        scorecard.setSalaryOfferMobile(salaryOfferMobile);
+        scorecard.setSalaryOfferOther(salaryOfferOther);
+
+        scorecardService.saveScorecard(scorecard);
+        
+        auditService.log("SCORECARD_HR_UPDATE", getCurrentUser(), "InterviewScorecard", scorecardId, "HR fields updated");
+        redirectAttributes.addFlashAttribute("success", "HR details saved successfully.");
+        
+        String redirectUrl = "redirect:/interviews/" + id + "/scorecard";
+        if ("true".equals(modal)) {
+            redirectUrl += "?modal=true";
+        }
+        return redirectUrl;
     }
 }
 

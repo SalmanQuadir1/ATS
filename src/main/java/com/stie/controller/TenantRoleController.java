@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +47,12 @@ public class TenantRoleController {
 
         model.addAttribute("pageTitle", "Role Management");
         model.addAttribute("roles", roleRepository.findByTenantOrTenantIsNull(user.getTenant()));
-        model.addAttribute("allPermissions", permissionModuleRepository.findAll());
+        // Load actual module names from DB - these are what get stored in role_permissions
+        List<String> allPermissions = permissionModuleRepository.findAll()
+                .stream()
+                .map(pm -> pm.getName())
+                .collect(java.util.stream.Collectors.toList());
+        model.addAttribute("allPermissions", allPermissions);
         return "settings-roles";
     }
 

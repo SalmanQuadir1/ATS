@@ -1,295 +1,733 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
-<head><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23059669'/%3E%3Ctext x='50' y='65' font-family='Arial' font-size='32' font-weight='bold' fill='white' text-anchor='middle'%3ESTIE%3C/text%3E%3C/svg%3E">
+<head>
+    <title>Interview Scorecard</title>
 </head>
 <body>
-    <div th:fragment="content" class="pb-12">
-        <!-- Header -->
-        <div class="mb-8">
-            <h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Panel Evaluation Scorecard</h3>
-            <p class="text-slate-500 mt-1">Submit structured scorecards to aggregate reviews and maintain hiring consistency.</p>
-        </div>
-
-        <!-- Candidate & Interview Glassmorphic Banner -->
-        <div class="relative overflow-hidden rounded-[2rem] p-8 mb-10 shadow-2xl shadow-indigo-100/50 border border-white bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600 group">
-            <!-- Decorative blur blobs -->
-            <div class="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-white/10 blur-3xl rounded-full pointer-events-none"></div>
-            <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-black/10 blur-3xl rounded-full pointer-events-none"></div>
-
-            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-                <div class="flex items-center space-x-6">
-                    <div class="w-20 h-20 bg-white/20 backdrop-blur-md text-white rounded-3xl flex items-center justify-center font-black text-3xl shadow-inner border border-white/30 transform group-hover:scale-105 transition-transform duration-500">
-                        <span th:text="${#strings.substring(interview.candidate.fullName,0,1)}">C</span>
-                    </div>
-                    <div>
-                        <h4 class="text-3xl font-black text-white tracking-tight drop-shadow-md" th:text="${interview.candidate.fullName}">Applicant Name</h4>
-                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 backdrop-blur-md rounded-xl text-xs font-bold text-white border border-white/20">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                <span th:text="${interview.jobVacancy.title}">Software Engineer</span>
-                            </span>
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 backdrop-blur-md rounded-xl text-xs font-bold text-white/90 border border-white/10">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                <span th:text="${interview.candidate.experienceYears} + ' Yrs Exp'">3 Yrs Exp</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-col text-left md:text-right bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 self-start md:self-center">
-                    <span class="text-[10px] text-white/70 font-bold uppercase tracking-wider mb-1">Scheduled Session</span>
-                    <span class="text-lg font-black text-white flex items-center gap-2 justify-start md:justify-end">
-                        <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                        <span th:text="${#temporals.format(interview.interviewTime, 'dd MMM yyyy, HH:mm')}">Date Time</span>
-                    </span>
-                    <span class="text-sm font-semibold text-white/80 mt-1 flex items-center gap-2 justify-start md:justify-end">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        <span th:text="${interview.location}">Meeting Room</span>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <!-- Left: Scorecard Entry Form (7 cols) -->
-            <div class="lg:col-span-7 bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/40 relative">
-                
-                <!-- Real-time Average Floating Badge -->
-                <div class="absolute top-8 right-8 flex flex-col items-end">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Average Score</span>
-                    <div id="liveAvgBadge" class="px-4 py-2 bg-slate-100 text-slate-500 rounded-2xl font-black text-xl border-2 border-slate-200 transition-all duration-300">
-                        0.0
-                    </div>
-                </div>
-
-                <div class="flex items-center space-x-4 mb-8">
-                    <div class="p-3 bg-indigo-50 text-indigo-600 rounded-2xl shadow-inner border border-indigo-100">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h4 class="text-xl font-bold text-slate-800">Interviewer Rubrics</h4>
-                        <p class="text-sm text-slate-400 font-medium">Evaluate the applicant across 4 core areas</p>
-                    </div>
-                </div>
-
-                <form th:if="${!hasSubmitted and isAssignedInterviewer}" th:action="@{'/interviews/' + ${interview.id} + '/scorecard'}" method="POST" class="space-y-8">
-                    <!-- Rubric Template Block -->
-                    <th:block th:each="rubric, iterStat : ${
-                        {{'technicalScore', 'Technical Competency', 'Coding, architecture, engineering depth'},
-                         {'problemSolvingScore', 'Problem Solving Aptitude', 'Logic, scalability, edge-case handling'},
-                         {'communicationScore', 'Communication & Influence', 'Clarity, articulation, stakeholder alignment'},
-                         {'cultureScore', 'Culture & Values Fit', 'Teamwork, adaptability, collaboration'}}
-                    }">
-                        <div class="space-y-3 relative group">
-                            <!-- Background highlight on hover -->
-                            <div class="absolute -inset-4 bg-slate-50/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity -z-10 pointer-events-none"></div>
-                            
-                            <div class="flex justify-between items-baseline">
-                                <label class="text-base font-bold text-slate-700" th:text="${iterStat.count + '. ' + rubric[1]}">Rubric Title</label>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide" th:text="${rubric[2]}">Subtitle</span>
-                            </div>
-                            <div class="grid grid-cols-5 gap-3" th:data-rubric="${rubric[0]}">
-                                <label th:each="i : ${#numbers.sequence(1, 5)}" class="cursor-pointer rubric-label block relative">
-                                    <input type="radio" th:name="${rubric[0]}" th:value="${i}" class="peer sr-only" required>
-                                    <!-- Dynamic styling applied via JS -->
-                                    <div class="rubric-box py-3.5 text-center rounded-xl border-2 border-slate-100 bg-white hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-sm font-black text-slate-400 peer-checked:shadow-inner peer-checked:text-white">
-                                        <span class="block text-[10px] font-bold uppercase tracking-wider mb-0.5 opacity-70">Level</span>
-                                        <span class="text-lg" th:text="${i}">3</span>
-                                    </div>
-                                    <!-- Selection ring animation -->
-                                    <div class="absolute inset-0 rounded-xl ring-4 ring-transparent peer-checked:animate-ping opacity-20 pointer-events-none rubric-ring"></div>
-                                </label>
-                            </div>
-                        </div>
-                    </th:block>
-
-                    <!-- Evaluation Comments -->
-                    <div class="pt-4">
-                        <label class="block text-sm font-bold text-slate-700 mb-2" for="comments">Detailed Feedback &amp; Notes</label>
-                        <p class="text-xs text-slate-400 mb-3 font-medium">Please outline specific strengths, areas for growth, and your overall recommendation rationale.</p>
-                        <textarea id="comments" name="comments" rows="5" required 
-                                  class="w-full bg-slate-50/50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all resize-none shadow-inner"></textarea>
-                    </div>
-
-
-
-                    <button type="submit"
-                            class="w-full relative overflow-hidden group bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-2xl shadow-xl shadow-slate-900/20 transition-all duration-300 flex items-center justify-center space-x-2 active:scale-[0.98]">
-                        <!-- Shine effect -->
-                        <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
-                        <svg class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span class="relative z-10 text-lg">Submit Final Evaluation</span>
-                    </button>
-                </form>
-
-                <div th:if="${hasSubmitted}" class="p-10 bg-emerald-50/50 rounded-[2rem] border-2 border-emerald-100 text-center">
-                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
-                    <h4 class="text-2xl font-black text-emerald-800 mb-3 tracking-tight">Evaluation Submitted</h4>
-                    <p class="text-sm text-emerald-600 font-medium">Thank you! Your scorecard rubric for this applicant has been recorded.</p>
-                </div>
-
-                <div th:if="${!hasSubmitted and !isAssignedInterviewer}" class="p-10 bg-slate-50/80 rounded-[2rem] border-2 border-slate-100 text-center">
-                    <div class="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    </div>
-                    <h4 class="text-2xl font-black text-slate-700 mb-3 tracking-tight">View Only</h4>
-                    <p class="text-sm text-slate-500 font-medium">Only the assigned interviewer can submit the scorecard.</p>
-                </div>
-            </div>
-
-            <!-- Right: Panel Stream / Existing Reviews (5 cols) -->
-            <div class="lg:col-span-5 space-y-6">
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-lg shadow-slate-200/30">
-                    <div class="flex items-center justify-between mb-6">
-                        <h4 class="text-lg font-extrabold text-slate-800 tracking-tight">Panel Evaluations</h4>
-                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold" th:text="${#lists.size(existingScorecards)} + ' Submitted'">0 Submitted</span>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <!-- Loop over existing scorecards -->
-                        <div th:each="sc : ${existingScorecards}" 
-                             class="p-5 bg-slate-50/80 rounded-2xl border border-slate-200 hover:border-indigo-200 hover:shadow-md transition-all flex flex-col space-y-4 group">
-                            
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
-                                        <span th:text="${#strings.substring(sc.submitter,0,1).toUpperCase()}">U</span>
-                                    </div>
-                                    <div>
-                                        <span class="block text-sm font-black text-slate-800" th:text="${sc.submitter}">interviewer@stie.com</span>
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wide" th:text="${#temporals.format(sc.createdAt, 'dd MMM • HH:mm')}">Date</span>
-                                    </div>
-                                </div>
-                                
-                                <!-- Avg Score Badge -->
-                                <div class="flex flex-col items-end">
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Average</span>
-                                    <div class="px-2.5 py-1 rounded-xl font-black text-sm border-2"
-                                         th:classappend="${sc.getAverageScore() >= 4 ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 
-                                                          (sc.getAverageScore() >= 3 ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-red-50 text-red-600 border-red-200')}">
-                                        <span th:text="${#numbers.formatDecimal(sc.getAverageScore(), 1, 1)}">4.0</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <p class="text-sm text-slate-600 leading-relaxed font-medium break-words bg-white p-3 rounded-xl border border-slate-100" th:text="${sc.comments}">Feedback comments go here.</p>
-                            
-                            <!-- Detailed scores visual breakdown -->
-                            <div class="grid grid-cols-4 gap-2 pt-2 text-center opacity-70 group-hover:opacity-100 transition-opacity">
-                                <div>
-                                    <span class="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Tech</span>
-                                    <span class="text-sm font-black text-slate-700" th:text="${sc.technicalScore}">3</span>
-                                </div>
-                                <div>
-                                    <span class="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Analyt</span>
-                                    <span class="text-sm font-black text-slate-700" th:text="${sc.problemSolvingScore}">3</span>
-                                </div>
-                                <div>
-                                    <span class="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Comm</span>
-                                    <span class="text-sm font-black text-slate-700" th:text="${sc.communicationScore}">3</span>
-                                </div>
-                                <div>
-                                    <span class="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Cult</span>
-                                    <span class="text-sm font-black text-slate-700" th:text="${sc.cultureScore}">3</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Fallback empty panel state -->
-                        <div th:if="${#lists.isEmpty(existingScorecards)}" class="p-10 text-center bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200">
-                            <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                            </div>
-                            <h5 class="text-sm font-bold text-slate-700 mb-1">No Evaluations Yet</h5>
-                            <p class="text-xs text-slate-500">Be the first to submit a structured rubric evaluation for this applicant.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Custom JS for dynamic rubric coloring and live average -->
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const colorMap = {
-                    1: { bg: 'bg-red-500', border: 'border-red-600', ring: 'ring-red-500' },
-                    2: { bg: 'bg-orange-500', border: 'border-orange-600', ring: 'ring-orange-500' },
-                    3: { bg: 'bg-amber-500', border: 'border-amber-600', ring: 'ring-amber-500' },
-                    4: { bg: 'bg-emerald-500', border: 'border-emerald-600', ring: 'ring-emerald-500' },
-                    5: { bg: 'bg-teal-600', border: 'border-teal-700', ring: 'ring-teal-600' }
-                };
-
-                const avgBadge = document.getElementById('liveAvgBadge');
-                
-                function updateLiveAverage() {
-                    let sum = 0;
-                    let count = 0;
-                    document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-                        sum += parseInt(radio.value);
-                        count++;
-                    });
-                    
-                    if (count > 0) {
-                        const avg = (sum / count).toFixed(1);
-                        avgBadge.innerText = avg;
-                        
-                        // Update badge color
-                        avgBadge.className = 'px-4 py-2 rounded-2xl font-black text-xl border-2 transition-all duration-300 ';
-                        if (avg >= 4) avgBadge.className += 'bg-emerald-50 text-emerald-600 border-emerald-200 shadow-lg shadow-emerald-100';
-                        else if (avg >= 3) avgBadge.className += 'bg-amber-50 text-amber-600 border-amber-200 shadow-lg shadow-amber-100';
-                        else avgBadge.className += 'bg-red-50 text-red-600 border-red-200 shadow-lg shadow-red-100';
-                    }
-                }
-
-                // Attach change listeners to radios
-                document.querySelectorAll('input[type="radio"]').forEach(radio => {
-                    radio.addEventListener('change', function() {
-                        const groupName = this.name;
-                        // Reset all boxes in this group
-                        document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
-                            const box = r.nextElementSibling;
-                            const ring = box.nextElementSibling;
-                            box.className = 'rubric-box py-3.5 text-center rounded-xl border-2 border-slate-100 bg-white hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-sm font-black text-slate-400 peer-checked:shadow-inner peer-checked:text-white';
-                            ring.className = 'absolute inset-0 rounded-xl ring-4 ring-transparent peer-checked:animate-ping opacity-20 pointer-events-none rubric-ring';
-                        });
-
-                        // Apply color to selected
-                        if (this.checked) {
-                            const val = this.value;
-                            const box = this.nextElementSibling;
-                            const ring = box.nextElementSibling;
-                            const colors = colorMap[val];
-                            
-                            // Re-apply classes with the specific colors
-                            box.className = `rubric-box py-3.5 text-center rounded-xl border-2 transition-all duration-300 text-sm font-black text-white shadow-inner scale-105 ${colors.bg} ${colors.border}`;
-                            ring.className = `absolute inset-0 rounded-xl ring-4 opacity-30 pointer-events-none rubric-ring animate-ping ${colors.ring}`;
-                            
-                            // Remove ping after 500ms
-                            setTimeout(() => {
-                                ring.classList.remove('animate-ping');
-                            }, 500);
-                        }
-                        
-                        updateLiveAverage();
-                    });
-                });
-            });
-        </script>
+    <div th:fragment="content" class="pb-12 max-w-5xl mx-auto font-sans text-slate-900">
         
         <style>
-            @keyframes shimmer {
-                100% { transform: translateX(100%); }
+            .form-wrapper { border: 1px solid #e2e8f0; background: white; margin-bottom: 3rem; border-radius: 1rem; overflow: hidden; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05); }
+            
+            .criteria-table { width: 100%; border-collapse: collapse; border-bottom: 1px solid #e2e8f0; }
+            .criteria-table th, .criteria-table td { border: 1px solid #e2e8f0; padding: 1rem 0.75rem; vertical-align: top; }
+            .criteria-table th { text-align: center; font-weight: 700; background: #f8fafc; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
+            
+            .score-radio { width: 1.25rem; height: 1.25rem; cursor: pointer; accent-color: #0d9488; margin: 0 auto; display: block; }
+            .criteria-ul { list-style-type: disc; padding-left: 1.5rem; font-size: 0.875rem; margin-top: 0.5rem; color: #64748b; }
+            
+            .signature-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid #e2e8f0; background: white; }
+            .signature-cell { padding: 1.5rem; }
+            .signature-cell:not(:last-child) { border-right: 1px solid #e2e8f0; }
+            
+            .hr-row { border-bottom: 1px solid #e2e8f0; padding: 1rem 1.5rem; }
+            .hr-row:last-child { border-bottom: none; }
+            
+            .checkbox-square {
+                appearance: none; width: 1.25rem; height: 1.25rem; border: 1px solid #cbd5e1; border-radius: 0.375rem; display: inline-flex;
+                align-items: center; justify-content: center; cursor: pointer; background: white; transition: all 0.2s;
+            }
+            .checkbox-square:checked {
+                background: #0d9488; border-color: #0d9488;
+            }
+            .checkbox-square:checked::after {
+                content: '✓'; font-size: 0.875rem; font-weight: bold; color: white;
             }
         </style>
+
+        <!-- Unified Candidate Profile Card -->
+        <div th:if="${!isModal}" class="bg-white rounded-[2rem] shadow-md border border-slate-200 p-8 flex flex-col md:flex-row items-center gap-8 mt-4 mb-10 relative overflow-hidden group">
+            <!-- Decorative Background -->
+            <div class="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-emerald-100 to-teal-50 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700"></div>
+            
+            <!-- Photo -->
+            <div class="w-32 h-32 rounded-[1.5rem] shadow-xl border-4 border-white overflow-hidden shrink-0 z-10 bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white ring-1 ring-slate-100">
+                <img th:if="${interview.candidate.photoPath != null and !interview.candidate.photoPath.isEmpty()}" 
+                     th:src="@{${uploadUrlPrefix} + ${interview.candidate.photoPath}}" class="w-full h-full object-cover">
+                <span th:unless="${interview.candidate.photoPath != null and !interview.candidate.photoPath.isEmpty()}" 
+                      class="text-5xl font-black" th:text="${#strings.substring(interview.candidate.fullName, 0, 1)}">C</span>
+            </div>
+            
+            <!-- Details -->
+            <div class="flex-1 z-10 w-full">
+                <div class="flex flex-col md:flex-row justify-between items-start gap-6">
+                    <div>
+                        <h2 class="text-3xl font-black text-slate-800 tracking-tight" th:text="${interview.candidate.fullName}">Candidate Name</h2>
+                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                            <p class="text-teal-600 font-bold text-sm flex items-center gap-1.5 bg-teal-50/80 px-4 py-1.5 rounded-full border border-teal-100 shadow-sm shadow-teal-100/50">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                <span th:text="${interview.jobVacancy.title}">Designation</span>
+                            </p>
+                            <p class="text-slate-600 font-bold text-sm flex items-center gap-1.5 bg-slate-50 px-4 py-1.5 rounded-full border border-slate-200 shadow-sm shadow-slate-200/50">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                <span th:text="${interview.jobVacancy.tenant.name}">Company Name</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="md:text-right w-full md:w-auto">
+                        <div class="bg-white border border-slate-200 rounded-2xl px-6 py-4 inline-block md:text-left shadow-md shadow-slate-200/50 w-full md:w-auto">
+                            <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">Date of Interview</div>
+                            <div class="text-slate-800 font-black text-base flex items-center gap-2">
+                                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <span th:text="${#temporals.format(interview.interviewTime, 'dd MMM yyyy, hh:mm a')}">12 Oct 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Mode Compact Header -->
+        <div th:if="${isModal}" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 mb-8 flex justify-between items-center bg-gradient-to-r from-emerald-50/50 to-teal-50/50 relative overflow-hidden group">
+            <div class="absolute right-0 top-0 w-32 h-32 bg-teal-100 rounded-full blur-2xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="w-12 h-12 rounded-[0.8rem] overflow-hidden shrink-0 bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-black text-xl shadow-md border border-white">
+                    <img th:if="${interview.candidate.photoPath != null and !interview.candidate.photoPath.isEmpty()}" 
+                         th:src="@{${uploadUrlPrefix} + ${interview.candidate.photoPath}}" class="w-full h-full object-cover">
+                    <span th:unless="${interview.candidate.photoPath != null and !interview.candidate.photoPath.isEmpty()}" 
+                          th:text="${#strings.substring(interview.candidate.fullName, 0, 1)}">C</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-slate-800 tracking-tight" th:text="${interview.candidate.fullName}">Candidate Name</h2>
+                    <div class="text-xs font-bold text-teal-700 mt-0.5 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <span th:text="${interview.jobVacancy.title}">Designation</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-right relative z-10 hidden sm:block bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm shadow-slate-200/50">
+                <div class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Interview Date</div>
+                <div class="text-sm font-black text-slate-700 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span th:text="${#temporals.format(interview.interviewTime, 'dd MMM yyyy, hh:mm a')}">12 Oct 2026</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${(hasSubmitted and #lists.isEmpty(existingScorecards)) or (!hasSubmitted and !isAssignedInterviewer)}" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center mt-8">
+            <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-2">No Scorecard Available</h3>
+            <p class="text-slate-500 max-w-sm mx-auto">A scorecard has not been submitted for this interview yet. Only the assigned interviewer can submit the evaluation.</p>
+        </div>
+
+        <form th:if="${!hasSubmitted and isAssignedInterviewer}" th:action="@{/interviews/{id}/scorecard(id=${interview.id},modal=${isModal ? 'true' : null})}" method="POST" id="scorecardForm" class="form-wrapper border-t-[6px] border-t-teal-500">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white text-center font-bold text-xl py-6 tracking-wide shadow-sm">
+                Interview Assessment Form
+            </div>
+
+            <!-- Table -->
+            <table class="criteria-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30%">Criterions</th>
+                        <th style="width: 10%">Not<br>acceptable</th>
+                        <th style="width: 10%">Below<br>average</th>
+                        <th style="width: 10%">Average</th>
+                        <th style="width: 10%">Good</th>
+                        <th style="width: 10%">Excellent</th>
+                        <th style="width: 20%">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 1 -->
+                    <tr>
+                        <td class="font-bold">
+                            Communication
+                            <ul class="criteria-ul font-normal">
+                                <li>Express thoughts well, listening skills</li>
+                                <li>Talk professionally</li>
+                            </ul>
+                        </td>
+                        <td class="align-middle"><input type="radio" name="communicationScore" value="1" class="score-radio" required></td>
+                        <td class="align-middle"><input type="radio" name="communicationScore" value="2" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="communicationScore" value="3" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="communicationScore" value="4" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="communicationScore" value="5" class="score-radio"></td>
+                        <td><textarea name="communicationRemarks" class="w-full h-full min-h-[60px] border-none focus:ring-0 resize-none text-sm p-1 bg-transparent"></textarea></td>
+                    </tr>
+                    <!-- 2 -->
+                    <tr>
+                        <td class="font-bold">
+                            Job Knowledge & Abilities
+                            <ul class="criteria-ul font-normal">
+                                <li>Competency, job skills</li>
+                                <li>Knowing the job responsibilities</li>
+                            </ul>
+                        </td>
+                        <td class="align-middle"><input type="radio" name="jobKnowledgeScore" value="1" class="score-radio" required></td>
+                        <td class="align-middle"><input type="radio" name="jobKnowledgeScore" value="2" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="jobKnowledgeScore" value="3" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="jobKnowledgeScore" value="4" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="jobKnowledgeScore" value="5" class="score-radio"></td>
+                        <td><textarea name="jobKnowledgeRemarks" class="w-full h-full min-h-[60px] border-none focus:ring-0 resize-none text-sm p-1 bg-transparent"></textarea></td>
+                    </tr>
+                    <!-- 3 -->
+                    <tr>
+                        <td class="font-bold">
+                            Response
+                            <ul class="criteria-ul font-normal">
+                                <li>Mental Alertness, logic, responsive</li>
+                            </ul>
+                        </td>
+                        <td class="align-middle"><input type="radio" name="responseScore" value="1" class="score-radio" required></td>
+                        <td class="align-middle"><input type="radio" name="responseScore" value="2" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="responseScore" value="3" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="responseScore" value="4" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="responseScore" value="5" class="score-radio"></td>
+                        <td><textarea name="responseRemarks" class="w-full h-full min-h-[60px] border-none focus:ring-0 resize-none text-sm p-1 bg-transparent"></textarea></td>
+                    </tr>
+                    <!-- 4 -->
+                    <tr>
+                        <td class="font-bold">
+                            Attitude
+                            <ul class="criteria-ul font-normal">
+                                <li>Courteous, show enthusiasm</li>
+                            </ul>
+                        </td>
+                        <td class="align-middle"><input type="radio" name="attitudeScore" value="1" class="score-radio" required></td>
+                        <td class="align-middle"><input type="radio" name="attitudeScore" value="2" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="attitudeScore" value="3" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="attitudeScore" value="4" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="attitudeScore" value="5" class="score-radio"></td>
+                        <td><textarea name="attitudeRemarks" class="w-full h-full min-h-[60px] border-none focus:ring-0 resize-none text-sm p-1 bg-transparent"></textarea></td>
+                    </tr>
+                    <!-- 5 -->
+                    <tr>
+                        <td class="font-bold">
+                            Initiative
+                            <ul class="criteria-ul font-normal">
+                                <li>Independent, resourceful, industrious, motivated</li>
+                                <li>Willing to go extra mile</li>
+                            </ul>
+                        </td>
+                        <td class="align-middle"><input type="radio" name="initiativeScore" value="1" class="score-radio" required></td>
+                        <td class="align-middle"><input type="radio" name="initiativeScore" value="2" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="initiativeScore" value="3" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="initiativeScore" value="4" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="initiativeScore" value="5" class="score-radio"></td>
+                        <td><textarea name="initiativeRemarks" class="w-full h-full min-h-[60px] border-none focus:ring-0 resize-none text-sm p-1 bg-transparent"></textarea></td>
+                    </tr>
+                    <!-- 6 -->
+                    <tr>
+                        <td class="font-bold">
+                            Personality
+                            <ul class="criteria-ul font-normal">
+                                <li>Show responsible,</li>
+                                <li>Have objective,</li>
+                                <li>self-discipline & steady</li>
+                                <li>Emotion management</li>
+                            </ul>
+                        </td>
+                        <td class="align-middle"><input type="radio" name="personalityScore" value="1" class="score-radio" required></td>
+                        <td class="align-middle"><input type="radio" name="personalityScore" value="2" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="personalityScore" value="3" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="personalityScore" value="4" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="personalityScore" value="5" class="score-radio"></td>
+                        <td><textarea name="personalityRemarks" class="w-full h-full min-h-[60px] border-none focus:ring-0 resize-none text-sm p-1 bg-transparent"></textarea></td>
+                    </tr>
+                    <!-- 7 -->
+                    <tr>
+                        <td class="font-bold">
+                            Leadership
+                            <ul class="criteria-ul font-normal">
+                                <li>Show management skill</li>
+                                <li>Experience in people management.</li>
+                            </ul>
+                        </td>
+                        <td class="align-middle"><input type="radio" name="leadershipScore" value="1" class="score-radio" required></td>
+                        <td class="align-middle"><input type="radio" name="leadershipScore" value="2" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="leadershipScore" value="3" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="leadershipScore" value="4" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="leadershipScore" value="5" class="score-radio"></td>
+                        <td><textarea name="leadershipRemarks" class="w-full h-full min-h-[60px] border-none focus:ring-0 resize-none text-sm p-1 bg-transparent"></textarea></td>
+                    </tr>
+                    <!-- 8 -->
+                    <tr>
+                        <td class="font-bold">
+                            Teamwork
+                            <ul class="criteria-ul font-normal">
+                                <li>Team spirits</li>
+                                <li>Communicable</li>
+                            </ul>
+                        </td>
+                        <td class="align-middle"><input type="radio" name="teamworkScore" value="1" class="score-radio" required></td>
+                        <td class="align-middle"><input type="radio" name="teamworkScore" value="2" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="teamworkScore" value="3" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="teamworkScore" value="4" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="teamworkScore" value="5" class="score-radio"></td>
+                        <td><textarea name="teamworkRemarks" class="w-full h-full min-h-[60px] border-none focus:ring-0 resize-none text-sm p-1 bg-transparent"></textarea></td>
+                    </tr>
+                    <!-- 9 -->
+                    <tr>
+                        <td class="font-bold">
+                            Appearance / Professional Image
+                            <ul class="criteria-ul font-normal">
+                                <li>Dress sense</li>
+                                <li>body language</li>
+                            </ul>
+                        </td>
+                        <td class="align-middle"><input type="radio" name="appearanceScore" value="1" class="score-radio" required></td>
+                        <td class="align-middle"><input type="radio" name="appearanceScore" value="2" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="appearanceScore" value="3" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="appearanceScore" value="4" class="score-radio"></td>
+                        <td class="align-middle"><input type="radio" name="appearanceScore" value="5" class="score-radio"></td>
+                        <td><textarea name="appearanceRemarks" class="w-full h-full min-h-[60px] border-none focus:ring-0 resize-none text-sm p-1 bg-transparent"></textarea></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Comments -->
+            <div class="p-6 border-b border-slate-200">
+                <div class="font-bold mb-3 text-slate-800 text-sm">General comments:</div>
+                <textarea name="comments" class="w-full border border-slate-200 rounded-xl bg-slate-50 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 p-4 text-sm resize-none transition-all" placeholder="Enter your detailed remarks here..." required></textarea>
+            </div>
+
+            <!-- Recommendation -->
+            <div class="p-6 border-b border-slate-200 flex items-center gap-12 bg-slate-50/50">
+                <div class="font-bold text-slate-800 text-sm">Recommend for offer</div>
+                <div class="flex items-center gap-6">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <span class="mr-2">Yes</span>
+                        <input type="radio" name="recommendation" value="Yes" class="checkbox-square" required>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <span class="mr-2">No</span>
+                        <input type="radio" name="recommendation" value="No" class="checkbox-square">
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <span class="mr-2">KIV</span>
+                        <input type="radio" name="recommendation" value="KIV" class="checkbox-square">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Signatures -->
+            <div class="signature-grid">
+                <div class="signature-cell flex flex-col justify-between min-h-[160px]">
+                    <div class="font-bold text-sm text-slate-800">Interviewed by,</div>
+                    <div class="my-6">
+                        <canvas id="sigCanvas1" width="200" height="60" class="border border-slate-200 rounded-lg bg-slate-50 cursor-crosshair mx-auto touch-none"></canvas>
+                        <input type="hidden" name="signature1" id="signature1">
+                        <div class="text-center mt-2"><button type="button" class="text-[10px] text-slate-400 hover:text-red-500 transition-colors" onclick="clearCanvas(1)">Clear Canvas</button></div>
+                    </div>
+                    <div class="border-t border-slate-200 pt-3 text-xs text-slate-500">
+                        <span class="font-bold text-slate-700 block mb-1">Name: <span class="font-medium text-slate-800" th:text="${interview.interviewer != null ? interview.interviewer.displayName : #authentication.name}"></span></span>
+                        <div>Date: <span class="text-slate-800 font-medium" th:text="${#dates.format(#dates.createNow(), 'dd MMM yyyy')}"></span></div>
+                    </div>
+                </div>
+                <div class="signature-cell flex flex-col justify-between min-h-[160px]">
+                    <div class="font-bold text-sm text-slate-800">Interviewed by,</div>
+                    <div class="my-6">
+                        <canvas id="sigCanvas2" width="200" height="60" class="border border-slate-200 rounded-lg bg-slate-50 cursor-crosshair mx-auto touch-none"></canvas>
+                        <input type="hidden" name="signature2" id="signature2">
+                        <div class="text-center mt-2"><button type="button" class="text-[10px] text-slate-400 hover:text-red-500 transition-colors" onclick="clearCanvas(2)">Clear Canvas</button></div>
+                    </div>
+                    <div class="border-t border-slate-200 pt-3 text-xs text-slate-500">
+                        <span class="font-bold text-slate-700 block mb-1">Name: <input type="text" name="interviewer2Name" class="bg-transparent border-b border-slate-300 focus:border-teal-500 focus:outline-none w-24"></span>
+                        <div>Date: <span class="text-slate-800 font-medium" th:text="${#dates.format(#dates.createNow(), 'dd MMM yyyy')}"></span></div>
+                    </div>
+                </div>
+                <div class="signature-cell flex flex-col justify-between min-h-[160px]">
+                    <div class="font-bold text-sm text-slate-800">Approved by,</div>
+                    <div class="my-6">
+                        <canvas id="sigCanvas3" width="200" height="60" class="border border-slate-200 rounded-lg bg-slate-50 cursor-crosshair mx-auto touch-none"></canvas>
+                        <input type="hidden" name="signature3" id="signature3">
+                        <div class="text-center mt-2"><button type="button" class="text-[10px] text-slate-400 hover:text-red-500 transition-colors" onclick="clearCanvas(3)">Clear Canvas</button></div>
+                    </div>
+                    <div class="border-t border-slate-200 pt-3 text-xs text-slate-500">
+                        <span class="font-bold text-slate-700 block mb-1">Name: <input type="text" name="approverName" class="bg-transparent border-b border-slate-300 focus:border-teal-500 focus:outline-none w-24"></span>
+                        <div>Date: <span class="text-slate-800 font-medium" th:text="${#dates.format(#dates.createNow(), 'dd MMM yyyy')}"></span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 flex justify-end bg-slate-50">
+                <button type="submit" class="bg-teal-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition-all shadow-md shadow-teal-500/20 active:scale-95">Submit Assessment</button>
+            </div>
+        </form>
+
+
+        <!-- VIEW MODE (Submitted) -->
+        <div th:if="${hasSubmitted}">
+            <div th:each="sc, iterStat : ${existingScorecards}" class="form-wrapper shadow-lg mt-8 border-t-[6px] border-t-teal-500">
+                <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex justify-between items-center px-8 py-5 shadow-sm">
+                    <span class="font-bold text-xl tracking-wide">Interview Assessment Form <span class="text-emerald-50 text-xs normal-case tracking-normal ml-3 font-medium bg-black/10 px-3 py-1.5 rounded-full border border-white/20">Submitted by <span th:text="${sc.submitter}"></span></span></span>
+                    <div class="bg-white text-teal-800 px-5 py-2 rounded-xl font-black shadow-sm flex items-center gap-2">
+                        <span class="text-xs uppercase tracking-wider text-slate-500">Average</span> <span class="text-xl" th:text="${#numbers.formatDecimal(sc.getAverageScore(), 1, 1)}"></span>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <table class="criteria-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%">Criterions</th>
+                            <th style="width: 10%">Not<br>acceptable</th>
+                            <th style="width: 10%">Below<br>average</th>
+                            <th style="width: 10%">Average</th>
+                            <th style="width: 10%">Good</th>
+                            <th style="width: 10%">Excellent</th>
+                            <th style="width: 20%">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 1 -->
+                        <tr>
+                            <td class="font-bold">Communication<ul class="criteria-ul font-normal"><li>Express thoughts well, listening skills</li><li>Talk professionally</li></ul></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.communicationScore == 1}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.communicationScore == 2}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.communicationScore == 3}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.communicationScore == 4}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.communicationScore == 5}">✓</span></td>
+                            <td class="text-sm" th:text="${sc.communicationRemarks}"></td>
+                        </tr>
+                        <!-- 2 -->
+                        <tr>
+                            <td class="font-bold">Job Knowledge & Abilities<ul class="criteria-ul font-normal"><li>Competency, job skills</li><li>Knowing the job responsibilities</li></ul></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.jobKnowledgeScore == 1}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.jobKnowledgeScore == 2}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.jobKnowledgeScore == 3}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.jobKnowledgeScore == 4}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.jobKnowledgeScore == 5}">✓</span></td>
+                            <td class="text-sm" th:text="${sc.jobKnowledgeRemarks}"></td>
+                        </tr>
+                        <!-- 3 -->
+                        <tr>
+                            <td class="font-bold">Response<ul class="criteria-ul font-normal"><li>Mental Alertness, logic, responsive</li></ul></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.responseScore == 1}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.responseScore == 2}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.responseScore == 3}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.responseScore == 4}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.responseScore == 5}">✓</span></td>
+                            <td class="text-sm" th:text="${sc.responseRemarks}"></td>
+                        </tr>
+                        <!-- 4 -->
+                        <tr>
+                            <td class="font-bold">Attitude<ul class="criteria-ul font-normal"><li>Courteous, show enthusiasm</li></ul></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.attitudeScore == 1}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.attitudeScore == 2}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.attitudeScore == 3}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.attitudeScore == 4}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.attitudeScore == 5}">✓</span></td>
+                            <td class="text-sm" th:text="${sc.attitudeRemarks}"></td>
+                        </tr>
+                        <!-- 5 -->
+                        <tr>
+                            <td class="font-bold">Initiative<ul class="criteria-ul font-normal"><li>Independent, resourceful, industrious, motivated</li><li>Willing to go extra mile</li></ul></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.initiativeScore == 1}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.initiativeScore == 2}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.initiativeScore == 3}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.initiativeScore == 4}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.initiativeScore == 5}">✓</span></td>
+                            <td class="text-sm" th:text="${sc.initiativeRemarks}"></td>
+                        </tr>
+                        <!-- 6 -->
+                        <tr>
+                            <td class="font-bold">Personality<ul class="criteria-ul font-normal"><li>Show responsible,</li><li>Have objective,</li><li>self-discipline & steady</li><li>Emotion management</li></ul></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.personalityScore == 1}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.personalityScore == 2}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.personalityScore == 3}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.personalityScore == 4}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.personalityScore == 5}">✓</span></td>
+                            <td class="text-sm" th:text="${sc.personalityRemarks}"></td>
+                        </tr>
+                        <!-- 7 -->
+                        <tr>
+                            <td class="font-bold">Leadership<ul class="criteria-ul font-normal"><li>Show management skill</li><li>Experience in people management.</li></ul></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.leadershipScore == 1}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.leadershipScore == 2}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.leadershipScore == 3}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.leadershipScore == 4}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.leadershipScore == 5}">✓</span></td>
+                            <td class="text-sm" th:text="${sc.leadershipRemarks}"></td>
+                        </tr>
+                        <!-- 8 -->
+                        <tr>
+                            <td class="font-bold">Teamwork<ul class="criteria-ul font-normal"><li>Team spirits</li><li>Communicable</li></ul></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.teamworkScore == 1}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.teamworkScore == 2}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.teamworkScore == 3}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.teamworkScore == 4}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.teamworkScore == 5}">✓</span></td>
+                            <td class="text-sm" th:text="${sc.teamworkRemarks}"></td>
+                        </tr>
+                        <!-- 9 -->
+                        <tr>
+                            <td class="font-bold">Appearance / Professional Image<ul class="criteria-ul font-normal"><li>Dress sense</li><li>body language</li></ul></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.appearanceScore == 1}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.appearanceScore == 2}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.appearanceScore == 3}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.appearanceScore == 4}">✓</span></td>
+                            <td class="align-middle text-center font-black text-xl"><span th:if="${sc.appearanceScore == 5}">✓</span></td>
+                            <td class="text-sm" th:text="${sc.appearanceRemarks}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Comments -->
+                <div class="p-6 border-b border-slate-200">
+                    <div class="font-bold mb-3 text-slate-800 text-sm">General comments:</div>
+                    <div class="w-full text-sm text-slate-600 whitespace-pre-line bg-slate-50 p-4 rounded-xl border border-slate-100" th:text="${sc.comments}"></div>
+                </div>
+
+                <!-- Recommendation -->
+                <div class="p-6 border-b border-slate-200 flex items-center gap-12 bg-slate-50/50">
+                    <div class="font-bold text-slate-800 text-sm">Recommend for offer</div>
+                    <div class="flex items-center gap-6">
+                        <label class="flex items-center gap-2">
+                            <span class="mr-2 text-sm font-medium text-slate-700">Yes</span>
+                            <div class="checkbox-square"><span th:if="${sc.recommendation == 'Yes'}">✓</span></div>
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <span class="mr-2 text-sm font-medium text-slate-700">No</span>
+                            <div class="checkbox-square"><span th:if="${sc.recommendation == 'No'}">✓</span></div>
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <span class="mr-2 text-sm font-medium text-slate-700">KIV</span>
+                            <div class="checkbox-square"><span th:if="${sc.recommendation == 'KIV'}">✓</span></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Signatures -->
+                <div class="signature-grid border-b-0">
+                    <div class="signature-cell flex flex-col justify-between min-h-[160px]">
+                        <div class="font-bold text-sm text-slate-800">Interviewed by,</div>
+                        <div class="my-6 flex items-end justify-center h-16 border border-slate-100 rounded-lg bg-slate-50/50">
+                            <img th:if="${sc.signature1 != null and !sc.signature1.isEmpty()}" th:src="${sc.signature1}" class="max-h-full">
+                        </div>
+                        <div class="border-t border-slate-200 pt-3 text-xs text-slate-500">
+                            <span class="font-bold text-slate-700 block mb-1">Name: <span class="font-medium text-slate-800" th:text="${sc.interviewer1Name != null ? sc.interviewer1Name : sc.submitter}"></span></span>
+                            <div>Date: <span class="text-slate-800 font-medium" th:text="${#temporals.format(sc.createdAt, 'dd MMM yyyy')}"></span></div>
+                        </div>
+                    </div>
+                    <div class="signature-cell flex flex-col justify-between min-h-[160px]">
+                        <div class="font-bold text-sm text-slate-800">Interviewed by,</div>
+                        <div class="my-6 flex items-end justify-center h-16 border border-slate-100 rounded-lg bg-slate-50/50">
+                            <img th:if="${sc.signature2 != null and !sc.signature2.isEmpty()}" th:src="${sc.signature2}" class="max-h-full">
+                        </div>
+                        <div class="border-t border-slate-200 pt-3 text-xs text-slate-500">
+                            <span class="font-bold text-slate-700 block mb-1">Name: <span class="font-medium text-slate-800" th:text="${sc.interviewer2Name}"></span></span>
+                            <div>Date: <span class="text-slate-800 font-medium" th:text="${#temporals.format(sc.createdAt, 'dd MMM yyyy')}"></span></div>
+                        </div>
+                    </div>
+                    <div class="signature-cell flex flex-col justify-between min-h-[160px]">
+                        <div class="font-bold text-sm text-slate-800">Approved by,</div>
+                        <div class="my-6 flex items-end justify-center h-16 border border-slate-100 rounded-lg bg-slate-50/50">
+                            <img th:if="${sc.signature3 != null and !sc.signature3.isEmpty()}" th:src="${sc.signature3}" class="max-h-full">
+                        </div>
+                        <div class="border-t border-slate-200 pt-3 text-xs text-slate-500">
+                            <span class="font-bold text-slate-700 block mb-1">Name: <span class="font-medium text-slate-800" th:text="${sc.approverName}"></span></span>
+                            <div>Date: <span class="text-slate-800 font-medium" th:text="${#temporals.format(sc.createdAt, 'dd MMM yyyy')}"></span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HR Section -->
+                <th:block th:if="${iterStat.first and !isAssignedInterviewer}">
+                    <div class="mt-8 border-t-[4px] border-t-indigo-500 bg-white shadow-lg rounded-b-xl overflow-hidden relative">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-100 to-purple-50 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
+                        
+                        <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white font-bold px-8 py-5 text-sm uppercase tracking-widest flex items-center gap-3 relative z-10 shadow-sm">
+                            <svg class="w-5 h-5 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            Human Resource Department
+                        </div>
+                        <form th:action="@{/interviews/{id}/scorecard/{scId}/hr(id=${interview.id},scId=${sc.id},modal=${isModal ? 'true' : null})}" method="POST" class="text-sm relative z-10 p-8 space-y-6">
+                            
+                            <!-- First Row -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-bold text-slate-700 text-xs uppercase tracking-wider">Position Offer</label>
+                                    <input type="text" name="positionOffer" th:value="${!#strings.isEmpty(sc.positionOffer) ? sc.positionOffer : interview.jobVacancy.title}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none read-only:bg-slate-100 read-only:text-slate-500" placeholder="e.g. Software Engineer" required>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-bold text-slate-700 text-xs uppercase tracking-wider">Commencement Date</label>
+                                    <input type="date" name="commencementDate" th:value="${sc.commencementDate}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
+                                </div>
+                            </div>
+
+                            <!-- Second Row -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-bold text-slate-700 text-xs uppercase tracking-wider">Project</label>
+                                    <input type="text" name="project" th:value="${!#strings.isEmpty(sc.project) ? sc.project : (interview.jobVacancy.tenant != null ? interview.jobVacancy.tenant.name : '')}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none read-only:bg-slate-100 read-only:text-slate-500" placeholder="Project Name" required>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-bold text-slate-700 text-xs uppercase tracking-wider">Employment Status</label>
+                                    <select name="employmentStatus" th:disabled="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none text-slate-700 cursor-pointer appearance-none disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed" required>
+                                        <option value="" th:selected="${sc.employmentStatus == null}">Select Status</option>
+                                        <option value="Full Time" th:selected="${sc.employmentStatus == 'Full Time'}">Full Time</option>
+                                        <option value="Contract Basis" th:selected="${sc.employmentStatus == 'Contract Basis'}">Contract Basis</option>
+                                        <option value="Part Time" th:selected="${sc.employmentStatus == 'Part Time'}">Part Time</option>
+                                    </select>
+                                    <!-- Hidden input so the value is still submitted if needed -->
+                                    <input type="hidden" name="employmentStatus" th:if="${!#strings.isEmpty(sc.employmentStatus)}" th:value="${sc.employmentStatus}">
+                                </div>
+                            </div>
+
+                            <hr class="border-slate-100 my-4">
+
+                            <!-- Salary Offer -->
+                            <div>
+                                <label class="font-black text-slate-800 text-sm tracking-wide block mb-4 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Salary Offer <span class="text-xs font-normal text-slate-400 ml-2">(per month / per hour)</span>
+                                </label>
+                                <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+                                    <div class="flex flex-col gap-2">
+                                        <span class="text-xs font-bold text-slate-500">Basic</span>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
+                                            <input type="text" name="salaryOfferBasic" th:value="${sc.salaryOfferBasic}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <span class="text-xs font-bold text-slate-500">Transport</span>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
+                                            <input type="text" name="salaryOfferTransport" th:value="${sc.salaryOfferTransport}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <span class="text-xs font-bold text-slate-500">Mobile</span>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
+                                            <input type="text" name="salaryOfferMobile" th:value="${sc.salaryOfferMobile}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <span class="text-xs font-bold text-slate-500">Other</span>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
+                                            <input type="text" name="salaryOfferOther" th:value="${sc.salaryOfferOther}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <span class="text-xs font-black text-indigo-700">Total</span>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 font-black">$</span>
+                                            <input type="text" id="salaryTotal" readonly class="w-full bg-indigo-50/50 border border-indigo-200 rounded-lg pl-8 pr-4 py-2.5 outline-none font-black text-indigo-800 shadow-inner">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const fields = ['salaryOfferBasic', 'salaryOfferTransport', 'salaryOfferMobile', 'salaryOfferOther'];
+                                    const inputs = fields.map(name => document.querySelector(`input[name="${name}"]`));
+                                    const totalInput = document.getElementById('salaryTotal');
+                                    
+                                    function calculateTotal() {
+                                        if (!totalInput) return;
+                                        let sum = 0;
+                                        inputs.forEach(input => {
+                                            if (input && input.value) {
+                                                const val = parseFloat(input.value.replace(/[^0-9.-]+/g,""));
+                                                if (!isNaN(val)) sum += val;
+                                            }
+                                        });
+                                        totalInput.value = sum > 0 ? sum.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2}) : '';
+                                    }
+                                    
+                                    inputs.forEach(input => {
+                                        if (input) input.addEventListener('input', calculateTotal);
+                                    });
+                                    calculateTotal();
+                                });
+                            </script>
+                            
+                            <div th:if="${#strings.isEmpty(sc.employmentStatus)}" class="pt-6 flex justify-end">
+                                <button type="submit" class="bg-indigo-600 text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-95 flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                                    Save HR Details
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </th:block>
+
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Canvas Drawing Logic
+                function setupCanvas(canvasId) {
+                    const canvas = document.getElementById(canvasId);
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'round';
+                    ctx.strokeStyle = '#0f172a';
+                    let isDrawing = false;
+                    let lastX = 0; let lastY = 0;
+
+                    function draw(e) {
+                        if (!isDrawing) return;
+                        e.preventDefault();
+                        const rect = canvas.getBoundingClientRect();
+                        const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                        const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(lastX, lastY);
+                        ctx.lineTo(x, y);
+                        ctx.stroke();
+                        lastX = x; lastY = y;
+                    }
+
+                    canvas.addEventListener('mousedown', (e) => {
+                        isDrawing = true;
+                        const rect = canvas.getBoundingClientRect();
+                        lastX = e.clientX - rect.left; lastY = e.clientY - rect.top;
+                    });
+                    canvas.addEventListener('mousemove', draw);
+                    canvas.addEventListener('mouseup', () => isDrawing = false);
+                    canvas.addEventListener('mouseout', () => isDrawing = false);
+                    
+                    canvas.addEventListener('touchstart', (e) => {
+                        isDrawing = true;
+                        const rect = canvas.getBoundingClientRect();
+                        lastX = e.touches[0].clientX - rect.left; lastY = e.touches[0].clientY - rect.top;
+                    }, {passive: false});
+                    canvas.addEventListener('touchmove', draw, {passive: false});
+                    canvas.addEventListener('touchend', () => isDrawing = false);
+                }
+
+                setupCanvas('sigCanvas1');
+                setupCanvas('sigCanvas2');
+                setupCanvas('sigCanvas3');
+
+                window.clearCanvas = function(id) {
+                    const canvas = document.getElementById('sigCanvas' + id);
+                    if(canvas) {
+                        const ctx = canvas.getContext('2d');
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    }
+                };
+
+                const form = document.getElementById('scorecardForm');
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        for(let i=1; i<=3; i++) {
+                            const canvas = document.getElementById('sigCanvas' + i);
+                            if (canvas) {
+                                const ctx = canvas.getContext('2d');
+                                const pixelBuffer = new Uint32Array(ctx.getImageData(0,0,canvas.width,canvas.height).data.buffer);
+                                const isBlank = !pixelBuffer.some(color => color !== 0);
+                                if (!isBlank) {
+                                    document.getElementById('signature' + i).value = canvas.toDataURL('image/png');
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        </script>
     </div>
 </body>
 </html>
-
-

@@ -56,10 +56,10 @@
                             <form th:action="@{'/settings/roles/update/' + ${role.id}}" method="post">
                                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                                     <label th:each="perm : ${allPermissions}" class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                                        <input type="checkbox" name="permissions" th:value="${perm.name}"
-                                               th:checked="${#lists.contains(role.permissions, perm.name)}"
+                                        <input type="checkbox" name="permissions" th:value="${perm}"
+                                               th:checked="${#lists.contains(role.permissions, perm)}"
                                                class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                                        <span th:text="${perm.name}">PERM</span>
+                                        <span th:text="${perm}">PERM</span>
                                     </label>
                                 </div>
                                 <button type="submit" class="text-xs font-bold px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">Save Permissions</button>
@@ -85,10 +85,10 @@
                     <div class="space-y-2 mt-4">
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Permissions</label>
                         <div class="space-y-2 max-h-60 overflow-y-auto p-2 bg-slate-50 rounded-xl border border-slate-100">
-                            <label th:each="perm : ${allPermissions}" class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer" th:title="${perm.description}">
-                                <input type="checkbox" name="permissions" th:value="${perm.name}"
+                            <label th:each="perm : ${allPermissions}" class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                                <input type="checkbox" name="permissions" th:value="${perm}"
                                        class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                                <span th:text="${perm.name}">PERM</span>
+                                <span th:text="${perm}">PERM</span>
                             </label>
                         </div>
                     </div>

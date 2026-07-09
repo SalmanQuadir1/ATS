@@ -61,6 +61,13 @@
         }
     </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23059669'/%3E%3Ctext x='50' y='65' font-family='Arial' font-size='32' font-weight='bold' fill='white' text-anchor='middle'%3ESTIE%3C/text%3E%3C/svg%3E">
+    <style th:if="${isModal}">
+        /* Modal mode overrides to hide layout wrapper elements */
+        aside, header { display: none !important; }
+        .flex-col.flex-1.w-full.min-w-0 { padding-top: 0 !important; }
+        .p-4.md\:p-8 { padding: 1.5rem !important; max-width: none !important; }
+        body { background-color: #f8fafc !important; }
+    </style>
 </head>
 
 <body class="min-h-screen flex overflow-hidden">
@@ -98,7 +105,7 @@
                 Dashboard
             </a>
             <a th:href="@{/jobs}"
-                sec:authorize="hasAnyAuthority('MANAGE_JOBS', 'CREATE_JOBS', 'APPROVE_JOBS', 'MANAGE_APPLICANTS')"
+                sec:authorize="hasAnyAuthority('Jobs', 'MANAGE_JOBS', 'CREATE_JOBS', 'APPROVE_JOBS', 'ROLE_SUPER_ADMIN')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI == '/jobs' ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,7 +115,7 @@
                 </svg>
                 Jobs
             </a>
-            <a th:href="@{/candidates/applications}" sec:authorize="hasAuthority('MANAGE_APPLICANTS')"
+            <a th:href="@{/candidates/applications}" sec:authorize="hasAnyAuthority('Job Applications', 'ROLE_SUPER_ADMIN')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI == '/candidates/applications' ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,7 +125,7 @@
                 </svg>
                 Job Applications
             </a>
-            <a th:href="@{/candidates/kanban}" sec:authorize="hasAuthority('MANAGE_APPLICANTS')"
+            <a th:href="@{/candidates/kanban}" sec:authorize="hasAnyAuthority('Pipeline Kanban', 'ROLE_SUPER_ADMIN')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI == '/candidates/kanban' ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,7 +135,7 @@
                 </svg>
                 Pipeline Kanban
             </a>
-            <a th:href="@{/interviews}" sec:authorize="hasAuthority('MANAGE_INTERVIEWS')"
+            <a th:href="@{/interviews}" sec:authorize="hasAnyAuthority('Interviews', 'ROLE_SUPER_ADMIN')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI == '/interviews' ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,7 +145,7 @@
                 </svg>
                 Interviews
             </a>
-            <a th:href="@{/candidates}" sec:authorize="hasAuthority('MANAGE_APPLICANTS')"
+            <a th:href="@{/candidates}" sec:authorize="hasAnyAuthority('Candidate Database', 'ROLE_SUPER_ADMIN')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI == '/candidates' ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,7 +155,7 @@
                 </svg>
                 Candidate Database
             </a>
-            <a th:href="@{/hired-records}" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ROLE_HR')"
+            <a th:href="@{/hired-records}" sec:authorize="hasAnyAuthority('Hired Records', 'ROLE_SUPER_ADMIN')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI == '/hired-records' ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +175,7 @@
                 Transfers
             </a>
 
-            <a th:href="@{/reports}" sec:authorize="hasAnyAuthority('MANAGE_JOBS', 'MANAGE_APPLICANTS', 'MANAGE_INTERVIEWS')"
+            <a th:href="@{/reports}" sec:authorize="hasAnyAuthority('Reports', 'ROLE_SUPER_ADMIN')"
                 class="sidebar-item flex items-center p-3 text-slate-600 rounded-lg transition-all duration-200"
                 th:classappend="${#httpServletRequest.requestURI == '/reports' ? 'active-nav' : ''}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,7 +234,7 @@
             </div>
 
             <!-- System Settings Dropdown -->
-            <div class="space-y-1" sec:authorize="hasAnyAuthority('MANAGE_SETTINGS', 'MANAGE_DEPARTMENTS')">
+            <div class="space-y-1" sec:authorize="hasAnyAuthority('System Settings', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN')">
                 <button onclick="toggleSettingsMenu()"
                     class="w-full flex items-center justify-between p-3 text-slate-600 rounded-lg transition-all duration-200 hover:bg-slate-50">
                     <div class="flex items-center">
@@ -261,11 +268,15 @@
                     <a th:href="@{/settings/categories}"
                         class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
                         th:classappend="${#httpServletRequest.requestURI != null and #strings.startsWith(#httpServletRequest.requestURI, '/settings/categories') ? 'text-emerald-600 font-semibold' : ''}">Job
-                        Categories & Skills</a>
+                        Categories &amp; Skills</a>
 
                     <a th:href="@{/locations}"
                         class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
                         th:classappend="${#httpServletRequest.requestURI == '/locations' ? 'text-emerald-600 font-semibold' : ''}">Locations</a>
+
+                    <a th:href="@{/settings/roles}" sec:authorize="hasAnyAuthority('MANAGE_ROLES', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN')"
+                        class="block p-2 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+                        th:classappend="${#httpServletRequest.requestURI != null and #strings.startsWith(#httpServletRequest.requestURI, '/settings/roles') ? 'text-emerald-600 font-semibold' : ''}">Roles &amp; Permissions</a>
                 </div>
             </div>
         </nav>
