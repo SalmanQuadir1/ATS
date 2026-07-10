@@ -85,7 +85,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm font-semibold text-slate-700" th:text="${transfer.requestedBy}">HR User</div>
-                                <div class="text-xs text-slate-500" th:text="${#temporals.format(transfer.createdAt, 'dd MMM yyyy')}">Date</div>
+                                <div class="text-xs text-slate-500" th:text="${#temporals.format(transfer.createdAt, 'dd/MM/yy')}">Date</div>
                                 <button type="button" th:if="${transfer.requestNotes != null}" 
                                         th:data-notes="${transfer.requestNotes}"
                                         onclick="showRemarksModal(this.getAttribute('data-notes'))"
@@ -165,7 +165,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm font-semibold text-slate-700" th:text="${transfer.requestedBy}">HR User</div>
-                                <div class="text-xs text-slate-500" th:text="${#temporals.format(transfer.createdAt, 'dd MMM yyyy')}">Date</div>
+                                <div class="text-xs text-slate-500" th:text="${#temporals.format(transfer.createdAt, 'dd/MM/yy')}">Date</div>
                                 <button type="button" th:if="${transfer.requestNotes != null}" 
                                         th:data-notes="${transfer.requestNotes}"
                                         onclick="showRemarksModal(this.getAttribute('data-notes'))"

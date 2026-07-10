@@ -218,7 +218,7 @@
                                 <p class="text-sm font-bold text-slate-700 group-hover:text-emerald-700 transition-colors" th:text="${candidate.fullName}">John Doe</p>
                                 <p class="text-xs font-medium text-slate-400 mt-0.5">
                                     <span th:text="${candidate.experienceYears + ' Yrs Exp'}">5 Yrs</span> •
-                                    <span th:text="${#temporals.format(candidate.appliedAt, 'MMM dd')}">Jun 19</span>
+                                    <span th:text="${#temporals.format(candidate.appliedAt, 'dd/MM/yy')}">Jun 19</span>
                                 </p>
                             </div>
                         </div>

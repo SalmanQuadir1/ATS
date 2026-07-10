@@ -97,7 +97,7 @@
 
                         <!-- Date -->
                         <td class="px-5 py-4 text-slate-400 text-xs hidden lg:table-cell"
-                            th:text="${job.createdAt != null ? #temporals.format(job.createdAt, 'dd MMM yyyy') : '—'}">—</td>
+                            th:text="${job.createdAt != null ? #temporals.format(job.createdAt, 'dd/MM/yy') : '—'}">—</td>
 
                         <!-- Actions -->
                         <td class="px-5 py-4">

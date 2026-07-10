@@ -86,7 +86,7 @@
                             </div>
                             <div class="flex justify-between text-sm" th:if="${job.expiryDate != null}">
                                 <span class="text-slate-500">Expiry Date</span>
-                                <span class="text-rose-600 font-bold" th:text="${#temporals.format(job.expiryDate, 'dd MMM yyyy')}">30 Jun 2026</span>
+                                <span class="text-rose-600 font-bold" th:text="${#temporals.format(job.expiryDate, 'dd/MM/yy')}">30 Jun 2026</span>
                             </div>
                             <div class="flex justify-between text-sm" th:if="${job.experienceRequired != null and !job.experienceRequired.isEmpty()}">
                                 <span class="text-slate-500">Experience</span>

@@ -67,11 +67,11 @@
                         </div>
                         <div th:if="${candidate.joiningDate != null}">
                             <h5 class="text-xs font-bold text-teal-500 uppercase mb-4">Joining Date</h5>
-                            <p class="text-teal-700 font-bold" th:text="${#temporals.format(candidate.joiningDate, 'dd MMM yyyy')}">-</p>
+                            <p class="text-teal-700 font-bold" th:text="${#temporals.format(candidate.joiningDate, 'dd/MM/yy')}">-</p>
                         </div>
                         <div>
                             <h5 class="text-xs font-bold text-slate-400 uppercase mb-4">Applied At</h5>
-                            <p class="text-slate-700 font-medium" th:text="${candidate.appliedAt != null ? #temporals.format(candidate.appliedAt, 'dd MMM yyyy HH:mm') : '-'}">-</p>
+                            <p class="text-slate-700 font-medium" th:text="${candidate.appliedAt != null ? #temporals.format(candidate.appliedAt, 'dd/MM/yy HH:mm') : '-'}">-</p>
                         </div>
                         <div>
                             <h5 class="text-xs font-bold text-slate-400 uppercase mb-4">Work Permit</h5>
@@ -159,7 +159,7 @@
                                     <div class="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-xs" th:text="${#strings.substring(sc.submitter, 0, 1)}">I</div>
                                     <div>
                                         <span class="block text-sm font-black text-slate-700" th:text="${sc.submitter}">interviewer@stie.com</span>
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase" th:text="${#temporals.format(sc.createdAt, 'yyyy-MM-dd HH:mm')}">Date</span>
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase" th:text="${#temporals.format(sc.createdAt, 'dd/MM/yy HH:mm')}">Date</span>
                                     </div>
                                 </div>
                                 <div class="bg-teal-50 border border-teal-100 text-teal-600 px-3 py-1 rounded-xl text-xs font-black">
@@ -335,7 +335,7 @@
                                     </div>
                                     <div class="text-right shrink-0">
                                         <p class="text-[10px] text-slate-400 font-semibold"
-                                           th:text="${#temporals.format(app.appliedAt, 'dd MMM yyyy')}">01 Jan 2026</p>
+                                           th:text="${#temporals.format(app.appliedAt, 'dd/MM/yy')}">01 Jan 2026</p>
                                         <p class="text-[9px] text-slate-300 mt-0.5"
                                            th:text="${#temporals.format(app.appliedAt, 'HH:mm')}">09:30</p>
 
@@ -364,7 +364,7 @@
                                 <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[9px]" th:text="${#strings.substring(note.performedBy, 0, 1)}">A</div>
                                 <span class="ml-2 text-xs font-bold text-slate-500">
                                     <span th:text="${note.performedBy}">Admin</span> • 
-                                    <span th:text="${#temporals.format(note.timestamp, 'yyyy-MM-dd HH:mm')}">2026-05-19 12:00</span>
+                                    <span th:text="${#temporals.format(note.timestamp, 'dd/MM/yy HH:mm')}">2026-05-19 12:00</span>
                                 </span>
                             </div>
                         </div>
@@ -402,7 +402,7 @@
                                                 <p class="text-[10px] text-slate-400 mt-1">Performed by <span class="font-bold text-slate-600" th:text="${log.performedBy}">Admin</span></p>
                                             </div>
                                             <div class="text-right text-[10px] whitespace-nowrap text-slate-400 font-semibold" 
-                                                 th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm')}">2026-05-19 12:00</div>
+                                                 th:text="${#temporals.format(log.timestamp, 'dd/MM/yy HH:mm')}">2026-05-19 12:00</div>
                                         </div>
                                     </div>
                                 </div>

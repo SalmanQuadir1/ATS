@@ -107,7 +107,7 @@
                                       class="text-xs text-slate-400 italic">Unassigned</span>
                             </td>
                             <!-- Time -->
-                            <td class="px-6 py-4 text-sm text-slate-600" th:text="${interview.interviewTime != null ? #temporals.format(interview.interviewTime, 'dd MMM yyyy, HH:mm') : '—'}">15 May, 10:30</td>
+                            <td class="px-6 py-4 text-sm text-slate-600" th:text="${interview.interviewTime != null ? #temporals.format(interview.interviewTime, 'dd/MM/yy HH:mm') : '—'}">15 May, 10:30</td>
                             <!-- Location -->
                             <td class="px-6 py-4 text-sm text-slate-600" th:text="${interview.location ?: '—'}">Room A</td>
                             <!-- Status -->

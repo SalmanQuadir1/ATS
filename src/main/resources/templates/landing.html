@@ -399,7 +399,7 @@
                             <span th:if="${job.status != null and job.status.name() == 'DRAFT'}"
                                   class="inline-block px-2.5 py-1 bg-slate-50 text-slate-500 border border-slate-200 text-[10px] font-bold rounded-full">Draft</span>
                         </div>
-                        <span class="text-[11px] font-semibold text-stone-400" th:text="${#temporals.format(job.createdAt, 'dd MMM yyyy')}">12 May 2026</span>
+                        <span class="text-[11px] font-semibold text-stone-400" th:text="${#temporals.format(job.createdAt, 'dd/MM/yy')}">12 May 2026</span>
                     </div>
                     <h4 class="syne text-xl font-black text-stone-900 mb-1" th:text="${job.title}">Job Title</h4>
                     <p class="text-stone-500 text-sm mb-3" th:if="${job.location != null and !job.location.isEmpty()}">

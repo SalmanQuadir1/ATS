@@ -134,7 +134,7 @@
                                     </div>
                                     <p class="text-xs text-slate-400 font-medium" th:text="${candidate.email}">john@example.com</p>
                                     <div class="flex flex-wrap items-center gap-2 mt-1">
-                                        <p class="text-[10px] text-slate-300 font-medium" th:text="${'Joined: ' + (candidate.appliedAt != null ? #temporals.format(candidate.appliedAt, 'dd MMM yyyy') : 'N/A')}">Joined: 01 Jan 2026</p>
+                                        <p class="text-[10px] text-slate-300 font-medium" th:text="${'Joined: ' + (candidate.appliedAt != null ? #temporals.format(candidate.appliedAt, 'dd/MM/yy') : 'N/A')}">Joined: 01 Jan 2026</p>
                                         <span th:if="${candidate.transferSource != null}" class="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-extrabold uppercase tracking-wider rounded border border-indigo-100" th:text="${candidate.transferSource}">
                                             Transferred from Site A
                                         </span>
