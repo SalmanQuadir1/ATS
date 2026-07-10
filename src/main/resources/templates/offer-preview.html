@@ -1,75 +1,128 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
-<head><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23059669'/%3E%3Ctext x='50' y='65' font-family='Arial' font-size='32' font-weight='bold' fill='white' text-anchor='middle'%3ESTIE%3C/text%3E%3C/svg%3E">
-<style>
-    @media print {
-        /* Hide everything except the A4 paper */
-        body > * { display: none !important; }
-        #a4-paper { display: block !important; }
-        #print-toolbar { display: none !important; }
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Offer Letter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        @page {
-            size: A4;
-            margin: 20mm 25mm;
+        body {
+            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #1e293b;
+            background: #f1f5f9;
         }
-        #a4-paper {
-            box-shadow: none !important;
-            border: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            width: 100% !important;
+
+        /* â”€â”€ Toolbar (screen only) â”€â”€ */
+        .toolbar {
+            background: #1e293b;
+            color: white;
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-    }
-</style>
+        .toolbar-title { font-size: 14px; font-weight: 600; opacity: 0.9; }
+        .btn-print {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 9px 22px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            transition: background 0.2s;
+        }
+        .btn-print:hover { background: #047857; }
+        .btn-back {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #475569;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: #334155; color: white; }
+
+        /* â”€â”€ Page wrapper â”€â”€ */
+        .page-wrap {
+            max-width: 860px;
+            margin: 32px auto;
+            padding: 0 24px 48px;
+        }
+
+        /* â”€â”€ Paper â”€â”€ */
+        .paper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            padding: 56px 72px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+
+        .letter-body {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
+            line-height: 2;
+        }
+
+        /* â”€â”€ Print styles â”€â”€ */
+        @media print {
+            body        { background: white; font-size: 9.5pt; }
+            .toolbar    { display: none !important; }
+            .page-wrap  { max-width: 100%; margin: 0; padding: 0; }
+            .paper      { box-shadow: none; border-radius: 0; padding: 10mm 15mm; }
+            .letter-body    { line-height: 1.4; font-size: 9.5pt; }
+            @page { size: auto; margin: 0; }
+        }
+    </style>
 </head>
 <body>
-    <div th:fragment="content">
 
-        <!-- Toolbar (hidden when printing) -->
-        <div id="print-toolbar" class="max-w-4xl mx-auto mb-6 flex items-center justify-between">
-            <h3 class="text-2xl font-bold text-slate-800">Offer Letter Preview</h3>
-            <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-bold shadow hover:bg-slate-900 transition-all">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                Print / Download PDF
+    <!-- Toolbar (hidden on print) -->
+    <div class="toolbar">
+        <div class="toolbar-title" th:text="${pageTitle}">Offer Letter</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <a th:href="@{/candidates}" class="btn-back">← Back to Pool</a>
+            <button class="btn-print" onclick="window.print()">
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Print / Save as PDF
             </button>
         </div>
-
-        <!-- A4 Paper -->
-        <div id="a4-paper"
-             class="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl border border-slate-200"
-             style="min-height: 1123px; padding: 50px 90px 50px 60px; font-family: 'Times New Roman', Times, serif; font-size: 13px; line-height: 1.9; color: #1e293b; box-sizing: border-box; overflow: hidden; word-wrap: break-word; overflow-wrap: break-word;">
-
-            <!-- Company Header -->
-            <div style="border-bottom: 2px solid #059669; padding-bottom: 20px; margin-bottom: 32px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <div>
-                        <div style="font-size: 22px; font-weight: 900; color: #065f46; letter-spacing: -0.5px; font-family: 'Arial', sans-serif;">STIE Pte Ltd</div>
-                        <div style="font-size: 12px; color: #64748b; margin-top: 2px; font-family: 'Arial', sans-serif;">Human Resources Department</div>
-                        <div style="font-size: 11px; color: #94a3b8; margin-top: 1px; font-family: 'Arial', sans-serif;">wpstie@stie.com.sg | Tel: 91130470</div>
-                    </div>
-                    <div style="width: 52px; height: 52px; border-radius: 12px; background: #ecfdf5; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; color: #059669; font-family: 'Arial', sans-serif;">S</div>
-                </div>
-            </div>
-
-            <!-- Letter Body — letter is pre-formatted plain text, render as-is -->
-            <div th:text="${letter}"
-                 style="white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; max-width: 100%; overflow: hidden; text-align: left;">
-                Letter content goes here...
-            </div>
-
-        </div>
-
-        <!-- Bottom actions (hidden on print) -->
-        <div id="print-toolbar" class="max-w-4xl mx-auto mt-6 flex gap-4">
-            <div class="flex-1 py-3 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-center border border-emerald-200 flex items-center justify-center gap-2 text-sm">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Email Delivered Automatically
-            </div>
-            <a th:href="@{/candidates}" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-center hover:bg-slate-200 transition-colors flex items-center justify-center text-sm">
-                Back to Pool
-            </a>
-        </div>
-
     </div>
+
+    <!-- Document -->
+    <div class="page-wrap">
+        
+        <!-- Success Banner (hidden on print) -->
+        <div th:if="${success}" class="success-banner" style="background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; padding:12px 20px; border-radius:8px; margin-bottom:20px; display:flex; align-items:center; gap:10px; font-weight:600; font-size:13px;">
+            <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span th:text="${success}">Email Delivered Automatically</span>
+        </div>
+
+        <div class="paper">
+            <!-- Letter Content -->
+            <div class="letter-body" th:text="${letter}">Letter content here...</div>
+        </div>
+    </div>
+
 </body>
 </html>
