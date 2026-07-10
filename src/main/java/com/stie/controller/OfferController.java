@@ -162,10 +162,10 @@ public class OfferController {
         if (hireNotes != null && hireNotes.startsWith("OFFER_PARAMS::")) {
             String[] parts = hireNotes.substring("OFFER_PARAMS::".length()).split("\\|", -1);
             if (parts.length >= 5) {
-                reportingTo      = parts[0].isBlank() ? reportingTo : parts[0];
-                commencementDate = parts[1].isBlank() ? commencementDate : parts[1];
-                location         = parts[2].isBlank() ? location : parts[2];
-                acceptanceDeadline = parts[3].isBlank() ? acceptanceDeadline : parts[3];
+                reportingTo      = parts[0].trim().isEmpty() ? reportingTo : parts[0];
+                commencementDate = parts[1].trim().isEmpty() ? commencementDate : parts[1];
+                location         = parts[2].trim().isEmpty() ? location : parts[2];
+                acceptanceDeadline = parts[3].trim().isEmpty() ? acceptanceDeadline : parts[3];
                 try { salary = Double.parseDouble(parts[4]); } catch (Exception ignored) {}
             }
         }
