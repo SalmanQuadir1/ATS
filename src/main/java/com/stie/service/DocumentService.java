@@ -4,12 +4,13 @@ import com.stie.model.Candidate;
 import com.stie.model.JobVacancy;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -20,7 +21,9 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 @Service
 public class DocumentService {
 
-    public String generateOfferLetter(Candidate candidate, JobVacancy job, Double salary, String reportingTo, String commencementDate, String location, String acceptanceDeadline) {
+    public String generateOfferLetter(Candidate candidate, JobVacancy job, Double salary,
+                                      String reportingTo, String commencementDate,
+                                      String location, String acceptanceDeadline) {
         String companyName = job.getTenant() != null ? job.getTenant().getName() : "STIE Pte Ltd";
         return "Dear " + candidate.getFullName() + ",\n\n" +
                "Congratulations!\n\n" +
@@ -34,8 +37,8 @@ public class DocumentService {
                "• Monthly Salary: S$ " + String.format("%.2f", salary) + " (inclusive of CPF contributions, where applicable)\n" +
                "• Annual Leave: 14 days per calendar year (pro-rated for an incomplete year of service)\n" +
                "• Hospitalisation Leave and Paid Sick Leave: In accordance with MOM guidelines\n" +
-               "• Hospitalisation & Surgical Insurance: Upon successful completion of the probation period – normally three (3 months). Not applicable to contract or freelance employees.\n" +
-               "• Outpatient Medical Benefits: Upon successful completion of the probation period – normally three (3 months). Not applicable to contract or freelance employees.\n\n" +
+               "• Hospitalisation & Surgical Insurance: Upon successful completion of the probation period - normally three (3 months). Not applicable to contract or freelance employees.\n" +
+               "• Outpatient Medical Benefits: Upon successful completion of the probation period - normally three (3 months). Not applicable to contract or freelance employees.\n\n" +
                "Commencement date\n" +
                commencementDate + "\n\n" +
                "Location\n" +
@@ -51,7 +54,9 @@ public class DocumentService {
                companyName;
     }
 
-    public String generateOfferLetterPdf(Candidate candidate, JobVacancy job, Double salary, String reportingTo, String commencementDate, String location, String acceptanceDeadline) {
+    public String generateOfferLetterPdf(Candidate candidate, JobVacancy job, Double salary,
+                                         String reportingTo, String commencementDate,
+                                         String location, String acceptanceDeadline) {
         String uploadDir = com.stie.config.AppConstants.FilePaths.OFFERS_SUBDIR;
         try {
             Path uploadPath = Paths.get(uploadDir);
@@ -59,24 +64,25 @@ public class DocumentService {
                 Files.createDirectories(uploadPath);
             }
 
-            String filename = UUID.randomUUID().toString() + "_Offer_" + candidate.getFullName().replaceAll("\\s+", "_") + ".pdf";
+            String filename = UUID.randomUUID().toString() + "_Offer_"
+                    + candidate.getFullName().replaceAll("\\s+", "_") + ".pdf";
             File file = new File(uploadDir + filename);
 
+            // Margins and layout settings (A4 = 595 x 842 pt)
             float leftMargin   = 65f;
-            float rightMargin  = 65f;
+            float rightMargin  = 90f;   // extra right padding
             float topMargin    = 740f;
             float bottomMargin = 60f;
             float fontSize     = 11f;
             float leading      = 16f;
+            float pageWidth    = 595f;
+            float maxWidth     = pageWidth - leftMargin - rightMargin;
+
+            String text = generateOfferLetter(candidate, job, salary, reportingTo,
+                    commencementDate, location, acceptanceDeadline);
+            String[] paragraphs = text.split("\n");
 
             try (PDDocument document = new PDDocument()) {
-                String text = generateOfferLetter(candidate, job, salary, reportingTo, commencementDate, location, acceptanceDeadline);
-                String[] paragraphs = text.split("\n");
-
-                // A4 page width = 595pt; usable width after margins
-                float pageWidth = 595f;
-                float maxWidth  = pageWidth - leftMargin - rightMargin;
-
                 PDPage page = new PDPage();
                 document.addPage(page);
                 PDPageContentStream cs = new PDPageContentStream(document, page);
@@ -87,10 +93,9 @@ public class DocumentService {
                 float y = topMargin;
 
                 for (String paragraph : paragraphs) {
-                    // Word-wrap each paragraph to fit within maxWidth
-                    java.util.List<String> wrappedLines = wrapText(paragraph, PDType1Font.HELVETICA, fontSize, maxWidth);
+                    List<String> wrappedLines = wrapText(paragraph, PDType1Font.HELVETICA, fontSize, maxWidth);
                     for (String wl : wrappedLines) {
-                        // Start a new page if we're near the bottom
+                        // New page when near the bottom
                         if (y - leading < bottomMargin) {
                             cs.endText();
                             cs.close();
@@ -119,9 +124,9 @@ public class DocumentService {
         }
     }
 
-    /** Breaks a single line of text into word-wrapped lines that fit within maxWidth points. */
-    private java.util.List<String> wrapText(String text, PDType1Font font, float fontSize, float maxWidth) throws IOException {
-        java.util.List<String> lines = new java.util.ArrayList<>();
+    /** Word-wraps a single line of text so no line exceeds maxWidth points. */
+    private List<String> wrapText(String text, PDType1Font font, float fontSize, float maxWidth) throws IOException {
+        List<String> lines = new ArrayList<>();
         if (text == null || text.isEmpty()) {
             lines.add("");
             return lines;
