@@ -16,6 +16,7 @@ import java.util.UUID;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 @Service
@@ -68,24 +69,23 @@ public class DocumentService {
                     + candidate.getFullName().replaceAll("\\s+", "_") + ".pdf";
             File file = new File(uploadDir + filename);
 
-            // Margins and layout settings (A4 = 595 x 842 pt)
-            float leftMargin   = 65f;
-            float rightMargin  = 90f;   // extra right padding
-            float topMargin    = 740f;
+            // A4 page: 595 x 842 pt — use explicit A4 so default US Letter (612pt) isn't used
+            float leftMargin   = 60f;
+            float rightMargin  = 100f;  // generous right margin
+            float topMargin    = 800f;
             float bottomMargin = 60f;
-            float fontSize     = 11f;
-            float leading      = 16f;
-            float pageWidth    = 595f;
-            float maxWidth     = pageWidth - leftMargin - rightMargin;
+            float fontSize     = 10f;
+            float leading      = 15f;
+            float pageWidth    = PDRectangle.A4.getWidth();   // 595pt exactly
+            float maxWidth     = pageWidth - leftMargin - rightMargin; // 435pt
 
             String text = generateOfferLetter(candidate, job, salary, reportingTo,
                     commencementDate, location, acceptanceDeadline);
-            // Sanitize to WinAnsiEncoding (HELVETICA only supports iso-8859-1 range)
             text = sanitizeForPdf(text);
             String[] paragraphs = text.split("\n");
 
             try (PDDocument document = new PDDocument()) {
-                PDPage page = new PDPage();
+                PDPage page = new PDPage(PDRectangle.A4);
                 document.addPage(page);
                 PDPageContentStream cs = new PDPageContentStream(document, page);
                 cs.beginText();
@@ -101,7 +101,7 @@ public class DocumentService {
                         if (y - leading < bottomMargin) {
                             cs.endText();
                             cs.close();
-                            page = new PDPage();
+                            page = new PDPage(PDRectangle.A4);
                             document.addPage(page);
                             cs = new PDPageContentStream(document, page);
                             cs.beginText();
