@@ -111,7 +111,7 @@
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Skills & Credentials</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nationality</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider" sec:authorize="hasAnyRole('ADMIN', 'HR', 'MANAGER')" th:if="${!isCandidateDatabase}">Actions</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider" sec:authorize="hasAnyRole('ADMIN', 'HR', 'MANAGER')" th:if="${isCandidateDatabase}">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
@@ -184,7 +184,7 @@
                                 <span class="px-2 py-0.5 bg-teal-50 text-teal-600 text-[9px] font-extrabold rounded-md border border-teal-100 uppercase tracking-wider">Shared with HM</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4" sec:authorize="hasAnyRole('ADMIN', 'HR', 'MANAGER')" th:if="${!isCandidateDatabase}">
+                        <td class="px-6 py-4" sec:authorize="hasAnyRole('ADMIN', 'HR', 'MANAGER')" th:if="${isCandidateDatabase}">
                             <div class="flex items-center space-x-2">
                                 <a th:href="@{/candidates/{id}(id=${candidate.id})}" class="p-2 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-all shadow-sm border border-transparent hover:border-emerald-100" title="View Details">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
