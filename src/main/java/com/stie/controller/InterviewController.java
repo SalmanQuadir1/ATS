@@ -3,6 +3,8 @@ package com.stie.controller;
 import com.stie.model.Candidate;
 import com.stie.model.Interview;
 import com.stie.model.InterviewScorecard;
+import com.stie.model.Salary;
+import com.stie.repository.SalaryRepository;
 import com.stie.repository.UserRepository;
 import com.stie.service.CandidateService;
 import com.stie.service.InterviewService;
@@ -31,6 +33,7 @@ public class InterviewController {
     @Autowired private com.stie.service.AuditService auditService;
     @Autowired private ScorecardService scorecardService;
     @Autowired private UserService userService;
+    @Autowired private SalaryRepository salaryRepository;
 
     private String getCurrentUser() {
         return org.springframework.security.core.context.SecurityContextHolder
@@ -214,7 +217,10 @@ public class InterviewController {
         boolean isAssignedInterviewer = interview.getInterviewer() != null && 
                                         interview.getInterviewer().getUsername().equals(getCurrentUser());
         
+        Salary salary = salaryRepository.findByCandidateIdAndInterviewId(interview.getCandidate().getId(), interview.getId()).orElse(new Salary());
+
         model.addAttribute("existingScorecards", scorecards);
+        model.addAttribute("salary", salary);
         model.addAttribute("hasSubmitted", hasSubmitted);
         model.addAttribute("isAssignedInterviewer", isAssignedInterviewer);
         return "interview-scorecard";
@@ -326,12 +332,21 @@ public class InterviewController {
         scorecard.setCommencementDate(commencementDate);
         scorecard.setProject(project);
         scorecard.setEmploymentStatus(employmentStatus);
-        scorecard.setSalaryOfferBasic(salaryOfferBasic);
-        scorecard.setSalaryOfferTransport(salaryOfferTransport);
-        scorecard.setSalaryOfferMobile(salaryOfferMobile);
-        scorecard.setSalaryOfferOther(salaryOfferOther);
-
+        
         scorecardService.saveScorecard(scorecard);
+
+        // Handle Salary
+        Salary salary = salaryRepository.findByCandidateIdAndInterviewId(
+                scorecard.getInterview().getCandidate().getId(), 
+                scorecard.getInterview().getId()
+        ).orElse(new Salary());
+        salary.setCandidate(scorecard.getInterview().getCandidate());
+        salary.setInterview(scorecard.getInterview());
+        salary.setBasic(salaryOfferBasic);
+        salary.setTransport(salaryOfferTransport);
+        salary.setMobile(salaryOfferMobile);
+        salary.setOther(salaryOfferOther);
+        salaryRepository.save(salary);
         
         auditService.log("SCORECARD_HR_UPDATE", getCurrentUser(), "InterviewScorecard", scorecardId, "HR fields updated");
         redirectAttributes.addFlashAttribute("success", "HR details saved successfully.");

@@ -60,10 +60,6 @@ public class InterviewScorecard {
     private String commencementDate;
     private String project;
     private String employmentStatus; // Full Time, Contract Basis, Part Time
-    private String salaryOfferBasic;
-    private String salaryOfferTransport;
-    private String salaryOfferMobile;
-    private String salaryOfferOther;
 
     @Column(columnDefinition = "LONGTEXT") private String signature1;
     @Column(columnDefinition = "LONGTEXT") private String signature2;
@@ -148,18 +144,6 @@ public class InterviewScorecard {
 
     public String getEmploymentStatus() { return employmentStatus; }
     public void setEmploymentStatus(String employmentStatus) { this.employmentStatus = employmentStatus; }
-
-    public String getSalaryOfferBasic() { return salaryOfferBasic; }
-    public void setSalaryOfferBasic(String salaryOfferBasic) { this.salaryOfferBasic = salaryOfferBasic; }
-
-    public String getSalaryOfferTransport() { return salaryOfferTransport; }
-    public void setSalaryOfferTransport(String salaryOfferTransport) { this.salaryOfferTransport = salaryOfferTransport; }
-
-    public String getSalaryOfferMobile() { return salaryOfferMobile; }
-    public void setSalaryOfferMobile(String salaryOfferMobile) { this.salaryOfferMobile = salaryOfferMobile; }
-
-    public String getSalaryOfferOther() { return salaryOfferOther; }
-    public void setSalaryOfferOther(String salaryOfferOther) { this.salaryOfferOther = salaryOfferOther; }
 
     public String getSignature1() { return signature1; }
     public void setSignature1(String signature1) { this.signature1 = signature1; }

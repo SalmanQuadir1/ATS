@@ -581,28 +581,28 @@
                                         <span class="text-xs font-bold text-slate-500">Basic</span>
                                         <div class="relative">
                                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
-                                            <input type="text" name="salaryOfferBasic" th:value="${sc.salaryOfferBasic}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
+                                            <input type="text" name="salaryOfferBasic" th:value="${salary != null ? salary.basic : ''}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
                                         </div>
                                     </div>
                                     <div class="flex flex-col gap-2">
                                         <span class="text-xs font-bold text-slate-500">Transport</span>
                                         <div class="relative">
                                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
-                                            <input type="text" name="salaryOfferTransport" th:value="${sc.salaryOfferTransport}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
+                                            <input type="text" name="salaryOfferTransport" th:value="${salary != null ? salary.transport : ''}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
                                         </div>
                                     </div>
                                     <div class="flex flex-col gap-2">
                                         <span class="text-xs font-bold text-slate-500">Mobile</span>
                                         <div class="relative">
                                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
-                                            <input type="text" name="salaryOfferMobile" th:value="${sc.salaryOfferMobile}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
+                                            <input type="text" name="salaryOfferMobile" th:value="${salary != null ? salary.mobile : ''}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
                                         </div>
                                     </div>
                                     <div class="flex flex-col gap-2">
                                         <span class="text-xs font-bold text-slate-500">Other</span>
                                         <div class="relative">
                                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
-                                            <input type="text" name="salaryOfferOther" th:value="${sc.salaryOfferOther}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
+                                            <input type="text" name="salaryOfferOther" th:value="${salary != null ? salary.other : ''}" th:readonly="${!#strings.isEmpty(sc.employmentStatus)}" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow outline-none font-medium text-slate-700 read-only:bg-slate-100 read-only:text-slate-500" required>
                                         </div>
                                     </div>
                                     <div class="flex flex-col gap-2">
