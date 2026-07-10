@@ -185,22 +185,19 @@
                             </div>
                         </td>
                         <td class="px-6 py-4" sec:authorize="hasAnyRole('ADMIN', 'HR', 'MANAGER')" th:if="${!isCandidateDatabase}">
-                            <div class="flex flex-col space-y-2">
-                                <a th:href="@{/candidates/{id}(id=${candidate.id})}" class="inline-flex items-center gap-1 p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors text-xs font-semibold" title="View Details">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    View Details
+                            <div class="flex items-center space-x-2">
+                                <a th:href="@{/candidates/{id}(id=${candidate.id})}" class="p-2 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-all shadow-sm border border-transparent hover:border-emerald-100" title="View Details">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </a>
                                 <th:block th:if="${candidate.status == T(com.stie.model.Candidate.CandidateStatus).OFFERED}">
                                     <a th:href="@{'/offers/view/' + ${candidate.id}}" 
                                        target="_blank"
-                                       class="inline-flex items-center gap-1 p-1.5 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors text-xs font-semibold" title="View Offer Letter">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        View Offerletter
+                                       class="p-2 text-violet-600 hover:bg-violet-50 hover:text-violet-700 rounded-xl transition-all shadow-sm border border-transparent hover:border-violet-100" title="View Offer Letter">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                     </a>
                                     <a th:href="@{'/interviews/candidate/' + ${candidate.id} + '/scorecard'}" 
-                                       class="inline-flex items-center gap-1 p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-xs font-semibold" title="View Interview Scorecard">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                                        View Interview Scorecard
+                                       class="p-2 text-blue-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-all shadow-sm border border-transparent hover:border-blue-100" title="View Interview Scorecard">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                                     </a>
                                 </th:block>
                             </div>
