@@ -26,10 +26,8 @@ public class DocumentService {
                                       String reportingTo, String commencementDate,
                                       String location, String acceptanceDeadline) {
         String companyName = job.getTenant() != null ? job.getTenant().getName() : "STIE Pte Ltd";
-        java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yy");
-        String currentDate = java.time.LocalDate.now().format(dtf);
         
-        return "Date: " + currentDate + "\n\n" +
+        return "Date: TBD\n\n" +
                "Dear " + candidate.getFullName() + ",\n\n" +
                "Congratulations!\n\n" +
                "We are pleased to offer you employment with " + companyName + ". You have been selected for a full-time position of " + job.getTitle() + "\n\n" +
