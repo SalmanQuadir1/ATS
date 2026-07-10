@@ -626,6 +626,21 @@
 
     <script th:inline="javascript">
         window.addEventListener('DOMContentLoaded', () => {
+            // Initialize Flatpickr for date inputs
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr('input[type="date"]', {
+                    altInput: true,
+                    altFormat: "F j, Y",
+                    dateFormat: "Y-m-d"
+                });
+                flatpickr('input[type="datetime-local"]', {
+                    enableTime: true,
+                    altInput: true,
+                    altFormat: "F j, Y h:i K",
+                    dateFormat: "Y-m-d\\TH:i"
+                });
+            }
+
             const loader = document.getElementById('globalLoader');
             
             // Handle form submissions
