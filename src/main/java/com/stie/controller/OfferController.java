@@ -35,6 +35,15 @@ public class OfferController {
         return org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
+    private double parseSalaryStr(String val) {
+        if (val == null || val.trim().isEmpty()) return 0;
+        try {
+            return Double.parseDouble(val.replaceAll("[^0-9.-]", ""));
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     @GetMapping("/generate/{candidateId}")
     public String showOfferForm(@PathVariable Long candidateId, Model model) {
         Candidate c = candidateService.getAllCandidates(PageRequest.of(0, 1000)).getContent().stream()
@@ -58,11 +67,22 @@ public class OfferController {
             }
         }
 
+        Double totalSalary = null;
+        if (salary != null) {
+            double sum = 0;
+            sum += parseSalaryStr(salary.getBasic());
+            sum += parseSalaryStr(salary.getTransport());
+            sum += parseSalaryStr(salary.getMobile());
+            sum += parseSalaryStr(salary.getOther());
+            if (sum > 0) totalSalary = sum;
+        }
+
         model.addAttribute("candidate", c);
         model.addAttribute("jobs", jobService.getAllVacancies());
         model.addAttribute("latestInterview", latestInterview);
         model.addAttribute("scorecard", scorecard);
         model.addAttribute("salary", salary);
+        model.addAttribute("totalSalary", totalSalary);
         model.addAttribute("pageTitle", "Generate Offer Letter");
         return "offer-form";
     }
