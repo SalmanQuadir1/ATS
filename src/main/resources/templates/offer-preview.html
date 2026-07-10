@@ -37,7 +37,7 @@
         <!-- A4 Paper -->
         <div id="a4-paper"
              class="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl border border-slate-200"
-             style="min-height: 1123px; padding: 60px 72px; font-family: 'Times New Roman', Times, serif; font-size: 14px; line-height: 1.8; color: #1e293b;">
+             style="min-height: 1123px; padding: 50px 60px; font-family: 'Times New Roman', Times, serif; font-size: 13px; line-height: 1.9; color: #1e293b; box-sizing: border-box; overflow: hidden; word-wrap: break-word; overflow-wrap: break-word;">
 
             <!-- Company Header -->
             <div style="border-bottom: 2px solid #059669; padding-bottom: 20px; margin-bottom: 32px;">
@@ -53,7 +53,7 @@
 
             <!-- Letter Body — letter is pre-formatted plain text, render as-is -->
             <div th:text="${letter}"
-                 style="white-space: pre-wrap; word-wrap: break-word; text-align: justify;">
+                 style="white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; max-width: 100%; overflow: hidden; text-align: left;">
                 Letter content goes here...
             </div>
 

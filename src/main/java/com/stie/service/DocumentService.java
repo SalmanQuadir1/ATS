@@ -21,7 +21,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 public class DocumentService {
 
     public String generateOfferLetter(Candidate candidate, JobVacancy job, Double salary, String reportingTo, String commencementDate, String location, String acceptanceDeadline) {
-        String companyName = job.getTenant() != null ? job.getTenant().getCompanyName() : "STIE Pte Ltd";
+        String companyName = job.getTenant() != null ? job.getTenant().getName() : "STIE Pte Ltd";
         return "Dear " + candidate.getFullName() + ",\n\n" +
                "Congratulations!\n\n" +
                "We are pleased to offer you employment with " + companyName + ". You have been selected for a full-time position of " + job.getTitle() + "\n\n" +
@@ -62,25 +62,54 @@ public class DocumentService {
             String filename = UUID.randomUUID().toString() + "_Offer_" + candidate.getFullName().replaceAll("\\s+", "_") + ".pdf";
             File file = new File(uploadDir + filename);
 
+            float leftMargin   = 65f;
+            float rightMargin  = 65f;
+            float topMargin    = 740f;
+            float bottomMargin = 60f;
+            float fontSize     = 11f;
+            float leading      = 16f;
+
             try (PDDocument document = new PDDocument()) {
+                String text = generateOfferLetter(candidate, job, salary, reportingTo, commencementDate, location, acceptanceDeadline);
+                String[] paragraphs = text.split("\n");
+
+                // A4 page width = 595pt; usable width after margins
+                float pageWidth = 595f;
+                float maxWidth  = pageWidth - leftMargin - rightMargin;
+
                 PDPage page = new PDPage();
                 document.addPage(page);
+                PDPageContentStream cs = new PDPageContentStream(document, page);
+                cs.beginText();
+                cs.setFont(PDType1Font.HELVETICA, fontSize);
+                cs.setLeading(leading);
+                cs.newLineAtOffset(leftMargin, topMargin);
+                float y = topMargin;
 
-                try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-                    contentStream.beginText();
-                    contentStream.setFont(PDType1Font.HELVETICA, 12);
-                    contentStream.setLeading(14.5f);
-                    contentStream.newLineAtOffset(50, 700);
-
-                    String text = generateOfferLetter(candidate, job, salary, reportingTo, commencementDate, location, acceptanceDeadline);
-                    String[] lines = text.split("\n");
-                    for (String line : lines) {
-                        contentStream.showText(line);
-                        contentStream.newLine();
+                for (String paragraph : paragraphs) {
+                    // Word-wrap each paragraph to fit within maxWidth
+                    java.util.List<String> wrappedLines = wrapText(paragraph, PDType1Font.HELVETICA, fontSize, maxWidth);
+                    for (String wl : wrappedLines) {
+                        // Start a new page if we're near the bottom
+                        if (y - leading < bottomMargin) {
+                            cs.endText();
+                            cs.close();
+                            page = new PDPage();
+                            document.addPage(page);
+                            cs = new PDPageContentStream(document, page);
+                            cs.beginText();
+                            cs.setFont(PDType1Font.HELVETICA, fontSize);
+                            cs.setLeading(leading);
+                            cs.newLineAtOffset(leftMargin, topMargin);
+                            y = topMargin;
+                        }
+                        cs.showText(wl);
+                        cs.newLine();
+                        y -= leading;
                     }
-                    contentStream.endText();
                 }
-
+                cs.endText();
+                cs.close();
                 document.save(file);
             }
             return filename;
@@ -89,5 +118,29 @@ public class DocumentService {
             return null;
         }
     }
-}
 
+    /** Breaks a single line of text into word-wrapped lines that fit within maxWidth points. */
+    private java.util.List<String> wrapText(String text, PDType1Font font, float fontSize, float maxWidth) throws IOException {
+        java.util.List<String> lines = new java.util.ArrayList<>();
+        if (text == null || text.isEmpty()) {
+            lines.add("");
+            return lines;
+        }
+        String[] words = text.split(" ");
+        StringBuilder current = new StringBuilder();
+        for (String word : words) {
+            String test = current.length() == 0 ? word : current + " " + word;
+            float width = font.getStringWidth(test) / 1000 * fontSize;
+            if (width > maxWidth && current.length() > 0) {
+                lines.add(current.toString());
+                current = new StringBuilder(word);
+            } else {
+                current = new StringBuilder(test);
+            }
+        }
+        if (current.length() > 0) {
+            lines.add(current.toString());
+        }
+        return lines;
+    }
+}
