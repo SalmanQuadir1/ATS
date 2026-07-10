@@ -80,6 +80,8 @@ public class DocumentService {
 
             String text = generateOfferLetter(candidate, job, salary, reportingTo,
                     commencementDate, location, acceptanceDeadline);
+            // Sanitize to WinAnsiEncoding (HELVETICA only supports iso-8859-1 range)
+            text = sanitizeForPdf(text);
             String[] paragraphs = text.split("\n");
 
             try (PDDocument document = new PDDocument()) {
@@ -124,6 +126,20 @@ public class DocumentService {
         }
     }
 
+    /** Replaces characters outside WinAnsiEncoding with safe ASCII equivalents. */
+    private String sanitizeForPdf(String text) {
+        return text
+            .replace("\u2022", "-")   // bullet -> dash
+            .replace("\u2013", "-")   // en-dash
+            .replace("\u2014", "-")   // em-dash
+            .replace("\u2018", "'")   // left single quote
+            .replace("\u2019", "'")   // right single quote
+            .replace("\u201C", "\"")  // left double quote
+            .replace("\u201D", "\"")  // right double quote
+            .replace("\u00A0", " ")   // non-breaking space
+            .replaceAll("[^\\x00-\\xFF]", "?"); // anything else outside latin-1
+    }
+
     /** Word-wraps a single line of text so no line exceeds maxWidth points. */
     private List<String> wrapText(String text, PDType1Font font, float fontSize, float maxWidth) throws IOException {
         List<String> lines = new ArrayList<>();
@@ -135,7 +151,13 @@ public class DocumentService {
         StringBuilder current = new StringBuilder();
         for (String word : words) {
             String test = current.length() == 0 ? word : current + " " + word;
-            float width = font.getStringWidth(test) / 1000 * fontSize;
+            float width;
+            try {
+                width = font.getStringWidth(test) / 1000 * fontSize;
+            } catch (Exception e) {
+                // Fallback: estimate 6pt per char
+                width = test.length() * 6f;
+            }
             if (width > maxWidth && current.length() > 0) {
                 lines.add(current.toString());
                 current = new StringBuilder(word);
