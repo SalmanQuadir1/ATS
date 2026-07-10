@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Offer Letter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #1e293b;
+            background: #f1f5f9;
+        }
+
+        /* ── Toolbar (screen only) ── */
+        .toolbar {
+            background: #1e293b;
+            color: white;
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .toolbar-title { font-size: 14px; font-weight: 600; opacity: 0.9; }
+        .btn-print {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 9px 22px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            transition: background 0.2s;
+        }
+        .btn-print:hover { background: #047857; }
+        .btn-back {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #475569;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: #334155; color: white; }
+
+        /* ── Page wrapper ── */
+        .page-wrap {
+            max-width: 860px;
+            margin: 32px auto;
+            padding: 0 24px 48px;
+        }
+
+        /* ── Paper ── */
+        .paper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            padding: 56px 72px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* ── Company header ── */
+        .company-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 20px;
+            margin-bottom: 28px;
+            border-bottom: 2px solid #059669;
+        }
+        .company-name { font-size: 20px; font-weight: 800; color: #065f46; letter-spacing: -0.3px; }
+        .company-sub  { font-size: 11px; color: #64748b; margin-top: 3px; }
+        .company-logo {
+            width: 48px; height: 48px; border-radius: 10px;
+            background: #ecfdf5;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 900; color: #059669;
+            flex-shrink: 0;
+        }
+
+        /* ── Letter body ── */
+        .letter-body {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
+            line-height: 2;
+        }
+
+        /* ── Print styles ── */
+        @media print {
+            body        { background: white; font-size: 11pt; }
+            .toolbar    { display: none !important; }
+            .page-wrap  { max-width: 100%; margin: 0; padding: 0; }
+            .paper      { box-shadow: none; border-radius: 0; padding: 20mm 22mm; }
+            .company-header { padding-bottom: 12pt; margin-bottom: 20pt; }
+            .company-name   { font-size: 16pt; }
+            .letter-body    { line-height: 1.8; font-size: 11pt; }
+            @page { size: auto; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toolbar (hidden on print) -->
+    <div class="toolbar">
+        <div class="toolbar-title" th:text="${pageTitle}">Offer Letter</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <a href="javascript:history.back()" class="btn-back">← Back</a>
+            <button class="btn-print" onclick="window.print()">
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Print / Save as PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Document -->
+    <div class="page-wrap">
+        <div class="paper">
+            <!-- Company Header -->
+            <div class="company-header">
+                <div>
+                    <div class="company-name">STIE Pte Ltd</div>
+                    <div class="company-sub">Human Resources Department</div>
+                    <div class="company-sub" style="margin-top:1px;">wpstie@stie.com.sg | 91130470</div>
+                </div>
+                <div class="company-logo">S</div>
+            </div>
+
+            <!-- Letter Content -->
+            <div class="letter-body" th:text="${letter}">Letter content here...</div>
+        </div>
+    </div>
+
+</body>
+</html>

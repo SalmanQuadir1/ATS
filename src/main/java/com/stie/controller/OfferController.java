@@ -123,5 +123,45 @@ public class OfferController {
         model.addAttribute("success", "Offer letter generated and sent to " + c.getFullName() + " successfully!");
         return "offer-preview";
     }
+
+    /**
+     * Renders a standalone printable offer letter page for an existing candidate.
+     * The letter is reconstructed from the candidate's stored data.
+     */
+    @GetMapping("/view/{candidateId}")
+    public String viewOfferLetter(@PathVariable Long candidateId, Model model,
+                                   org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
+        Candidate c = candidateService.getAllCandidates(PageRequest.of(0, 1000)).getContent().stream()
+                .filter(cand -> cand.getId().equals(candidateId)).findFirst().orElse(null);
+        if (c == null) {
+            ra.addFlashAttribute("error", "Candidate not found.");
+            return "redirect:/candidates";
+        }
+
+        // Reconstruct letter from latest interview / job data
+        JobVacancy job = c.getJobVacancy();
+        if (job == null && !jobService.getAllVacancies().isEmpty()) {
+            job = jobService.getAllVacancies().get(0);
+        }
+        if (job == null) {
+            ra.addFlashAttribute("error", "No job vacancy linked to this candidate.");
+            return "redirect:/candidates/" + candidateId;
+        }
+
+        // Use stored salary or fall back to expectedSalary
+        double salary = c.getFinalSalary() != null ? c.getFinalSalary()
+                      : (c.getExpectedSalary() != null ? c.getExpectedSalary() : 0.0);
+
+        String joiningDate = c.getJoiningDate() != null ? c.getJoiningDate().toString() : "TBD";
+        String location = job.getLocation() != null ? job.getLocation() : "Singapore";
+
+        String letter = documentService.generateOfferLetter(c, job, salary,
+                "HR Manager", joiningDate, location, "TBD");
+
+        model.addAttribute("letter", letter);
+        model.addAttribute("candidate", c);
+        model.addAttribute("pageTitle", "Offer Letter – " + c.getFullName());
+        return "offer-view";
+    }
 }
 
