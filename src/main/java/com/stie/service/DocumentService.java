@@ -20,18 +20,38 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 @Service
 public class DocumentService {
 
-    public String generateOfferLetter(Candidate candidate, JobVacancy job, Double salary) {
-        return "OFFER OF EMPLOYMENT\n\n" +
-               "Date: " + LocalDate.now() + "\n" +
-               "Name: " + candidate.getFullName() + "\n" +
-               "Position: " + job.getTitle() + "\n" +
-               "Salary: SGD " + salary + " per month\n\n" +
-               "We are pleased to offer you the position of " + job.getTitle() + ". " +
-               "Please sign and return this document to confirm your acceptance.\n\n" +
-               "Regards,\nHR Department";
+    public String generateOfferLetter(Candidate candidate, JobVacancy job, Double salary, String reportingTo, String commencementDate, String location, String acceptanceDeadline) {
+        String companyName = job.getTenant() != null ? job.getTenant().getCompanyName() : "STIE Pte Ltd";
+        return "Dear " + candidate.getFullName() + ",\n\n" +
+               "Congratulations!\n\n" +
+               "We are pleased to offer you employment with " + companyName + ". You have been selected for a full-time position of " + job.getTitle() + "\n\n" +
+               "We hope that you will enjoy your role and make a significant contribution to the overall success of the Company.\n\n" +
+               "Please take the time to review our offer. It includes important details about your compensation & benefits and the terms and conditions of your anticipated employment with " + companyName + ".\n\n" +
+               "Position\n" +
+               "• Job Title: " + job.getTitle() + "\n" +
+               "• Reporting To: " + reportingTo + "\n\n" +
+               "Compensation and Benefits\n" +
+               "• Monthly Salary: S$ " + String.format("%.2f", salary) + " (inclusive of CPF contributions, where applicable)\n" +
+               "• Annual Leave: 14 days per calendar year (pro-rated for an incomplete year of service)\n" +
+               "• Hospitalisation Leave and Paid Sick Leave: In accordance with MOM guidelines\n" +
+               "• Hospitalisation & Surgical Insurance: Upon successful completion of the probation period – normally three (3 months). Not applicable to contract or freelance employees.\n" +
+               "• Outpatient Medical Benefits: Upon successful completion of the probation period – normally three (3 months). Not applicable to contract or freelance employees.\n\n" +
+               "Commencement date\n" +
+               commencementDate + "\n\n" +
+               "Location\n" +
+               "You will be based at " + location + " (Head Office or Site).\n\n" +
+               "Acceptance of Offer\n" +
+               "If you wish to accept this offer, please reply to this email on or before " + acceptanceDeadline + ".\n\n" +
+               "Upon your acceptance, HR will prepare your Letter of Appointment (LOA) for signing before your commencement of employment.\n\n" +
+               "We look forward to welcoming you to " + companyName + ".\n\n" +
+               "If you have any questions or require further information, please feel free to contact me at wpstie@stie.com.sg or phone 91130470.\n\n" +
+               "Thank you.\n\n" +
+               "Regards,\n" +
+               "HR Department\n" +
+               companyName;
     }
 
-    public String generateOfferLetterPdf(Candidate candidate, JobVacancy job, Double salary) {
+    public String generateOfferLetterPdf(Candidate candidate, JobVacancy job, Double salary, String reportingTo, String commencementDate, String location, String acceptanceDeadline) {
         String uploadDir = com.stie.config.AppConstants.FilePaths.OFFERS_SUBDIR;
         try {
             Path uploadPath = Paths.get(uploadDir);
@@ -52,7 +72,7 @@ public class DocumentService {
                     contentStream.setLeading(14.5f);
                     contentStream.newLineAtOffset(50, 700);
 
-                    String text = generateOfferLetter(candidate, job, salary);
+                    String text = generateOfferLetter(candidate, job, salary, reportingTo, commencementDate, location, acceptanceDeadline);
                     String[] lines = text.split("\n");
                     for (String line : lines) {
                         contentStream.showText(line);

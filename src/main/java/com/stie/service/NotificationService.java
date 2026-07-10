@@ -275,18 +275,9 @@ public class NotificationService {
         sendEmail(toEmail, subject, body);
     }
 
-    public void sendOfferLetter(String toEmail, String name, String jobTitle, double salary) {
+    public void sendOfferLetter(String toEmail, String name, String jobTitle, double salary, String reportingTo, String commencementDate, String location, String acceptanceDeadline, String letter) {
         String subject = "Employment Offer \u2014 STIE";
-        String body = "Dear " + name + ",\n\n"
-                + "We are delighted to extend you an employment offer for the position of " + jobTitle + ".\n\n"
-                + "Key Offer Details:\n"
-                + "  - Designation      : " + jobTitle + "\n"
-                + "  - Monthly Salary   : S$" + String.format("%.0f", salary) + "\n"
-                + "  - Annual Leave     : 14 Days\n"
-                + "  - Probation Period : 3 Months\n\n"
-                + "Please review and confirm your acceptance at your earliest convenience.\n\n"
-                + "Best Regards,\nHR Department";
-        sendEmail(toEmail, subject, body);
+        sendEmail(toEmail, subject, letter);
     }
 
     /**
