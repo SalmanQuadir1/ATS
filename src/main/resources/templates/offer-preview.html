@@ -1,32 +1,75 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
 <head><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23059669'/%3E%3Ctext x='50' y='65' font-family='Arial' font-size='32' font-weight='bold' fill='white' text-anchor='middle'%3ESTIE%3C/text%3E%3C/svg%3E">
+<style>
+    @media print {
+        /* Hide everything except the A4 paper */
+        body > * { display: none !important; }
+        #a4-paper { display: block !important; }
+        #print-toolbar { display: none !important; }
+
+        @page {
+            size: A4;
+            margin: 20mm 25mm;
+        }
+        #a4-paper {
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+        }
+    }
+</style>
 </head>
 <body>
     <div th:fragment="content">
-        <div class="max-w-5xl mx-auto bg-white p-12 rounded-3xl border border-slate-100 shadow-sm">
-            <div class="flex justify-between items-start mb-12">
-                <h3 class="text-2xl font-bold text-slate-800">Offer Letter Preview</h3>
-                <button onclick="window.print()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-200 transition-colors">
-                    Print / Download PDF
-                </button>
+
+        <!-- Toolbar (hidden when printing) -->
+        <div id="print-toolbar" class="max-w-4xl mx-auto mb-6 flex items-center justify-between">
+            <h3 class="text-2xl font-bold text-slate-800">Offer Letter Preview</h3>
+            <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-bold shadow hover:bg-slate-900 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Print / Download PDF
+            </button>
+        </div>
+
+        <!-- A4 Paper -->
+        <div id="a4-paper"
+             class="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl border border-slate-200"
+             style="min-height: 1123px; padding: 60px 72px; font-family: 'Times New Roman', Times, serif; font-size: 14px; line-height: 1.8; color: #1e293b;">
+
+            <!-- Company Header -->
+            <div style="border-bottom: 2px solid #059669; padding-bottom: 20px; margin-bottom: 32px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div style="font-size: 22px; font-weight: 900; color: #065f46; letter-spacing: -0.5px; font-family: 'Arial', sans-serif;">STIE Pte Ltd</div>
+                        <div style="font-size: 12px; color: #64748b; margin-top: 2px; font-family: 'Arial', sans-serif;">Human Resources Department</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 1px; font-family: 'Arial', sans-serif;">wpstie@stie.com.sg | Tel: 91130470</div>
+                    </div>
+                    <div style="width: 52px; height: 52px; border-radius: 12px; background: #ecfdf5; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; color: #059669; font-family: 'Arial', sans-serif;">S</div>
+                </div>
             </div>
-            
-            <div class="bg-slate-50 p-10 rounded-2xl border border-slate-100 font-sans text-slate-700 whitespace-pre-wrap leading-relaxed shadow-inner" 
-                 th:text="${letter}">
+
+            <!-- Letter Body — letter is pre-formatted plain text, render as-is -->
+            <div th:text="${letter}"
+                 style="white-space: pre-wrap; word-wrap: break-word; text-align: justify;">
                 Letter content goes here...
             </div>
-            
-            <div class="mt-12 flex space-x-4">
-                <div class="flex-1 py-3 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-center border border-emerald-200 flex items-center justify-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Email Delivered Automatically
-                </div>
-                <a th:href="@{/candidates}" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-center hover:bg-slate-200 transition-colors flex items-center justify-center">
-                    Back to Pool
-                </a>
-            </div>
+
         </div>
+
+        <!-- Bottom actions (hidden on print) -->
+        <div id="print-toolbar" class="max-w-4xl mx-auto mt-6 flex gap-4">
+            <div class="flex-1 py-3 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-center border border-emerald-200 flex items-center justify-center gap-2 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Email Delivered Automatically
+            </div>
+            <a th:href="@{/candidates}" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-center hover:bg-slate-200 transition-colors flex items-center justify-center text-sm">
+                Back to Pool
+            </a>
+        </div>
+
     </div>
 </body>
 </html>

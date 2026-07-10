@@ -59,6 +59,22 @@
         nav::-webkit-scrollbar-thumb:hover {
             background-color: #94A3B8;
         }
+
+        @media print {
+            /* Hide the entire app shell - only #a4-paper will show */
+            aside, header, #print-toolbar,
+            [id="sidebarMenu"], [id="sidebarBackdrop"],
+            .flex-col.flex-1.w-full.min-w-0 > header {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                overflow: visible !important;
+            }
+            .p-4, .md\:p-8, .p-4\.md\:p-8 {
+                padding: 0 !important;
+            }
+        }
     </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23059669'/%3E%3Ctext x='50' y='65' font-family='Arial' font-size='32' font-weight='bold' fill='white' text-anchor='middle'%3ESTIE%3C/text%3E%3C/svg%3E">
     <style th:if="${isModal}">
