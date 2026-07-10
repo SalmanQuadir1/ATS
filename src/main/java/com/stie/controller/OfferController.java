@@ -111,6 +111,8 @@ public class OfferController {
         
         c.setOfferLetterPath(pdfFilename);
         c.setStatus(Candidate.CandidateStatus.OFFERED);
+        // Store offer params in hireNotes so the view endpoint can reconstruct the letter
+        c.setHireNotes("OFFER_PARAMS::" + reportingTo + "|" + commencementDate + "|" + location + "|" + acceptanceDeadline + "|" + salary);
         candidateService.saveCandidate(c);
         
         // Fulfill communication automation by automatically dispatching offer letter
@@ -148,15 +150,28 @@ public class OfferController {
             return "redirect:/candidates/" + candidateId;
         }
 
-        // Use stored salary or fall back to expectedSalary
+        // Parse stored offer params from hireNotes if available
+        String reportingTo = "HR Manager";
+        String commencementDate = c.getJoiningDate() != null ? c.getJoiningDate().toString() : "TBD";
+        String location = job.getLocation() != null ? job.getLocation() : "Singapore";
+        String acceptanceDeadline = "Please reply at your earliest convenience";
         double salary = c.getFinalSalary() != null ? c.getFinalSalary()
                       : (c.getExpectedSalary() != null ? c.getExpectedSalary() : 0.0);
 
-        String joiningDate = c.getJoiningDate() != null ? c.getJoiningDate().toString() : "TBD";
-        String location = job.getLocation() != null ? job.getLocation() : "Singapore";
+        String hireNotes = c.getHireNotes();
+        if (hireNotes != null && hireNotes.startsWith("OFFER_PARAMS::")) {
+            String[] parts = hireNotes.substring("OFFER_PARAMS::".length()).split("\\|", -1);
+            if (parts.length >= 5) {
+                reportingTo      = parts[0].isBlank() ? reportingTo : parts[0];
+                commencementDate = parts[1].isBlank() ? commencementDate : parts[1];
+                location         = parts[2].isBlank() ? location : parts[2];
+                acceptanceDeadline = parts[3].isBlank() ? acceptanceDeadline : parts[3];
+                try { salary = Double.parseDouble(parts[4]); } catch (Exception ignored) {}
+            }
+        }
 
         String letter = documentService.generateOfferLetter(c, job, salary,
-                "HR Manager", joiningDate, location, "TBD");
+                reportingTo, commencementDate, location, acceptanceDeadline);
 
         model.addAttribute("letter", letter);
         model.addAttribute("candidate", c);
