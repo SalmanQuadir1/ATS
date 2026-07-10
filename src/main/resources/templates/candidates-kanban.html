@@ -298,6 +298,19 @@
                 const contextPath = /*[[@{/}]]*/ '/';
                 const basePath = contextPath.endsWith('/') ? contextPath.slice(0, -1) : contextPath;
                 
+                // State Transition Validations
+                if (currentStatus === 'SHORTLISTED' && (newStatus === 'HIRED' || newStatus === 'OFFERED')) {
+                    alert("Cannot move directly from Shortlisted to " + (newStatus === 'HIRED' ? 'Hired' : 'Offered') + ". Please schedule an interview first.");
+                    selectEl.value = currentStatus;
+                    return;
+                }
+                
+                if (currentStatus === 'INTERVIEW' && newStatus === 'HIRED') {
+                    alert("Cannot move directly from Interviewed to Hired. Please generate an offer first.");
+                    selectEl.value = currentStatus;
+                    return;
+                }
+
                 if (newStatus === 'OFFERED') {
                     window.location.href = basePath + '/offers/generate/' + candidateId;
                     selectEl.value = currentStatus;
