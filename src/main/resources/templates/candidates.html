@@ -151,31 +151,8 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm text-slate-800 font-semibold" th:text="${candidate.experienceYears + ' Years'}">5 Years</div>
-                            <div th:if="${candidate.status != T(com.stie.model.Candidate.CandidateStatus).HIRED}">
-                                <div th:if="${candidate.finalSalary == null}" class="text-xs text-slate-400 font-medium" th:text="${candidate.expectedSalary != null ? 'Exp: S$' + candidate.expectedSalary + '/mo' : 'Salary: Negotiable'}">S$6,000/mo</div>
-                                <div th:if="${candidate.finalSalary != null}" class="text-xs text-teal-600 font-bold" th:text="${'Final: S$' + candidate.finalSalary + '/mo'}">S$6,000/mo</div>
-                            </div>
-                            <div th:if="${candidate.status == T(com.stie.model.Candidate.CandidateStatus).HIRED}">
-                                <div class="text-xs text-teal-600 font-bold flex items-center gap-1">
-                                    <span th:text="${'Final: S$' + (candidate.finalSalary != null ? candidate.finalSalary : '0') + '/mo'}"></span>
-                                    <button th:if="${isCandidateDatabase}" 
-                                            th:data-id="${candidate.id}"
-                                            th:data-basic="${!#lists.isEmpty(candidate.salaries) ? candidate.salaries[candidate.salaries.size()-1].basic : ''}"
-                                            th:data-transport="${!#lists.isEmpty(candidate.salaries) ? candidate.salaries[candidate.salaries.size()-1].transport : ''}"
-                                            th:data-mobile="${!#lists.isEmpty(candidate.salaries) ? candidate.salaries[candidate.salaries.size()-1].mobile : ''}"
-                                            th:data-other="${!#lists.isEmpty(candidate.salaries) ? candidate.salaries[candidate.salaries.size()-1].other : ''}"
-                                            onclick="openSalaryModal(this.getAttribute('data-id'), this.getAttribute('data-basic'), this.getAttribute('data-transport'), this.getAttribute('data-mobile'), this.getAttribute('data-other'))"
-                                            class="text-teal-500 hover:text-teal-700 p-0.5 rounded transition-colors bg-teal-50 hover:bg-teal-100" title="Update Salary Details">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                    </button>
-                                </div>
-                                <div th:if="${!#lists.isEmpty(candidate.salaries)}" class="mt-1 space-y-0.5 text-[10px] text-slate-500 border-l-2 border-teal-100 pl-1.5">
-                                    <div th:if="${candidate.salaries[candidate.salaries.size()-1].basic != null && !candidate.salaries[candidate.salaries.size()-1].basic.isEmpty()}">Basic: S$<span th:text="${candidate.salaries[candidate.salaries.size()-1].basic}"></span></div>
-                                    <div th:if="${candidate.salaries[candidate.salaries.size()-1].transport != null && !candidate.salaries[candidate.salaries.size()-1].transport.isEmpty()}">Transport: S$<span th:text="${candidate.salaries[candidate.salaries.size()-1].transport}"></span></div>
-                                    <div th:if="${candidate.salaries[candidate.salaries.size()-1].mobile != null && !candidate.salaries[candidate.salaries.size()-1].mobile.isEmpty()}">Mobile: S$<span th:text="${candidate.salaries[candidate.salaries.size()-1].mobile}"></span></div>
-                                    <div th:if="${candidate.salaries[candidate.salaries.size()-1].other != null && !candidate.salaries[candidate.salaries.size()-1].other.isEmpty()}">Other: S$<span th:text="${candidate.salaries[candidate.salaries.size()-1].other}"></span></div>
-                                </div>
-                            </div>
+                            <div th:if="${candidate.finalSalary == null}" class="text-xs text-slate-400 font-medium" th:text="${candidate.expectedSalary != null ? 'Exp: S$' + candidate.expectedSalary + '/mo' : 'Salary: Negotiable'}">S$6,000/mo</div>
+                            <div th:if="${candidate.finalSalary != null}" class="text-xs text-teal-600 font-bold" th:text="${'Final: S$' + #numbers.formatDecimal(candidate.finalSalary, 1, 'COMMA', 0, 'POINT') + '/mo'}">S$6,000/mo</div>
                             <div class="mt-1" th:if="${candidate.securityLicense != null && !#strings.isEmpty(candidate.securityLicense)}">
                                 <span class="px-1.5 py-0.5 bg-rose-50 text-rose-600 text-[9px] font-bold rounded border border-rose-100" th:text="${'PLRD: ' + candidate.securityLicense}">PLRD-Licensed</span>
                             </div>
@@ -222,6 +199,16 @@
                                        class="p-2 text-blue-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-all shadow-sm border border-transparent hover:border-blue-100" title="View Interview Scorecard">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                                     </a>
+                                    <button th:if="${candidate.status == T(com.stie.model.Candidate.CandidateStatus).HIRED}" 
+                                            th:data-id="${candidate.id}"
+                                            th:data-basic="${!#lists.isEmpty(candidate.salaries) ? candidate.salaries[candidate.salaries.size()-1].basic : ''}"
+                                            th:data-transport="${!#lists.isEmpty(candidate.salaries) ? candidate.salaries[candidate.salaries.size()-1].transport : ''}"
+                                            th:data-mobile="${!#lists.isEmpty(candidate.salaries) ? candidate.salaries[candidate.salaries.size()-1].mobile : ''}"
+                                            th:data-other="${!#lists.isEmpty(candidate.salaries) ? candidate.salaries[candidate.salaries.size()-1].other : ''}"
+                                            onclick="openSalaryModal(this.getAttribute('data-id'), this.getAttribute('data-basic'), this.getAttribute('data-transport'), this.getAttribute('data-mobile'), this.getAttribute('data-other'))"
+                                            class="p-2 text-amber-600 hover:bg-amber-50 hover:text-amber-700 rounded-xl transition-all shadow-sm border border-transparent hover:border-amber-100" title="Update Salary Details">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    </button>
                                 </th:block>
                             </div>
                         </td>
