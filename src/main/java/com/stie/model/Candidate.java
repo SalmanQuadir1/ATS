@@ -231,6 +231,12 @@ public class Candidate {
     public User getAssignedInterviewer() { return assignedInterviewer; }
     public void setAssignedInterviewer(User assignedInterviewer) { this.assignedInterviewer = assignedInterviewer; }
 
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private java.util.List<Salary> salaries = new java.util.ArrayList<>();
+
+    public java.util.List<Salary> getSalaries() { return salaries; }
+    public void setSalaries(java.util.List<Salary> salaries) { this.salaries = salaries; }
+
     public enum CandidateStatus {
         APPLIED, SHORTLISTED, INTERVIEW, OFFERED, HIRED, REJECTED, KIV
     }

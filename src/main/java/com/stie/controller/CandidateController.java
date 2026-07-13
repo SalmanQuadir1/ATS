@@ -792,6 +792,43 @@ public class CandidateController {
         }
     }
 
+    @PostMapping("/update-salary/{id}")
+    public String updateSalary(@PathVariable Long id, 
+            @RequestParam(required = false) String basic, 
+            @RequestParam(required = false) String transport, 
+            @RequestParam(required = false) String mobile, 
+            @RequestParam(required = false) String other,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        Candidate candidate = candidateService.findById(id).orElse(null);
+        if (candidate != null) {
+            com.stie.model.Salary salary = null;
+            if (candidate.getSalaries() != null && !candidate.getSalaries().isEmpty()) {
+                salary = candidate.getSalaries().get(candidate.getSalaries().size() - 1);
+            } else {
+                salary = new com.stie.model.Salary();
+                salary.setCandidate(candidate);
+                if (candidate.getSalaries() == null) {
+                    candidate.setSalaries(new java.util.ArrayList<>());
+                }
+                candidate.getSalaries().add(salary);
+            }
+            salary.setBasic(basic);
+            salary.setTransport(transport);
+            salary.setMobile(mobile);
+            salary.setOther(other);
+            
+            double basicVal = basic != null && !basic.isEmpty() ? Double.parseDouble(basic) : 0;
+            double transVal = transport != null && !transport.isEmpty() ? Double.parseDouble(transport) : 0;
+            double mobVal = mobile != null && !mobile.isEmpty() ? Double.parseDouble(mobile) : 0;
+            double otherVal = other != null && !other.isEmpty() ? Double.parseDouble(other) : 0;
+            candidate.setFinalSalary(basicVal + transVal + mobVal + otherVal);
+            
+            candidateService.saveCandidate(candidate);
+            redirectAttributes.addFlashAttribute("success", "Salary details updated successfully for " + candidate.getFullName());
+        }
+        return "redirect:/candidates";
+    }
+
     private java.util.List<com.stie.model.CandidateEducation> parseEducation(String raw) {
         java.util.List<com.stie.model.CandidateEducation> list = new java.util.ArrayList<>();
         if (raw == null || raw.trim().isEmpty()) return list;
