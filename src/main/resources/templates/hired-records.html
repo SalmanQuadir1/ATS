@@ -57,6 +57,7 @@
                             <thead>
                                 <tr class="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50">
                                     <th class="py-2.5 px-4">Name</th>
+                                    <th class="py-2.5 px-4" sec:authorize="hasRole('SUPER_ADMIN')">Site / Tenant</th>
                                     <th class="py-2.5 px-4">Position</th>
                                     <th class="py-2.5 px-4">Location</th>
                                     <th class="py-2.5 px-4">Email</th>
@@ -67,6 +68,7 @@
                             <tbody class="text-sm">
                                 <tr th:each="c : ${entry.value}" class="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors group">
                                     <td class="py-2.5 px-4 font-bold text-slate-800" th:text="${c.fullName}">Name</td>
+                                    <td class="py-2.5 px-4 text-slate-500" sec:authorize="hasRole('SUPER_ADMIN')" th:text="${c.tenant != null ? c.tenant.name : '—'}">Site</td>
                                     <td class="py-2.5 px-4 text-slate-500" th:text="${c.jobVacancy != null ? c.jobVacancy.title : 'N/A'}">Position</td>
                                     <td class="py-2.5 px-4 text-slate-500" th:text="${c.jobVacancy != null ? c.jobVacancy.location : 'N/A'}">Location</td>
                                     <td class="py-2.5 px-4 text-slate-500" th:text="${c.email}">Email</td>
@@ -104,6 +106,7 @@
                             <thead>
                                 <tr class="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50">
                                     <th class="py-2.5 px-4">Name</th>
+                                    <th class="py-2.5 px-4" sec:authorize="hasRole('SUPER_ADMIN')">Site / Tenant</th>
                                     <th class="py-2.5 px-4">Position</th>
                                     <th class="py-2.5 px-4">Location</th>
                                     <th class="py-2.5 px-4">Email</th>
@@ -114,6 +117,7 @@
                             <tbody class="text-sm">
                                 <tr th:each="c : ${generalHired}" class="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors group">
                                     <td class="py-2.5 px-4 font-bold text-slate-800" th:text="${c.fullName}">Name</td>
+                                    <td class="py-2.5 px-4 text-slate-500" sec:authorize="hasRole('SUPER_ADMIN')" th:text="${c.tenant != null ? c.tenant.name : '—'}">Site</td>
                                     <td class="py-2.5 px-4 text-slate-500" th:text="${c.jobVacancy != null ? c.jobVacancy.title : 'N/A'}">Position</td>
                                     <td class="py-2.5 px-4 text-slate-500" th:text="${c.jobVacancy != null ? c.jobVacancy.location : 'N/A'}">Location</td>
                                     <td class="py-2.5 px-4 text-slate-500" th:text="${c.email}">Email</td>
