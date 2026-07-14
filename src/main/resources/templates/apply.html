@@ -153,6 +153,17 @@
             color: #a8a29e;
         }
 
+        .field-error {
+            border-color: #fb7185 !important;
+            box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.15) !important;
+            background: #FFF7F8;
+        }
+
+        .zone-error {
+            border-color: #fb7185 !important;
+            background: rgba(251, 113, 133, 0.05);
+        }
+
         select.field {
             appearance: none;
             cursor: pointer;
@@ -351,7 +362,7 @@
             <span class="font-black text-stone-900 syne text-base" th:text="${branding.companyName}">STIE</span>
         </a>
         <div class="flex items-center gap-3 text-sm font-semibold text-stone-500 relative z-10">
-            <a th:href="@{'/' + ${tenant.subdomain} + '/landing'}" class="hidden sm:flex items-center gap-1 hover:text-stone-900 transition-colors">
+            <a th:href="@{/landing}" class="hidden sm:flex items-center gap-1 hover:text-stone-900 transition-colors">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -377,7 +388,7 @@
             </div>
 
             <div class="relative z-10">
-                <a th:href="@{'/' + ${tenant.subdomain} + '/landing'}" class="back-link mb-8 inline-flex">
+                <a th:href="@{/landing}" class="back-link mb-8 inline-flex">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -496,6 +507,14 @@
                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <span th:text="${error}"></span>
+                </div>
+
+                <div id="apply-error" class="alert-error flex items-start gap-2.5 mb-6" style="display:none">
+                    <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span id="apply-error-msg"></span>
                 </div>
 
                 <form th:action="@{'/' + ${tenant.subdomain} + '/apply/' + ${job.id} + '/submit'}" method="POST" enctype="multipart/form-data"
@@ -670,6 +689,7 @@
                                 <p class="text-stone-400 text-xs mt-0.5">Click to replace</p>
                             </div>
                         </div>
+                        <p id="resume-error" class="text-rose-500 text-xs font-semibold mt-2 hidden">Please upload your resume (PDF, DOC or DOCX) to continue.</p>
                     </div>
 
                     <div>
@@ -703,6 +723,7 @@
                                 <p class="text-stone-400 text-xs mt-0.5">Click to replace</p>
                             </div>
                         </div>
+                        <p id="photo-error" class="text-rose-500 text-xs font-semibold mt-2 hidden"></p>
                     </div>
 
                     <div>
@@ -736,6 +757,7 @@
                                 <p class="text-stone-400 text-xs mt-0.5">Click to replace</p>
                             </div>
                         </div>
+                        <p id="academic-error" class="text-rose-500 text-xs font-semibold mt-2 hidden"></p>
                     </div>
 
                     <div>
@@ -769,6 +791,7 @@
                                 <p class="text-stone-400 text-xs mt-0.5">Click to replace</p>
                             </div>
                         </div>
+                        <p id="other-error" class="text-rose-500 text-xs font-semibold mt-2 hidden"></p>
                     </div>
 
                     <div class="pt-1">
@@ -792,22 +815,80 @@
     </div>
 
     <script>
-        function bindDropZone(zoneId, inputId, idleId, doneId, nameId) {
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+        function uploadTokens(input) {
+            const accept = input.getAttribute('accept') || '';
+            return accept.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+        }
+
+        function fileExt(file) {
+            const name = (file.name || '').toLowerCase();
+            return name.includes('.') ? '.' + name.split('.').pop() : '';
+        }
+
+        function isAllowedType(file, tokens) {
+            const ext = fileExt(file);
+            const mime = (file.type || '').toLowerCase();
+            for (const t of tokens) {
+                if (t.endsWith('/*')) {
+                    if (mime.startsWith(t.slice(0, -1))) return true;
+                } else if (t.startsWith('.')) {
+                    if (ext === t) return true;
+                } else if (mime === t) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function allowedLabel(tokens) {
+            return tokens.map(t => (t.endsWith('/*') ? t.slice(0, -1).replace('/', '') : t.replace('.', '')).toUpperCase()).join(', ');
+        }
+
+        function uploadErrorText(file, tokens) {
+            const reason = (file.size || 0) > MAX_FILE_SIZE ? 'file exceeds the 5MB limit' : 'unsupported file format';
+            return '"' + file.name + '" is ' + reason + '. Allowed: ' + allowedLabel(tokens) + ' (max 5MB).';
+        }
+
+        function bindDropZone(zoneId, inputId, idleId, doneId, nameId, errorId) {
             const input = document.getElementById(inputId);
             const zone = document.getElementById(zoneId);
             const idle = document.getElementById(idleId);
             const done = document.getElementById(doneId);
             const nameEl = document.getElementById(nameId);
+            const errEl = errorId ? document.getElementById(errorId) : null;
+            const tokens = uploadTokens(input);
 
-            function show(file) {
-                if (!file) return;
+            function showValid(file) {
                 idle.classList.add('hidden');
                 done.classList.remove('hidden');
                 nameEl.textContent = file.name;
                 zone.classList.add('border-emerald-400');
+                zone.classList.remove('zone-error');
+                if (errEl) { errEl.textContent = ''; errEl.classList.add('hidden'); }
             }
 
-            input.addEventListener('change', () => show(input.files[0]));
+            function showInvalid(file) {
+                idle.classList.remove('hidden');
+                done.classList.add('hidden');
+                nameEl.textContent = '';
+                zone.classList.remove('border-emerald-400');
+                zone.classList.add('zone-error');
+                if (errEl) { errEl.textContent = uploadErrorText(file, tokens); errEl.classList.remove('hidden'); }
+            }
+
+            function handleFile(file) {
+                if (!file) return;
+                if (!isAllowedType(file, tokens) || (file.size || 0) > MAX_FILE_SIZE) {
+                    showInvalid(file);
+                    input.value = '';
+                } else {
+                    showValid(file);
+                }
+            }
+
+            input.addEventListener('change', () => handleFile(input.files[0]));
 
             ['dragenter', 'dragover'].forEach(e => zone.addEventListener(e, ev => {
                 ev.preventDefault();
@@ -823,15 +904,29 @@
                     const dt = new DataTransfer();
                     dt.items.add(file);
                     input.files = dt.files;
-                    show(file);
+                    handleFile(file);
                 }
             });
         }
 
-        bindDropZone('resume-zone', 'resume', 'resume-idle', 'resume-done', 'resume-name');
-        bindDropZone('photo-zone', 'photo', 'photo-idle', 'photo-done', 'photo-name');
-        bindDropZone('academic-zone', 'academicCert', 'academic-idle', 'academic-done', 'academic-name');
-        bindDropZone('other-zone', 'otherDoc', 'other-idle', 'other-done', 'other-name');
+        bindDropZone('resume-zone', 'resume', 'resume-idle', 'resume-done', 'resume-name', 'resume-error');
+        bindDropZone('photo-zone', 'photo', 'photo-idle', 'photo-done', 'photo-name', 'photo-error');
+        bindDropZone('academic-zone', 'academicCert', 'academic-idle', 'academic-done', 'academic-name', 'academic-error');
+        bindDropZone('other-zone', 'otherDoc', 'other-idle', 'other-done', 'other-name', 'other-error');
+
+        function validateUploads(formId) {
+            const messages = [];
+            document.querySelectorAll('#' + formId + ' input[type="file"]').forEach(input => {
+                if (input.files && input.files.length > 0) {
+                    const file = input.files[0];
+                    const tokens = uploadTokens(input);
+                    if (!isAllowedType(file, tokens) || (file.size || 0) > MAX_FILE_SIZE) {
+                        messages.push(uploadErrorText(file, tokens));
+                    }
+                }
+            });
+            return messages;
+        }
 
         window.currentEducations = [];
         window.currentSkills = [];
@@ -962,19 +1057,89 @@
             if (e.key === 'Enter') { e.preventDefault(); addEducation(); }
         });
 
+        function showFormError(messages) {
+            const banner = document.getElementById('apply-error');
+            document.getElementById('apply-error-msg').innerHTML = messages.join('<br>');
+            banner.style.display = 'flex';
+            banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function clearFieldError(el) {
+            el.classList.remove('field-error');
+        }
+
         document.getElementById('apply-form').addEventListener('submit', (e) => {
             addEducation();
             addSkill();
             addCertification();
 
+            const errors = [];
+
+            const requiredFields = [
+                { id: 'fullName', label: 'Full Name' },
+                { id: 'email', label: 'Email Address' },
+                { id: 'phone', label: 'Phone Number' },
+                { id: 'nationality', label: 'Nationality' },
+                { id: 'experienceYears', label: 'Years of Experience' }
+            ];
+
+            requiredFields.forEach(f => {
+                const el = document.getElementById(f.id);
+                if (!el.value.trim()) {
+                    el.classList.add('field-error');
+                    errors.push(f.label + ' is required.');
+                } else {
+                    clearFieldError(el);
+                }
+            });
+
+            const emailEl = document.getElementById('email');
+            const emailVal = emailEl.value.trim();
+            if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+                emailEl.classList.add('field-error');
+                errors.push('Please enter a valid email address.');
+            }
+
+            const expEl = document.getElementById('experienceYears');
+            if (expEl.value.trim()) {
+                const expVal = parseInt(expEl.value, 10);
+                if (isNaN(expVal) || expVal < 0 || expVal > 50) {
+                    expEl.classList.add('field-error');
+                    errors.push('Years of Experience must be between 0 and 50.');
+                }
+            }
+
+            const resumeInput = document.getElementById('resume');
+            const resumeError = document.getElementById('resume-error');
+            const resumeZone = document.getElementById('resume-zone');
+            if (!resumeInput.files || resumeInput.files.length === 0) {
+                resumeZone.classList.add('zone-error');
+                if (resumeError) resumeError.classList.remove('hidden');
+                errors.push('Please upload your resume (PDF, DOC or DOCX) to continue.');
+            } else {
+                resumeZone.classList.remove('zone-error');
+                if (resumeError) resumeError.classList.add('hidden');
+            }
+
             if (window.currentEducations.length === 0) {
+                errors.push('Education is mandatory. Please add at least one education entry.');
+            }
+
+            validateUploads('apply-form').forEach(m => errors.push(m));
+
+            if (errors.length > 0) {
                 e.preventDefault();
-                alert('Education is mandatory. Please add at least one education entry.');
+                showFormError(errors);
+                const btn = document.getElementById('submit-btn');
+                btn.disabled = false;
+                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" /></svg> Submit Application';
                 return;
             }
 
-            document.getElementById('education-hidden').value = window.currentEducations.map(e => {
-                const parts = [e.institution, e.degree, e.start, e.end, e.cgpa ? `CGPA: ${e.cgpa}` : ''].filter(Boolean);
+            document.getElementById('apply-error').style.display = 'none';
+
+            document.getElementById('education-hidden').value = window.currentEducations.map(edu => {
+                const parts = [edu.institution, edu.degree, edu.start, edu.end, edu.cgpa ? `CGPA: ${edu.cgpa}` : ''].filter(Boolean);
                 return parts.join(' | ');
             }).join(', ');
             document.getElementById('skills-hidden').value = window.currentSkills.join(', ');
