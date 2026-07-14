@@ -125,7 +125,7 @@
     </div>
 
     <!-- ── Pending approvals tab (HR/Admin) ──────────────────────────── -->
-    <div class="flex gap-4 mb-4 border-b border-slate-100" sec:authorize="hasAuthority('APPROVE_JOBS')">
+    <div class="flex gap-4 mb-4 border-b border-slate-100" sec:authorize="hasAuthority('APPROVE_JOBS') or hasAuthority('ROLE_HR') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SUPER_ADMIN')">
         <a th:href="@{/jobs}"
            class="pb-2 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-600">All Jobs</a>
         <a th:href="@{/jobs/approvals}"
@@ -263,7 +263,7 @@
                                 <!-- Quick approve if pending -->
                                 <form th:if="${job.approvalStatus != null and job.approvalStatus.name() == 'PENDING'}"
                                       th:action="@{/jobs/{id}/approve(id=${job.id})}" method="POST"
-                                      sec:authorize="hasAuthority('APPROVE_JOBS')"
+                                      sec:authorize="hasAuthority('APPROVE_JOBS') or hasAuthority('ROLE_HR') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SUPER_ADMIN')"
                                       class="inline" th:id="'approve-form-' + ${job.id}">
                                     <input type="hidden" name="note" th:id="'approve-note-' + ${job.id}">
                                     <button type="button" th:onclick="'openRemarksModal(\'Approve Job Vacancy\', \'Provide approval remarks for this job vacancy:\', \'approve-form-\' + ' + ${job.id} + ', \'approve-note-\' + ' + ${job.id} + ')'"

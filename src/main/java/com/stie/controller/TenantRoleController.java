@@ -47,7 +47,7 @@ public class TenantRoleController {
 
         model.addAttribute("pageTitle", "Role Management");
         model.addAttribute("roles", roleRepository.findByTenantOrTenantIsNull(user.getTenant()));
-        // Load actual module names from DB - these are what get stored in role_permissions
+        // Load actual module names from DB
         List<String> allPermissions = permissionModuleRepository.findAll()
                 .stream()
                 .map(pm -> pm.getName())

@@ -52,8 +52,8 @@ public class SecurityConfig {
                 // Jobs & Candidates
                 .antMatchers("/jobs/new", "/jobs/create", "/jobs/edit/**", "/jobs/update")
                     .hasAnyAuthority("CREATE_JOBS", "ROLE_SUPER_ADMIN")
-                .antMatchers("/jobs/*/approve", "/jobs/*/reject", "/jobs/approvals", "/jobs/pending")
-                    .hasAnyAuthority("APPROVE_JOBS", "ROLE_SUPER_ADMIN")
+                .antMatchers("/jobs/approvals", "/jobs/pending", "/jobs/*/approve", "/jobs/*/reject")
+                    .hasAnyAuthority("APPROVE_JOBS", "ROLE_SUPER_ADMIN", "ROLE_HR", "ROLE_ADMIN")
                 .antMatchers("/jobs/**")
                     .hasAnyAuthority("Jobs", "MANAGE_JOBS", "CREATE_JOBS", "APPROVE_JOBS", "ROLE_SUPER_ADMIN")
                 .antMatchers("/candidates/**")

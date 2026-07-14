@@ -87,14 +87,33 @@ public class RoleController {
     @PostMapping("/module/create")
     public String createModule(@RequestParam String name,
                                @RequestParam String description,
+                               @RequestParam(required = false) boolean generateCrud,
                                RedirectAttributes redirectAttributes) {
         String safeName = name.toUpperCase().replace(" ", "_");
-        if (permissionModuleRepository.findByName(safeName).isPresent()) {
-            redirectAttributes.addFlashAttribute("error", "Permission Module already exists.");
-            return "redirect:/super-admin/roles";
+        
+        if (generateCrud) {
+            String[] crud = {"CREATE", "READ", "UPDATE", "DELETE"};
+            boolean addedAny = false;
+            for(String op : crud) {
+                String opName = op + "_" + safeName;
+                if (!permissionModuleRepository.findByName(opName).isPresent()) {
+                    permissionModuleRepository.save(new PermissionModule(opName, "Can " + op.toLowerCase() + " " + description.toLowerCase()));
+                    addedAny = true;
+                }
+            }
+            if (addedAny) {
+                redirectAttributes.addFlashAttribute("success", "CRUD Permission Modules for '" + safeName + "' created successfully.");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "CRUD modules for '" + safeName + "' already exist.");
+            }
+        } else {
+            if (permissionModuleRepository.findByName(safeName).isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "Permission Module already exists.");
+                return "redirect:/super-admin/roles";
+            }
+            permissionModuleRepository.save(new PermissionModule(safeName, description));
+            redirectAttributes.addFlashAttribute("success", "Permission Module created successfully.");
         }
-        permissionModuleRepository.save(new PermissionModule(safeName, description));
-        redirectAttributes.addFlashAttribute("success", "Permission Module created successfully.");
         return "redirect:/super-admin/roles";
     }
 }

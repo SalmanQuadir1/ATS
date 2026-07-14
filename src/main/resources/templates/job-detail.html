@@ -114,7 +114,7 @@
                         <div th:if="${job.approvalNote == null or job.approvalNote.isEmpty()}" class="text-xs text-slate-400 italic">No remarks provided yet.</div>
 
                         <!-- Action Buttons -->
-                        <div class="pt-4 border-t border-slate-200 flex flex-col gap-2" sec:authorize="hasAuthority('APPROVE_JOBS')" th:if="${job.approvalStatus.name() == 'PENDING'}">
+                        <div class="pt-4 border-t border-slate-200 flex flex-col gap-2" sec:authorize="hasAuthority('APPROVE_JOBS') or hasAuthority('ROLE_HR') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SUPER_ADMIN')" th:if="${job.approvalStatus.name() == 'PENDING'}">
                             <form th:action="@{/jobs/{id}/approve(id=${job.id})}" method="POST" class="w-full" id="approveForm">
                                 <input type="hidden" name="note" id="approveNote">
                                 <button type="button" onclick="openRemarksModal('Approve Job Vacancy', 'Provide approval remarks for this job vacancy:', 'approveForm', 'approveNote')"

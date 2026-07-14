@@ -20,12 +20,10 @@ public class LandingController {
     private com.stie.service.TenantService tenantService;
 
     @GetMapping("/landing")
-    public String genericLanding() {
-        java.util.List<com.stie.model.Tenant> tenants = tenantService.getAllSites();
-        if (!tenants.isEmpty()) {
-            return "redirect:/" + tenants.get(0).getSubdomain() + "/landing";
-        }
-        return "redirect:/login";
+    public String genericLanding(Model model) {
+        model.addAttribute("isGlobal", true);
+        model.addAttribute("openJobs", jobService.getAllOpenJobsAcrossTenants());
+        return "landing";
     }
 
     @GetMapping("/{tenantName}/landing")

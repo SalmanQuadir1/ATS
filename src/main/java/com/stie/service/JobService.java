@@ -48,7 +48,7 @@ public class JobService {
 
     public void approveVacancy(Long id, String note, String username) {
         Tenant tenant = userService.getCurrentTenant();
-        repository.findById(id).filter(v -> tenant == null || v.getTenant() == null || tenant.equals(v.getTenant())).ifPresent(v -> {
+        repository.findById(id).filter(v -> tenant == null || v.getTenant() == null || tenant.getId().equals(v.getTenant().getId())).ifPresent(v -> {
             v.setApprovalStatus(JobVacancy.ApprovalStatus.APPROVED);
             v.setStatus(JobVacancy.JobStatus.OPEN);
             v.setApprovedByManager(true);
@@ -61,7 +61,7 @@ public class JobService {
 
     public void rejectVacancy(Long id, String note, String username) {
         Tenant tenant = userService.getCurrentTenant();
-        repository.findById(id).filter(v -> tenant == null || v.getTenant() == null || tenant.equals(v.getTenant())).ifPresent(v -> {
+        repository.findById(id).filter(v -> tenant == null || v.getTenant() == null || tenant.getId().equals(v.getTenant().getId())).ifPresent(v -> {
             v.setApprovalStatus(JobVacancy.ApprovalStatus.REJECTED);
             v.setStatus(JobVacancy.JobStatus.CLOSED);
             v.setApprovedByManager(false);
