@@ -88,6 +88,7 @@
                                     
                                     <!-- Applied Job -->
                                     <div class="text-xs text-slate-500 truncate font-medium mb-2" th:text="${c.jobVacancy != null ? c.jobVacancy.title : 'General Application'}">Software Engineer</div>
+                                    <span sec:authorize="hasRole('SUPER_ADMIN')" th:if="${c.tenant != null}" class="inline-block mb-2 px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded border border-slate-200" th:text="${c.tenant.name}">Site</span>
                                 </div>
                             </div>
 
