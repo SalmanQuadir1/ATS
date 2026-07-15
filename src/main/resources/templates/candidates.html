@@ -108,7 +108,7 @@
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Candidate Details</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider" sec:authorize="hasRole('SUPER_ADMIN')">Site / Tenant</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Latest Application</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Experience & Salary</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Experience</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Skills & Credentials</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nationality</th>
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
@@ -155,8 +155,13 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm text-slate-800 font-semibold" th:text="${candidate.experienceYears + ' Years'}">5 Years</div>
-                            <div th:if="${candidate.finalSalary == null}" class="text-xs text-slate-400 font-medium" th:text="${candidate.expectedSalary != null ? 'Exp: S$' + candidate.expectedSalary + '/mo' : 'Salary: Negotiable'}">S$6,000/mo</div>
-                            <div th:if="${candidate.finalSalary != null}" class="text-xs text-teal-600 font-bold" th:text="${'Final: S$' + #numbers.formatDecimal(candidate.finalSalary, 1, 'COMMA', 0, 'POINT') + '/mo'}">S$6,000/mo</div>
+                            <button type="button" 
+                                    th:data-expected="${candidate.expectedSalary}" 
+                                    th:data-final="${candidate.finalSalary}" 
+                                    onclick="openViewSalaryModal(this.getAttribute('data-expected'), this.getAttribute('data-final'))" 
+                                    class="mt-1 text-[10px] font-bold uppercase tracking-wider text-teal-600 hover:text-teal-800 underline">
+                                View Salary
+                            </button>
                             <div class="mt-1" th:if="${candidate.securityLicense != null && !#strings.isEmpty(candidate.securityLicense)}">
                                 <span class="px-1.5 py-0.5 bg-rose-50 text-rose-600 text-[9px] font-bold rounded border border-rose-100" th:text="${'PLRD: ' + candidate.securityLicense}">PLRD-Licensed</span>
                             </div>
@@ -249,6 +254,35 @@
             <button onclick="deselectAll()" class="text-xs text-slate-400 hover:text-white">Deselect All</button>
         </div>
 
+        <!-- View Salary Modal -->
+        <div id="viewSalaryModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 class="font-bold text-slate-800">Salary Details</h3>
+                    <button onclick="closeViewSalaryModal()" class="text-slate-400 hover:text-slate-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <table class="w-full text-left text-sm text-slate-600 border-collapse">
+                        <tbody>
+                            <tr class="border-b border-slate-100">
+                                <td class="py-3 font-semibold text-slate-700">Expected Salary</td>
+                                <td class="py-3 text-right" id="modalExpectedSalary"></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 font-semibold text-slate-700">Final Salary</td>
+                                <td class="py-3 text-right text-teal-600 font-bold" id="modalFinalSalary"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                    <button type="button" onclick="closeViewSalaryModal()" class="px-4 py-2 text-sm font-bold bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">Close</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Update Salary Modal -->
         <div id="salaryModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
@@ -339,6 +373,15 @@
 
             function closeSalaryModal() {
                 document.getElementById('salaryModal').classList.add('hidden');
+            }
+            function openViewSalaryModal(expected, finalSal) {
+                document.getElementById('modalExpectedSalary').innerText = expected && expected !== 'null' ? 'S$' + parseFloat(expected).toLocaleString() + '/mo' : 'Negotiable';
+                document.getElementById('modalFinalSalary').innerText = finalSal && finalSal !== 'null' ? 'S$' + parseFloat(finalSal).toLocaleString() + '/mo' : 'TBD';
+                document.getElementById('viewSalaryModal').classList.remove('hidden');
+            }
+
+            function closeViewSalaryModal() {
+                document.getElementById('viewSalaryModal').classList.add('hidden');
             }
         </script>
     </div>
