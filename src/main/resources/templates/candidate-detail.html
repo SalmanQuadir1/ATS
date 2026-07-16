@@ -50,13 +50,6 @@
                                                  candidate.status == T(com.stie.model.Candidate.CandidateStatus).KIV ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-slate-50 text-slate-700 border-slate-100'}" 
                                   class="px-4 py-2 text-sm font-extrabold rounded-xl border uppercase tracking-wider" th:text="${candidate.status}">SHORTLISTED</span>
                             
-                            <a th:if="${candidate.status == T(com.stie.model.Candidate.CandidateStatus).OFFERED}" 
-                               th:href="@{'/offers/view/' + ${candidate.id}}" 
-                               target="_blank"
-                               class="inline-flex items-center gap-1.5 px-4 py-2 bg-violet-50 text-violet-700 border border-violet-200 hover:bg-violet-100 hover:border-violet-300 rounded-xl text-xs font-bold transition-colors shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                View OfferLetter
-                            </a>
                         </div>
                     </div>
                     
@@ -65,11 +58,11 @@
                             <h5 class="text-xs font-bold text-slate-400 uppercase mb-4">Phone</h5>
                             <p class="text-slate-700 font-medium" th:text="${candidate.phone != null ? candidate.phone : '-'}">-</p>
                         </div>
-                        <div>
+                        <div sec:authorize="!hasAnyAuthority('INTERVIEWER', 'ROLE_INTERVIEWER')">
                             <h5 class="text-xs font-bold text-slate-400 uppercase mb-4">Expected Salary</h5>
                             <p class="text-slate-700 font-medium" th:text="${candidate.expectedSalary != null ? '$' + candidate.expectedSalary : '-'}">-</p>
                         </div>
-                        <div th:if="${candidate.finalSalary != null}">
+                        <div th:if="${candidate.finalSalary != null}" sec:authorize="!hasAnyAuthority('INTERVIEWER', 'ROLE_INTERVIEWER')">
                             <h5 class="text-xs font-bold text-teal-500 uppercase mb-4">Final Salary</h5>
                             <p class="text-teal-700 font-bold" th:text="${'$' + candidate.finalSalary}">-</p>
                         </div>
@@ -453,7 +446,7 @@
                         </div>
 
                         <!-- Generated Offer Letter -->
-                        <div th:if="${candidate.offerLetterPath != null}" class="flex items-center justify-between p-3 border border-violet-100 bg-violet-50/50 rounded-xl transition-colors mb-4">
+                        <div th:if="${candidate.offerLetterPath != null}" sec:authorize="!hasAnyAuthority('INTERVIEWER', 'ROLE_INTERVIEWER')" class="flex items-center justify-between p-3 border border-violet-100 bg-violet-50/50 rounded-xl transition-colors mb-4">
                             <div class="flex items-center">
                                 <svg class="w-6 h-6 text-violet-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 <span class="ml-3 text-sm font-medium text-violet-800">Generated Offer Letter</span>
@@ -469,7 +462,7 @@
                         </div>
 
                         <!-- Signed Offer Letter -->
-                        <div th:if="${candidate.signedOfferLetterPath != null}" class="flex items-center justify-between p-3 border border-indigo-100 bg-indigo-50/50 rounded-xl transition-colors">
+                        <div th:if="${candidate.signedOfferLetterPath != null}" sec:authorize="!hasAnyAuthority('INTERVIEWER', 'ROLE_INTERVIEWER')" class="flex items-center justify-between p-3 border border-indigo-100 bg-indigo-50/50 rounded-xl transition-colors">
                             <div class="flex items-center">
                                 <svg class="w-6 h-6 text-indigo-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 <span class="ml-3 text-sm font-medium text-indigo-800">Signed Offer Letter</span>
@@ -519,7 +512,7 @@
                 </div>
 
                 <!-- Action Panel -->
-                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8" sec:authorize="!hasAnyAuthority('INTERVIEWER', 'ROLE_INTERVIEWER')">
                     <h4 class="text-lg font-bold text-slate-800 mb-6">Pipeline Actions</h4>
                     <div class="space-y-3">
                         <!-- Pipeline status actions (HR/Admin only) -->
