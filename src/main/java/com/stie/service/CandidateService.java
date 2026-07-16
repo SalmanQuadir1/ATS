@@ -174,11 +174,12 @@ public class CandidateService {
         jdbcTemplate.update("DELETE FROM candidate_applications WHERE candidate_id = ?", id);
         jdbcTemplate.update("DELETE FROM candidate_transfers WHERE candidate_id = ?", id);
         jdbcTemplate.update("DELETE FROM interview_scorecards WHERE interview_id IN (SELECT id FROM interviews WHERE candidate_id = ?)", id);
+        // Salaries must be deleted BEFORE interviews because of a foreign key constraint from salaries.interview_id -> interviews.id
+        jdbcTemplate.update("DELETE FROM salaries WHERE candidate_id = ?", id);
         jdbcTemplate.update("DELETE FROM interviews WHERE candidate_id = ?", id);
         jdbcTemplate.update("DELETE FROM audit_logs WHERE target_entity = 'Candidate' AND target_id = ?", id);
         jdbcTemplate.update("DELETE FROM candidate_educations WHERE candidate_id = ?", id);
         jdbcTemplate.update("DELETE FROM candidate_certifications WHERE candidate_id = ?", id);
-        jdbcTemplate.update("DELETE FROM salaries WHERE candidate_id = ?", id);
         
         repository.deleteById(id);
     }
