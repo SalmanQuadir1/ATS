@@ -28,6 +28,10 @@ public class CandidateService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
+
     public Page<Candidate> getAllCandidates(Pageable pageable) {
         com.stie.model.Tenant tenant = userService.getCurrentTenant();
         if (tenant != null && tenant.getId() != null) {
@@ -163,6 +167,20 @@ public class CandidateService {
         // Normalize out of 100
         int finalPct = Math.min((score * 100) / (Math.max(1, matches) * 15 + 25), 100);
         return finalPct > 0 ? finalPct : 10; // Floor of 10% for basic details
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteCandidate(Long id) {
+        jdbcTemplate.update("DELETE FROM candidate_applications WHERE candidate_id = ?", id);
+        jdbcTemplate.update("DELETE FROM candidate_transfers WHERE candidate_id = ?", id);
+        jdbcTemplate.update("DELETE FROM interview_scorecards WHERE interview_id IN (SELECT id FROM interviews WHERE candidate_id = ?)", id);
+        jdbcTemplate.update("DELETE FROM interviews WHERE candidate_id = ?", id);
+        jdbcTemplate.update("DELETE FROM audit_logs WHERE target_entity = 'Candidate' AND target_id = ?", id);
+        jdbcTemplate.update("DELETE FROM candidate_educations WHERE candidate_id = ?", id);
+        jdbcTemplate.update("DELETE FROM candidate_certifications WHERE candidate_id = ?", id);
+        jdbcTemplate.update("DELETE FROM salaries WHERE candidate_id = ?", id);
+        
+        repository.deleteById(id);
     }
 }
 

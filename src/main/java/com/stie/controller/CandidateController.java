@@ -855,4 +855,19 @@ public class CandidateController {
         if (raw == null || raw.trim().isEmpty()) return new java.util.ArrayList<>();
         return java.util.Arrays.asList(raw.split("\\s*,\\s*"));
     }
+
+    @PostMapping("/{id}/delete")
+    public String deleteCandidate(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes, org.springframework.security.core.Authentication auth) {
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ADMIN"))) {
+            try {
+                candidateService.deleteCandidate(id);
+                redirectAttributes.addFlashAttribute("success", "Candidate deleted successfully.");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Error deleting candidate: " + e.getMessage());
+            }
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Unauthorized to delete candidates.");
+        }
+        return "redirect:/candidates";
+    }
 }
