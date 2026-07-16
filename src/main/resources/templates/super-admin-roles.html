@@ -96,35 +96,7 @@
                 </form>
             </div>
 
-            <!-- Create Permission Module Form -->
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
-                <h5 class="text-sm font-bold text-slate-700 uppercase tracking-widest mb-6">Create Permission Module</h5>
-                <form th:action="@{/super-admin/roles/module/create}" method="post" class="space-y-4">
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Module Name *</label>
-                        <input type="text" name="name" required placeholder="e.g. INVOICES"
-                               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm uppercase focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Description *</label>
-                        <input type="text" name="description" required placeholder="e.g. Can view and edit tenant invoices"
-                               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                    
-                    <div class="pt-2">
-                        <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                            <input type="checkbox" name="generateCrud" value="true" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
-                            <span class="font-medium">Automatically generate CRUD permissions</span>
-                        </label>
-                        <p class="text-xs text-slate-400 mt-1 pl-6">This will create 4 permissions: CREATE_..., READ_..., UPDATE_..., DELETE_...</p>
-                    </div>
 
-                    <button type="submit"
-                            class="w-full mt-4 py-3.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold rounded-2xl hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg shadow-indigo-200 text-sm">
-                        Add Module
-                    </button>
-                </form>
-            </div>
         </div>
     </div>
 </div>
