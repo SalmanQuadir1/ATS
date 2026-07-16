@@ -250,7 +250,7 @@
             </div>
 
             <!-- System Settings Dropdown -->
-            <div class="space-y-1" sec:authorize="hasAnyAuthority('System Settings', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN')">
+            <div class="space-y-1" sec:authorize="hasAuthority('System Settings')">
                 <button onclick="toggleSettingsMenu()"
                     class="w-full flex items-center justify-between p-3 text-slate-600 rounded-lg transition-all duration-200 hover:bg-slate-50">
                     <div class="flex items-center">
