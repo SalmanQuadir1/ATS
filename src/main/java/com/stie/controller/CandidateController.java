@@ -683,8 +683,6 @@ public class CandidateController {
                 if (c != null) {
                     c.setRejectionRemarks(rejectionRemarks);
                     candidateService.saveCandidate(c);
-                    auditService.log("CANDIDATE_REJECTED", getCurrentUser(), "Candidate", id,
-                            "Rejected with remarks: " + rejectionRemarks);
                 }
             }
             

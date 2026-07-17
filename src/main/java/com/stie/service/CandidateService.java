@@ -78,7 +78,7 @@ public class CandidateService {
             }
             c.setStatus(status);
             repository.save(c);
-            auditService.log("CANDIDATE_STATUS_UPDATED", performedBy != null ? performedBy : "System", "Candidate", id, "Status changed to: " + status);
+            auditService.log("CANDIDATE_" + status.name(), performedBy != null ? performedBy : "System", "Candidate", id, "Status changed to: " + status);
             
             if (status == Candidate.CandidateStatus.REJECTED) {
                 notificationService.sendRejectionEmail(c.getEmail(), c.getFullName());
