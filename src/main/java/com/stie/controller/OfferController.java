@@ -117,7 +117,7 @@ public class OfferController {
         
         // Fulfill communication automation by automatically dispatching offer letter
         notificationService.sendOfferLetter(c.getEmail(), c.getFullName(), j.getTitle(), salary, reportingTo, commencementDate, location, acceptanceDeadline, letter);
-        auditService.log("OFFER_LETTER_GENERATED", getCurrentUser(), "Candidate", candidateId, 
+        auditService.log("CANDIDATE_OFFERED", getCurrentUser(), "Candidate", candidateId, 
             "Generated offer of S$" + salary + "/mo for " + j.getTitle() + " and dispatched auto-offer email.");
 
         model.addAttribute("letter", letter);

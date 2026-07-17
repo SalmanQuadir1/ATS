@@ -49,6 +49,7 @@ public class CandidateService {
     }
 
     public Candidate saveCandidate(Candidate candidate) {
+        boolean isNew = candidate.getId() == null;
         if (candidate.getTenant() == null) {
             candidate.setTenant(userService.getCurrentTenant());
         }
@@ -62,7 +63,9 @@ public class CandidateService {
             candidate.setApplicationId(appId);
         }
         Candidate saved = repository.save(candidate);
-        auditService.log("CANDIDATE_APPLIED", "Public/Walk-in", "Candidate", saved.getId(), "New application: " + saved.getFullName());
+        if (isNew) {
+            auditService.log("CANDIDATE_APPLIED", "Public/Walk-in", "Candidate", saved.getId(), "New application: " + saved.getFullName());
+        }
         return saved;
     }
 

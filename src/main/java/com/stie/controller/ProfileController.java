@@ -70,7 +70,7 @@ public class ProfileController {
 
 		// response.setContentType("application/pdf");
 		// Response header
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+		response.setHeader("Content-Disposition", "inline; filename=\"" + file.getName() + "\"");
 		// Read from the file and write into the response
 		OutputStream os = response.getOutputStream();
 		byte[] buffer = new byte[1024];
@@ -111,7 +111,7 @@ public class ProfileController {
 
 		// response.setContentType("application/pdf");
 		// Response header
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+		response.setHeader("Content-Disposition", "inline; filename=\"" + file.getName() + "\"");
 		// Read from the file and write into the response
 		OutputStream os = response.getOutputStream();
 		byte[] buffer = new byte[1024];
