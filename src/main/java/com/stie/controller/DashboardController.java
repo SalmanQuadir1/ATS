@@ -91,39 +91,66 @@ public class DashboardController {
                           && i.getInterviewTime() != null)
                 .collect(java.util.stream.Collectors.toList());
 
-        java.util.List<java.util.Map<String, Object>> calendarEvents = scheduledInterviews.stream()
-                .map(i -> {
-                    java.util.Map<String, Object> evt = new java.util.LinkedHashMap<>();
-                    evt.put("id", String.valueOf(i.getId()));
+        java.util.List<java.util.Map<String, Object>> calendarEvents = new java.util.ArrayList<>();
+        for (com.stie.model.Interview i : scheduledInterviews) {
+            try {
+                java.util.Map<String, Object> evt = new java.util.LinkedHashMap<>();
+                evt.put("id", String.valueOf(i.getId()));
 
-                    String candidateName = (i.getCandidate() != null) ? i.getCandidate().getFullName() : "Unknown";
-                    String jobTitle      = (i.getJobVacancy()  != null) ? i.getJobVacancy().getTitle()  : "Interview";
-                    String siteName      = (i.getTenant() != null) ? i.getTenant().getName() : "Global";
-                    
-                    evt.put("title", candidateName + " — " + jobTitle + " (" + siteName + ")");
+                String candidateName = "Unknown";
+                Long candidateId = null;
+                try {
+                    if (i.getCandidate() != null) {
+                        candidateName = i.getCandidate().getFullName();
+                        candidateId = i.getCandidate().getId();
+                    }
+                } catch (javax.persistence.EntityNotFoundException | org.hibernate.ObjectNotFoundException e) {
+                    candidateName = "Deleted Candidate";
+                }
 
-                    // ISO-8601 date-time string that FullCalendar expects
-                    evt.put("start", i.getInterviewTime().toString());
-                    // 1-hour end block for display width in time-grid views
-                    evt.put("end", i.getInterviewTime().plusHours(1).toString());
+                String jobTitle = "Interview";
+                try {
+                    if (i.getJobVacancy() != null) {
+                        jobTitle = i.getJobVacancy().getTitle();
+                    }
+                } catch (javax.persistence.EntityNotFoundException | org.hibernate.ObjectNotFoundException e) {
+                    jobTitle = "Deleted Job";
+                }
 
-                    // Emerald colour scheme matching the app theme
-                    evt.put("backgroundColor", "#059669");
-                    evt.put("borderColor", "#047857");
-                    evt.put("textColor", "#ffffff");
+                String siteName = "Global";
+                try {
+                    if (i.getTenant() != null) {
+                        siteName = i.getTenant().getName();
+                    }
+                } catch (javax.persistence.EntityNotFoundException | org.hibernate.ObjectNotFoundException e) {
+                    // Ignore
+                }
+                
+                evt.put("title", candidateName + " — " + jobTitle + " (" + siteName + ")");
 
-                    // Extra data surfaced in the event tooltip / click popup
-                    java.util.Map<String, Object> ext = new java.util.LinkedHashMap<>();
-                    ext.put("site",        siteName);
-                    ext.put("location",    i.getLocation()    != null ? i.getLocation()                    : "TBD");
-                    ext.put("candidateId", i.getCandidate()   != null ? i.getCandidate().getId()            : null);
-                    ext.put("interviewer", i.getInterviewer() != null ? i.getInterviewer().getUsername()    : "Unassigned");
-                    evt.put("extendedProps", ext);
+                // ISO-8601 date-time string that FullCalendar expects
+                evt.put("start", i.getInterviewTime().toString());
+                // 1-hour end block for display width in time-grid views
+                evt.put("end", i.getInterviewTime().plusHours(1).toString());
 
-                    evt.put("url", "/interviews");
-                    return evt;
-                })
-                .collect(java.util.stream.Collectors.toList());
+                evt.put("backgroundColor", "#059669");
+                evt.put("borderColor", "#047857");
+                evt.put("textColor", "#ffffff");
+
+                // Extra data surfaced in the event tooltip / click popup
+                java.util.Map<String, Object> ext = new java.util.LinkedHashMap<>();
+                ext.put("site",        siteName);
+                ext.put("location",    i.getLocation() != null ? i.getLocation() : "TBD");
+                ext.put("candidateId", candidateId);
+                ext.put("interviewer", i.getInterviewer() != null ? i.getInterviewer().getUsername() : "Unassigned");
+                evt.put("extendedProps", ext);
+
+                evt.put("url", "/interviews");
+                calendarEvents.add(evt);
+            } catch (Exception e) {
+                // Skip problematic events safely
+            }
+        }
 
         try {
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
